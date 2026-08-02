@@ -25,6 +25,8 @@ import PublishResults from './pages/faculty/PublishResults';
 import AdviseeList from './pages/faculty/AdviseeList';
 import AdvisorRegistration from './pages/faculty/AdvisorRegistration';
 
+import ResultsEntry from './pages/faculty/ResultsEntry';
+
 // Admin Pages
 import StudentList from './pages/admin/StudentList';
 import StudentDetail from './pages/admin/StudentDetail';
@@ -48,6 +50,7 @@ import CompleteProfile from './pages/student/CompleteProfile';
 import CourseRegistration from './pages/student/CourseRegistration';
 import Attendance from './pages/student/Attendance';
 import Results from './pages/student/Results';
+import LiveResults from './pages/student/LiveResults';
 import Fees from './pages/student/Fees';
 import AcademicCalendar from './pages/student/AcademicCalendar';
 import Routine from './pages/student/Routine';
@@ -128,6 +131,7 @@ function App() {
             <Route path="attendance/:offeringId" element={<AttendanceMarking />} />
             <Route path="exams/:offeringId" element={<ExamManagement />} />
             <Route path="marks/:examId" element={<MarksEntry />} />
+            <Route path="results" element={<ResultsEntry />} />
             <Route path="publish-results/:offeringId" element={<PublishResults />} />
             <Route path="advisees" element={<AdviseeList />} />
             <Route path="advisor-registration/:studentId" element={<AdvisorRegistration />} />
@@ -150,6 +154,7 @@ function App() {
             <Route path="attendance" element={<Attendance />} />
             <Route path="evaluation" element={<TeachingEvaluation />} />
             <Route path="results" element={<Results />} />
+            <Route path="live-results" element={<LiveResults />} />
             <Route path="fees" element={<Fees />} />
             <Route path="notices" element={<Notices />} />
             <Route path="profile" element={<Profile />} />

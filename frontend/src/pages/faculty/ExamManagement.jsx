@@ -97,7 +97,7 @@ const ExamManagement = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center space-x-4">
            <button
-             onClick={() => navigate('/faculty/my-courses')}
+             onClick={() => navigate('/faculty/results')}
              className="p-2.5 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:text-primary-600 transition-all"
            >
              <ChevronLeft size={20} />

@@ -104,45 +104,48 @@ const PublishResults = () => {
       </div>
 
       {/* Results Table */}
-      <Card className="!p-0 overflow-hidden">
+      <Card className="!p-0 overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xl rounded-[2.5rem]">
          <div className="overflow-x-auto">
             <table className="w-full text-left">
-               <thead className="bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 uppercase text-[10px] font-bold tracking-wider">
+               <thead className="bg-gray-50 dark:bg-gray-800/80 text-[#2D2A4F] dark:text-gray-300 uppercase text-[11px] font-black tracking-widest border-b border-gray-100 dark:border-gray-700">
                   <tr>
                      <th className="px-8 py-5">Student Name</th>
-                     <th className="px-8 py-5 text-center">Score (%)</th>
+                     <th className="px-8 py-5 text-center">Calculated Score</th>
                      <th className="px-8 py-5 text-center">Grade</th>
                      <th className="px-8 py-5 text-center">GP</th>
-                     <th className="px-8 py-5 text-right">Status</th>
+                     <th className="px-8 py-5 text-right">Publication Status</th>
                   </tr>
                </thead>
-               <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+               <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
                   {previewData.map((res, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                    <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all group">
                        <td className="px-8 py-5">
-                          <div className="flex items-center space-x-3">
-                             <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 font-bold text-xs uppercase">
+                          <div className="flex items-center space-x-4">
+                             <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 font-black text-xs uppercase shadow-sm">
                                 {res.studentName.charAt(0)}
                              </div>
-                             <span className="font-bold text-gray-900 dark:text-white">{res.studentName}</span>
+                             <span className="font-black text-gray-900 dark:text-white tracking-tight">{res.studentName}</span>
                           </div>
                        </td>
                        <td className="px-8 py-5 text-center">
-                          <div className="flex items-center justify-center space-x-2">
-                             <TrendingUp size={12} className="text-gray-400" />
-                             <span className="font-black text-gray-700 dark:text-gray-300">{res.marksObtained.toFixed(1)}%</span>
+                          <div className="flex items-center justify-center space-x-2 bg-gray-50 dark:bg-gray-800/50 w-fit mx-auto px-4 py-1.5 rounded-full border border-gray-100 dark:border-gray-700">
+                             <TrendingUp size={14} className="text-indigo-500" />
+                             <span className="font-black text-[#2D2A4F] dark:text-white text-sm">{res.marksObtained.toFixed(1)}%</span>
                           </div>
                        </td>
                        <td className="px-8 py-5 text-center">
-                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getGradeColor(res.grade)}`}>
+                          <span className={`px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-[0.1em] border shadow-sm ${getGradeColor(res.grade)}`}>
                              {res.grade}
                           </span>
                        </td>
-                       <td className="px-8 py-5 text-center font-mono font-bold text-primary-600">
+                       <td className="px-8 py-5 text-center font-mono font-black text-indigo-600 dark:text-indigo-400 text-base">
                           {res.gradePoint.toFixed(2)}
                        </td>
                        <td className="px-8 py-5 text-right">
-                          <span className="text-[10px] font-bold text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full uppercase tracking-tighter">Draft Ready</span>
+                          <div className="flex items-center justify-end space-x-2 text-emerald-500">
+                             <CheckCircle2 size={16} />
+                             <span className="text-[10px] font-black uppercase tracking-widest">Ready to post</span>
+                          </div>
                        </td>
                     </tr>
                   ))}
