@@ -11,9 +11,27 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isCollapsed, toggleCollapsed, toggleMobile } = useSidebarStore();
   const { unreadCount, fetchUnreadCount } = useNoticeStore();
-  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Init theme
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        setIsDarkMode(true);
+      }
+    }
+    fetchUnreadCount();
+    const interval = setInterval(() => {
+      fetchUnreadCount();
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [fetchUnreadCount]);
 
   const toggleDarkMode = () => {
+    if (typeof document === 'undefined') return;
     if (isDarkMode) {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
@@ -23,22 +41,6 @@ const Navbar = () => {
     }
     setIsDarkMode(!isDarkMode);
   };
-
-  useEffect(() => {
-    const theme = localStorage.getItem('theme');
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      setIsDarkMode(true);
-    }
-    fetchUnreadCount();
-
-    // Polling for new notices every 60 seconds
-    const interval = setInterval(() => {
-      fetchUnreadCount();
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const getBasePath = () => {
     if (!user?.role) return '';
@@ -64,99 +66,121 @@ const Navbar = () => {
   };
 
   return (
-    <header className={`h-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-30 px-8 flex items-center justify-between border-b border-gray-100 dark:border-gray-800 transition-all duration-300 ${isCollapsed ? 'lg:ml-[88px]' : 'lg:ml-72'}`}>
-      <div className="flex items-center flex-1 max-w-xl">
-        <button
-          onClick={() => {
-            if (window.innerWidth < 1024) toggleMobile();
-            else toggleCollapsed();
-          }}
-          className="mr-6 p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
-        >
-          <Menu size={20} />
-        </button>
-        <div className="relative group flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary-500 transition-colors" size={18} />
-          <input
-            type="text"
-            placeholder="Search for courses, students, results..."
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-100 dark:bg-gray-800/50 border-none rounded-xl focus:ring-2 focus:ring-primary-500/20 outline-none transition-all dark:text-white text-sm"
-          />
-        </div>
-      </div>
+      <header
+          className={`h-[72px] bg-white/[0.92] dark:bg-[#09101F]/90 backdrop-blur-xl sticky top-0 z-30 px-5 sm:px-8 flex items-center justify-between border-b border-slate-200 dark:border-white/10 transition-all duration-300 ${isCollapsed ? 'lg:ml-[88px]' : 'lg:ml-[296px]'}`}
+      >
+        <div className="flex items-center flex-1 max-w-xl">
+          <button
+              onClick={() => {
+                if (typeof window !== 'undefined' && window.innerWidth < 1024) toggleMobile();
+                else toggleCollapsed();
+              }}
+              className="mr-4 sm:mr-6 p-2.5 text-slate-500 dark:text-white/40 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-white rounded-xl transition-all"
+              aria-label="Toggle sidebar"
+          >
+            <Menu size={20} />
+          </button>
 
-      <div className="flex items-center space-x-5 ml-8">
-        <button
-          onClick={toggleDarkMode}
-          className="p-2.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
-        >
-          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
-
-        <button
-          onClick={handleNoticeClick}
-          className="p-2.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl relative transition-all group"
-        >
-          <Bell size={20} className="group-hover:rotate-12 transition-transform" />
-          <AnimatePresence>
-            {unreadCount > 0 && (
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0 }}
-                className="absolute top-1.5 right-1.5 w-5 h-5 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white dark:border-gray-900 shadow-sm"
-              >
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </button>
-
-        <div className="h-8 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
-
-        <div className="flex items-center space-x-4 pl-1">
-          <div className="text-right hidden md:block">
-            <p className="text-sm font-black text-gray-900 dark:text-white leading-none">{user?.name}</p>
-            <p className="text-[10px] font-bold text-gray-400 mt-1 tracking-tight">
-               {user?.role === 'STUDENT' ? '242-15-211' : user?.role}
-            </p>
+          {/* Search - emerald focus like Login */}
+          <div className="relative group flex-1">
+            <Search
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-white/30 group-focus-within:text-[#007A55] transition-colors"
+                size={18}
+            />
+            <input
+                type="text"
+                placeholder="Search for courses, students, results..."
+                className="w-full pl-11 pr-4 py-2.5 bg-slate-100 dark:bg-white/[0.06] border border-transparent dark:border-white/[0.06] rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/30 focus:bg-white dark:focus:bg-[#0B1225] focus:border-[#007A55] dark:focus:border-[#007A55] focus:ring-4 focus:ring-[#007A55]/10 outline-none transition-all text-sm font-medium"
+            />
           </div>
+        </div>
 
-          <div className="relative group cursor-pointer">
-            <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center text-primary-600">
-              <UserIcon size={20} />
+        <div className="flex items-center space-x-2 sm:space-x-3 ml-4 sm:ml-8">
+          {/* Theme Toggle */}
+          <button
+              onClick={toggleDarkMode}
+              className="p-2.5 text-slate-500 dark:text-white/40 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-white rounded-xl transition-all"
+              aria-label="Toggle theme"
+          >
+            {isDarkMode ? <Sun size={19} /> : <Moon size={19} />}
+          </button>
+
+          {/* Notices */}
+          <button
+              onClick={handleNoticeClick}
+              className="p-2.5 text-slate-500 dark:text-white/40 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-white rounded-xl relative transition-all group"
+              aria-label="Notices"
+          >
+            <Bell size={19} className="group-hover:rotate-12 transition-transform" />
+            <AnimatePresence>
+              {unreadCount > 0 && (
+                  <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white dark:border-[#09101F] shadow-sm"
+                  >
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+
+          <div className="h-7 w-px bg-slate-200 dark:bg-white/10 mx-1 hidden sm:block" />
+
+          {/* User */}
+          <div className="flex items-center gap-3 pl-1">
+            <div className="text-right hidden md:block">
+              <p className="text-[13px] font-bold tracking-tight text-slate-900 dark:text-white leading-none">
+                {user?.name || 'User'}
+              </p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-white/30 mt-1">
+                {user?.role === 'STUDENT' ? '242-15-211' : user?.role || 'GUEST'}
+              </p>
             </div>
 
-            {/* Dropdown Placeholder */}
-            <div className="absolute right-0 top-full pt-4 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-2 group-hover:translate-y-0">
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden w-48">
-                <button
-                  onClick={handleProfileClick}
-                  className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-gray-700 dark:text-gray-300"
-                >
-                  <UserIcon size={18} />
-                  <span className="text-sm font-medium">My Profile</span>
-                </button>
-                <button
-                  onClick={handleSettingsClick}
-                  className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-gray-700 dark:text-gray-300"
-                >
-                  <Cog size={18} />
-                  <span className="text-sm font-medium">Account Settings</span>
-                </button>
-                <button
-                  onClick={logout}
-                  className="w-full flex items-center space-x-3 px-4 py-3 border-t border-gray-100 dark:border-gray-700 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-red-600"
-                >
-                  <LogOut size={18} />
-                  <span className="text-sm font-medium">Sign Out</span>
-                </button>
+            <div className="relative group">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/15 text-[#007A55] dark:text-emerald-300 border border-emerald-100 dark:border-emerald-500/20 shadow-sm cursor-pointer transition group-hover:shadow-md">
+                <UserIcon size={18} />
+              </div>
+
+              {/* Dropdown - matches new glass design */}
+              <div className="absolute right-0 top-full pt-3 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0 z-50">
+                <div className="bg-white dark:bg-[#0B1225] rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden w-52">
+                  <div className="p-3.5 border-b border-slate-100 dark:border-white/5 md:hidden">
+                    <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{user?.name}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-white/30 mt-0.5">
+                      {user?.role}
+                    </p>
+                  </div>
+
+                  <button
+                      onClick={handleProfileClick}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-white/[0.06] transition-colors text-slate-600 dark:text-white/70 text-sm font-medium"
+                  >
+                    <UserIcon size={16} />
+                    My Profile
+                  </button>
+                  <button
+                      onClick={handleSettingsClick}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-white/[0.06] transition-colors text-slate-600 dark:text-white/70 text-sm font-medium"
+                  >
+                    <Cog size={16} />
+                    Account Settings
+                  </button>
+                  <button
+                      onClick={logout}
+                      className="w-full flex items-center gap-3 px-4 py-3 border-t border-slate-100 dark:border-white/5 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-red-600 dark:text-red-300/80 text-sm font-medium"
+                  >
+                    <LogOut size={16} />
+                    Sign Out
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
   );
 };
 
