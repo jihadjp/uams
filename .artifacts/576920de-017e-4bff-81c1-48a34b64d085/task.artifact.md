@@ -1,7 +1,10 @@
-# Tasks - Faculty Result Entry System
+# Tasks - Professional Student Evaluation System
 
-- [x] Create `ResultsEntry.jsx` landing page
-- [x] Register `/faculty/results` route in `App.jsx`
-- [x] Update `ExamManagement.jsx` navigation context
-- [x] Refine `PublishResults.jsx` UI and feedback
-- [x] Final UI/UX Audit and Verification
+- [ ] Update SQL Schema with `evaluations` table
+- [ ] Create Backend Model and DTOs
+- [ ] Implement `EvaluationRepository` and `EvaluationService`
+- [ ] Create `EvaluationController` with access control
+- [ ] Create Frontend `evaluationApi.js`
+- [ ] Update `TeachingEvaluation.jsx` with real data and logic
+- [ ] Add Performance Summary to `FacultyDetail.jsx` (Admin view)
+- [ ] Final UI Polish and Verification

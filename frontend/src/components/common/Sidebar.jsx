@@ -216,17 +216,6 @@ const Sidebar = ({ role }) => {
                     </nav>
 
                     <div className="p-4 mt-auto border-t border-white/[0.06]">
-                        <div className={`rounded-2xl bg-white/[0.05] border border-white/[0.06] ${isCollapsed ? 'p-3 flex justify-center' : 'p-3.5 flex items-center gap-3'}`}>
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.08] text-white/40">
-                                <Settings size={16} />
-                            </div>
-                            {!isCollapsed && (
-                                <div className="min-w-0">
-                                    <p className="text-[13px] font-bold leading-none text-white/80">Settings</p>
-                                    <p className="text-[10px] text-white/30 font-medium mt-1">Profile & Privacy</p>
-                                </div>
-                            )}
-                        </div>
                         {!isCollapsed && (
                             <p className="mt-3 text-center text-[9px] font-bold uppercase tracking-[0.16em] text-white/25">
                                 © {new Date().getFullYear()} · Royal Bengal University

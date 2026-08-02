@@ -24,6 +24,7 @@ import MarksEntry from './pages/faculty/MarksEntry';
 import PublishResults from './pages/faculty/PublishResults';
 import AdviseeList from './pages/faculty/AdviseeList';
 import AdvisorRegistration from './pages/faculty/AdvisorRegistration';
+import FacultyStudentResults from './pages/faculty/FacultyStudentResults';
 
 import ResultsEntry from './pages/faculty/ResultsEntry';
 
@@ -61,6 +62,7 @@ import LaptopScheme from './pages/student/LaptopScheme';
 import TransportCard from './pages/student/TransportCard';
 import HallManagement from './pages/student/HallManagement';
 import CareerDevelopment from './pages/student/CareerDevelopment';
+import Clearance from './pages/student/Clearance';
 
 // Placeholder Pages
 const PlaceholderPage = ({ title }) => (
@@ -128,6 +130,7 @@ function App() {
             <Route index element={<Navigate to="/faculty/dashboard" replace />} />
             <Route path="dashboard" element={<FacultyDashboard />} />
             <Route path="my-courses" element={<MyCourses />} />
+            <Route path="attendance" element={<MyCourses />} />
             <Route path="attendance/:offeringId" element={<AttendanceMarking />} />
             <Route path="exams/:offeringId" element={<ExamManagement />} />
             <Route path="marks/:examId" element={<MarksEntry />} />
@@ -135,7 +138,7 @@ function App() {
             <Route path="publish-results/:offeringId" element={<PublishResults />} />
             <Route path="advisees" element={<AdviseeList />} />
             <Route path="advisor-registration/:studentId" element={<AdvisorRegistration />} />
-            <Route path="student-results" element={<PlaceholderPage title="View Student Results" />} />
+            <Route path="student-results" element={<FacultyStudentResults />} />
             <Route path="notices" element={<Notices />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
@@ -165,7 +168,7 @@ function App() {
             <Route path="transport" element={<TransportCard />} />
             <Route path="hall" element={<HallManagement />} />
             <Route path="career" element={<CareerDevelopment />} />
-            <Route path="clearance" element={<PlaceholderPage title="Registration/Exam Clearance" />} />
+            <Route path="clearance" element={<Clearance />} />
           </Route>
         </Route>
 

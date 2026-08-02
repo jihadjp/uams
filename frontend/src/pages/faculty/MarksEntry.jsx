@@ -44,8 +44,7 @@ const MarksEntry = () => {
 
       const initialMarks = {};
       studentList.forEach(s => {
-          // In real API, we should match by enrollmentId
-          const existing = existingMarksRes.data.content?.find(m => m.studentName === s.studentName);
+          const existing = (existingMarksRes.data.content || existingMarksRes.data)?.find(m => m.enrollmentId === s.id);
           initialMarks[s.id] = existing ? existing.marksObtained : '';
       });
       setMarks(initialMarks);

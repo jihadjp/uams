@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import {
   ChevronLeft,
   Mail,
@@ -9,17 +10,39 @@ import {
   Calendar,
   BookOpen,
   Clock,
-  Contact
+  Contact,
+  Star,
+  Users
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Loader from '../../components/common/Loader';
 import useFetch from '../../hooks/useFetch';
 import { formatDate } from '../../utils/formatDate';
+import { getFacultyPerformance } from '../../api/evaluationApi';
 
 const FacultyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: faculty, loading } = useFetch(`/faculties/${id}`);
+  const [performance, setPerformance] = useState(null);
+  const [perfLoading, setPerfLoading] = useState(true);
+
+  useEffect(() => {
+    if (id) {
+      fetchPerformance();
+    }
+  }, [id]);
+
+  const fetchPerformance = async () => {
+    try {
+      const res = await getFacultyPerformance(id);
+      setPerformance(res.data);
+    } catch (error) {
+      console.error('Failed to fetch performance:', error);
+    } finally {
+      setPerfLoading(false);
+    }
+  };
 
   if (loading) return <div className="h-[60vh] flex items-center justify-center"><Loader size="lg" /></div>;
   if (!faculty) return <div className="text-center py-20"><p className="text-gray-500">Faculty member not found.</p></div>;
@@ -119,11 +142,43 @@ const FacultyDetail = () => {
         </div>
 
         <div className="space-y-8">
+           <Card title="Teaching Performance" icon={Star} className="bg-indigo-600 dark:bg-indigo-600">
+              <div className="text-white">
+                 {perfLoading ? (
+                    <div className="flex justify-center py-4"><Loader size="sm" /></div>
+                 ) : (
+                    <div className="space-y-4">
+                       <div className="flex items-end space-x-2">
+                          <span className="text-5xl font-black">{performance?.overallRating || '0.00'}</span>
+                          <span className="text-indigo-200 text-sm font-bold mb-2">/ 5.00</span>
+                       </div>
+                       <div className="flex space-x-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              size={20}
+                              fill={star <= Math.round(performance?.overallRating || 0) ? "white" : "transparent"}
+                              className={star <= Math.round(performance?.overallRating || 0) ? "text-white" : "text-indigo-400"}
+                            />
+                          ))}
+                       </div>
+                       <div className="pt-4 border-t border-indigo-500/50 flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                             <Users size={16} className="text-indigo-200" />
+                             <span className="text-xs font-bold text-indigo-100 uppercase tracking-wider">Total Evaluations</span>
+                          </div>
+                          <span className="text-lg font-black">{performance?.totalEvaluations || 0}</span>
+                       </div>
+                    </div>
+                 )}
+              </div>
+           </Card>
+
            <Card title="Quick Stats" icon={Contact}>
               <div className="space-y-6">
                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Assigned Students</p>
-                    <p className="text-3xl font-black text-gray-900 dark:text-white">0</p>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Teaching Load</p>
+                    <p className="text-3xl font-black text-gray-900 dark:text-white">{faculty.currentTeachingLoad || 0} Courses</p>
                  </div>
                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700">
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Research Publications</p>
