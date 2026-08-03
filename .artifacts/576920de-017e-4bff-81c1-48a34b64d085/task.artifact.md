@@ -1,10 +1,7 @@
-# Tasks - Professional Student Evaluation System
+# Tasks - Editable Convocation Application
 
-- [ ] Update SQL Schema with `evaluations` table
-- [ ] Create Backend Model and DTOs
-- [ ] Implement `EvaluationRepository` and `EvaluationService`
-- [ ] Create `EvaluationController` with access control
-- [ ] Create Frontend `evaluationApi.js`
-- [ ] Update `TeachingEvaluation.jsx` with real data and logic
-- [ ] Add Performance Summary to `FacultyDetail.jsx` (Admin view)
+- [ ] Implement `updateApplication` in `ConvocationService` & `Impl`
+- [ ] Add `PUT /api/convocation/{id}` in `ConvocationController`
+- [ ] Update `convocationApi.js` with update function
+- [ ] Add Edit functionality to `ConvocationApplication.jsx`
 - [ ] Final UI Polish and Verification

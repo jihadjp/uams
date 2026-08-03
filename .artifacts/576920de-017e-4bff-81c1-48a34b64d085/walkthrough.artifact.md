@@ -1,39 +1,37 @@
-# Walkthrough - Professional Student Evaluation System
+# Walkthrough - Editable Convocation Application
 
-I have implemented a comprehensive and secure student evaluation system. This feature allows students to provide standardized feedback on faculty performance while ensuring complete privacy and data integrity.
+I have implemented an **Edit** feature for the Convocation Application system. This allows students to correct their graduation preferences (like gown size and guest count) after submission, provided their application hasn't been processed yet.
 
 ## Key Improvements
 
-### 1. Robust Data Model
-- **Evaluation Engine**: Created a new database table `evaluations` that tracks 10 distinct academic metrics (q1-q10) for every student-course pair.
-- **Privacy by Design**: The system only stores aggregated metrics for faculty views. Individual student responses are strictly protected from faculty access.
-- **Average Rating Engine**: Implemented backend logic to automatically calculate a weighted average score (1.0 - 5.0) for every submission.
+### 1. Flexible Application Management (Student)
+- **Edit Functionality**: Students can now click a **Pencil icon** in the "My Application" table to modify their details.
+- **Pending-Only Lock**: To maintain data integrity for logistics, applications are only editable while in the **PENDING** status. Once the status changes to Verified or Approved, the application is locked.
+- **Smart Form Transition**: Clicking "Edit" automatically switches the view to the form tab and pre-fills all fields with the existing data.
+- **Visual Indicators**: Added an alert banner in the form to clearly indicate when a student is in "Edit Mode".
 
-### 2. Streamlined Student Experience
-- **Submission Guard**: Added a unique constraint that prevents students from evaluating the same course twice.
-- **Live Status Tracking**: The evaluation dashboard now shows real-time status badges (**Submitted** vs. **Not Submitted**).
-- **Finality**: Once submitted, the "Evaluate" button changes to **"Done"** and becomes disabled, marking the feedback as permanent.
+### 2. Robust Backend Processing
+- **Atomic Updates**: Added a dedicated `PUT` endpoint in the `ConvocationController` to handle student updates securely.
+- **Validation Engine**: The service layer ensures that only the student who owns the application can edit it, and only if it is still Pending.
+- **Data Sync**: The system continues to pull the latest **Calculated CGPA** and **Credits** even during the edit process to ensure records remain accurate.
 
-### 3. Administrative Insight (Admin/Registrar)
-- **Performance Integration**: Added a "Teaching Performance" card to the Faculty Detail page.
-- **Visual Star Ratings**: Administrators can now see the faculty member's average star rating and total evaluation count at a glance.
-- **Operational Data**: This data helps the Registrar and Admin make informed decisions about faculty allocations and professional development.
+### 3. UI/UX Polish
+- **Dynamic Button States**: The primary action button now toggles between "Confirm & Apply" and "Update Application" based on the current mode.
+- **Cancelation Support**: Students can easily exit edit mode without making changes by clicking the "Cancel" link in the header.
 
 ## Visual Changes Summary
 
-| Feature | Description |
+| Area | Feature |
 | :--- | :--- |
-| **Evaluation Dashboard** | Real-time status list of current semester courses. |
-| **Feedback Form** | 10-question standardized survey with star-rating logic. |
-| **Faculty Stats** | New performance metrics visible to management only. |
-| **Security** | Role-based access control for evaluation data. |
+| **My Application Table** | New "Action" column with a Pencil icon for Pending requests. |
+| **Application Form** | Dynamic Title (Edit vs. Apply) and specific "Edit Mode" notice. |
+| **Logic** | Automatic state management between Create and Update workflows. |
 
 ## Verification Results
 
-- ✅ **SQL Schema**: Confirmed `evaluations` table with all 10 question columns and proper constraints.
-- ✅ **Privacy Check**: Verified that faculty roles receive an access denied error when attempting to fetch raw evaluation data.
-- ✅ **Calculations**: Confirmed that the `average_rating` is correctly computed as `(q1+q2...+q10)/10`.
-- ✅ **One-time Submission**: Verified that the frontend correctly disables buttons and prevents re-submission after a successful POST.
+- ✅ **Edit Security**: Confirmed that attempting to edit a non-Pending application via API returns an error.
+- ✅ **UI State Sync**: Verified that after updating, the table reflects the new gown size and guest count immediately.
+- ✅ **Dynamic CGPA**: Confirmed that the CGPA remains system-calculated and read-only even during the edit flow.
 
 > [!IMPORTANT]
-> To ensure maximum privacy, comments are also hidden from faculty members. Administrators should review these comments during end-of-semester faculty audits.
+> Once an administrator marks an application as **VERIFIED**, students can no longer change their gown size. Please double-check all details before the verification deadline.

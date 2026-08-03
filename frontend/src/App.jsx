@@ -40,6 +40,8 @@ import CourseOfferingList from './pages/admin/CourseOfferingList';
 import NoticeManagement from './pages/admin/NoticeManagement';
 import ProgramList from './pages/admin/ProgramList';
 import BatchManagement from './pages/admin/BatchManagement';
+import DocumentManagement from './pages/admin/DocumentManagement';
+import ConvocationManagement from './pages/admin/ConvocationManagement';
 
 // Common Pages
 import Profile from './pages/common/Profile';
@@ -63,6 +65,8 @@ import TransportCard from './pages/student/TransportCard';
 import HallManagement from './pages/student/HallManagement';
 import CareerDevelopment from './pages/student/CareerDevelopment';
 import Clearance from './pages/student/Clearance';
+import CertificatesTranscripts from './pages/student/CertificatesTranscripts';
+import ConvocationApplication from './pages/student/ConvocationApplication';
 
 // Placeholder Pages
 const PlaceholderPage = ({ title }) => (
@@ -119,6 +123,8 @@ function App() {
             <Route path="semesters" element={<SemesterList />} />
             <Route path="course-offerings" element={<CourseOfferingList />} />
             <Route path="notices" element={<NoticeManagement />} />
+            <Route path="document-requests" element={<DocumentManagement />} />
+            <Route path="convocation" element={<ConvocationManagement />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
           </Route>
@@ -169,6 +175,8 @@ function App() {
             <Route path="hall" element={<HallManagement />} />
             <Route path="career" element={<CareerDevelopment />} />
             <Route path="clearance" element={<Clearance />} />
+            <Route path="transcript-request" element={<CertificatesTranscripts />} />
+            <Route path="convocation" element={<ConvocationApplication />} />
           </Route>
         </Route>
 

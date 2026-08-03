@@ -1,67 +1,40 @@
-# Implementation Plan - Professional Student Evaluation System
+# Implementation Plan - Editable Convocation Application
 
-This plan outlines the implementation of a professional student evaluation system where students can provide feedback on faculty members. The system ensures student privacy by hiding individual data from faculty while allowing administrators and registrars to monitor performance via aggregate ratings.
+This plan introduces an "Edit" feature for Convocation Applications, allowing students to correct mistakes (like gown size or guest count) before their application is processed by the university.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> - **Student Privacy**: Faculty members will not have access to evaluation endpoints or views.
-> - **Persistence**: Once submitted, an evaluation cannot be edited or resubmitted.
-> - **Scoring**: A 10-question evaluation using a 5-point scale (1-5). The system automatically calculates the average rating.
+> - **Editing Lock**: Students will only be able to edit their application while the status is `PENDING`. Once the status changes to `VERIFIED`, `APPROVED`, or `REJECTED`, the application is locked to ensure data consistency for logistics (e.g., gown procurement).
 
 ## Proposed Changes
 
-### 1. Database & Schema
+### 1. Backend Implementation
 
-#### [MODIFY] [university_academic_management_schema.sql](file:///E:/Project/DBMS/uams/backend/university_academic_management_schema.sql)
-- Add `evaluations` table with columns for 10 specific questions (`q1` to `q10`), `average_rating`, `comments`, and a unique constraint on `(student_id, offering_id)`.
+#### [MODIFY] [ConvocationService.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/ConvocationService.java) & [Impl](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/ConvocationServiceImpl.java)
+- Add `updateApplication(UUID id, ConvocationApplicationRequest request)` method.
+- Add logic to throw an error if a student tries to edit a non-`PENDING` application.
 
-#### [NEW] [Evaluation.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/model/Evaluation.java)
-- Entity to map the `evaluations` table.
+#### [MODIFY] [ConvocationController.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/controller/ConvocationController.java)
+- Add `PUT /api/convocation/{id}` endpoint for students.
 
-### 2. Backend Implementation
+### 2. Frontend Implementation
 
-#### [NEW] [Evaluation DTOs](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/dto/)
-- `EvaluationRequest.java`: For submission.
-- `EvaluationResponse.java`: Detailed view for Admin.
-- `FacultyEvaluationSummary.java`: Aggregate stats (Total evaluations, overall average rating).
+#### [MODIFY] [convocationApi.js](file:///E:/Project/DBMS/uams/frontend/src/api/convocationApi.js)
+- Add `updateConvocationApplication(id, data)` function.
 
-#### [NEW] [EvaluationRepository.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/repository/EvaluationRepository.java)
-- Custom queries to calculate average ratings per faculty and check student submission status.
-
-#### [NEW] [EvaluationService.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/EvaluationService.java) & [Impl](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/EvaluationServiceImpl.java)
-- Logic to calculate average ratings and prevent double submissions.
-
-#### [NEW] [EvaluationController.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/controller/EvaluationController.java)
-- `POST /api/evaluations`: Student submission.
-- `GET /api/evaluations/my-offerings`: List current offerings with submission status.
-- `GET /api/evaluations/faculty/{facultyId}`: Stats for Admin/Registrar.
-
-### 3. Frontend Implementation
-
-#### [NEW] [evaluationApi.js](file:///E:/Project/DBMS/uams/frontend/src/api/evaluationApi.js)
-- API wrapper for the new endpoints.
-
-#### [MODIFY] [TeachingEvaluation.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/TeachingEvaluation.jsx)
-- Replace mock data with real course enrollments.
-- Implement the 10-question radio button group.
-- Handle submission and update button state to "Done" (disabled).
-
-#### [MODIFY] [FacultyDetail.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/admin/FacultyDetail.jsx)
-- Add a "Teaching Performance" section (visible only to Admin/Registrar) showing the aggregate rating.
+#### [MODIFY] [ConvocationApplication.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/ConvocationApplication.jsx)
+- Add an **Edit (Pencil icon)** button in the "My Application" table, visible only for `PENDING` rows.
+- Implement logic to load the application data back into the form for editing.
+- Toggle between "Submit" and "Update" mode in the UI.
 
 ## Verification Plan
 
-### Automated Tests
-- Backend: Unit test to verify the average rating calculation (sum of q1...q10 divided by 10).
-
 ### Manual Verification
 1. Login as a **Student**.
-2. Navigate to **Teaching Evaluation**.
-3. Select a course, fill the 10 questions, and submit.
-4. Verify the button changes to "Done" and is disabled.
-5. Try to access the submission API again manually to ensure the unique constraint/service logic blocks it.
-6. Login as an **Admin**.
-7. Go to **Faculty List** and click on a faculty member.
-8. Verify the "Teaching Performance" section shows the correct aggregate rating.
-9. Verify that a **Faculty** user cannot see their own ratings via the UI.
+2. Submit a Convocation Application.
+3. Go to "My Application" and click the **Edit** icon.
+4. Change the gown size and guest count.
+5. Save changes and verify the table updates correctly.
+6. Login as an **Admin**, change the status to **VERIFIED**.
+7. Login as a **Student** and verify that the **Edit** button is now hidden/disabled.

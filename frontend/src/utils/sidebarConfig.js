@@ -58,6 +58,8 @@ export const SIDEBAR_CONFIG = {
       ]
     },
     { type: "single", label: "Notice Board", icon: Bell, path: "/portal/notices" },
+    { type: "single", label: "Document Requests", icon: Award, path: "/portal/document-requests" },
+    { type: "single", label: "Convocation Management", icon: GraduationCap, path: "/portal/convocation" },
     { type: "single", label: "My Profile", icon: UserSquare2, path: "/portal/profile" },
     { type: "single", label: "Account Settings", icon: Cog, path: "/portal/settings" },
   ],
@@ -86,6 +88,8 @@ export const SIDEBAR_CONFIG = {
       ]
     },
     { type: "single", label: "Notice Board", icon: Bell, path: "/portal/notices" },
+    { type: "single", label: "Document Requests", icon: Award, path: "/portal/document-requests" },
+    { type: "single", label: "Convocation Management", icon: GraduationCap, path: "/portal/convocation" },
     { type: "single", label: "My Profile", icon: UserSquare2, path: "/portal/profile" },
     { type: "single", label: "Account Settings", icon: Cog, path: "/portal/settings" },
   ],
