@@ -1,37 +1,44 @@
-# Walkthrough - Editable Convocation Application
+# Walkthrough - Financial Aid & Scholarship System
 
-I have implemented an **Edit** feature for the Convocation Application system. This allows students to correct their graduation preferences (like gown size and guest count) after submission, provided their application hasn't been processed yet.
+I have implemented a comprehensive **Financial Aid & Scholarship** management suite for the UAMS portal. This system automates the process of publishing aid opportunities, student applications, and administrative reviews.
 
-## Key Improvements
+## Key Features
 
-### 1. Flexible Application Management (Student)
-- **Edit Functionality**: Students can now click a **Pencil icon** in the "My Application" table to modify their details.
-- **Pending-Only Lock**: To maintain data integrity for logistics, applications are only editable while in the **PENDING** status. Once the status changes to Verified or Approved, the application is locked.
-- **Smart Form Transition**: Clicking "Edit" automatically switches the view to the form tab and pre-fills all fields with the existing data.
-- **Visual Indicators**: Added an alert banner in the form to clearly indicate when a student is in "Edit Mode".
+### 1. Financial Aid Circulars (The "Marketplace")
+- **Opportunity Discovery**: A dedicated page for students to browse active scholarships and aid programs.
+- **Rich Context**: Each circular includes detailed eligibility criteria, benefits (e.g., "50% Tuition Waiver"), and a clear countdown to the application deadline.
+- **Direct Application**: Students can apply directly from a circular card, which pre-fills the application context.
 
-### 2. Robust Backend Processing
-- **Atomic Updates**: Added a dedicated `PUT` endpoint in the `ConvocationController` to handle student updates securely.
-- **Validation Engine**: The service layer ensures that only the student who owns the application can edit it, and only if it is still Pending.
-- **Data Sync**: The system continues to pull the latest **Calculated CGPA** and **Credits** even during the edit process to ensure records remain accurate.
+### 2. Digital Application Portal (Student)
+- **Justification System**: Students provide a formal justification and state their monthly family income to help administrators judge eligibility.
+- **Real-Time Status**: A professional status dashboard (**Scholarship & Waiver**) where students can track their application as it moves from `PENDING` to `REVIEWING` and finally `APPROVED` or `REJECTED`.
+- **Waiver History**: A permanent record of all past aid applications and their outcomes.
 
-### 3. UI/UX Polish
-- **Dynamic Button States**: The primary action button now toggles between "Confirm & Apply" and "Update Application" based on the current mode.
-- **Cancelation Support**: Students can easily exit edit mode without making changes by clicking the "Cancel" link in the header.
+### 3. Administrative Oversight (Admin/Registrar)
+- **Circular Management**: Administrators can create, toggle active status, and set deadlines for new aid programs.
+- **Application Review Engine**: A centralized list of all student applications with the ability to:
+    - View student profiles and justifications.
+    - Update status to Reviewing or Rejected.
+    - **Final Approval**: Grant aid with administrative remarks that the student can see.
+
+### 4. High-End Institutional UI
+- **Elite Design**: Used the standard "Elite" design language with deep indigo gradients, shimmering card effects, and role-specific iconography (Gem for Scholarships, UserPlus for Aid).
+- **Interactive Badges**: High-contrast status badges for clear communication of results.
 
 ## Visual Changes Summary
 
-| Area | Feature |
-| :--- | :--- |
-| **My Application Table** | New "Action" column with a Pencil icon for Pending requests. |
-| **Application Form** | Dynamic Title (Edit vs. Apply) and specific "Edit Mode" notice. |
-| **Logic** | Automatic state management between Create and Update workflows. |
+| Role | Area | Feature |
+| :--- | :--- | :--- |
+| **Student** | Financial Service | Three new pages: Circulars, Applications, and Waiver Status. |
+| **Admin** | Document/Finance | New "Financial Aid Management" page for processing applications. |
+| **Common** | Sidebar | Fully integrated navigation for both roles. |
 
 ## Verification Results
 
-- ✅ **Edit Security**: Confirmed that attempting to edit a non-Pending application via API returns an error.
-- ✅ **UI State Sync**: Verified that after updating, the table reflects the new gown size and guest count immediately.
-- ✅ **Dynamic CGPA**: Confirmed that the CGPA remains system-calculated and read-only even during the edit flow.
+- ✅ **SQL Integrity**: Verified new tables `financial_aid_circulars` and `financial_aid_applications` with proper cascading deletes.
+- ✅ **Concurrency**: Confirmed that a student cannot submit more than one application per circular.
+- ✅ **Security**: Verified that aid approval endpoints are strictly limited to `ADMIN` and `REGISTRAR` roles.
+- ✅ **UI Flow**: Confirmed that applying for a circular correctly redirects the student to their status dashboard.
 
-> [!IMPORTANT]
-> Once an administrator marks an application as **VERIFIED**, students can no longer change their gown size. Please double-check all details before the verification deadline.
+> [!TIP]
+> Administrators should regularly update the `is_active` status of circulars to ensure students only see current opportunities.

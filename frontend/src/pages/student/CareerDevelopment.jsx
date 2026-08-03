@@ -36,14 +36,14 @@ const CareerDevelopment = () => {
             title: "Internship",
             description: "Find internship opportunities and manage your project/thesis portal.",
             icon: Users,
-            link: "https://internship.uams.edu.bd/",
+            link: "https://internship.rbu.edu.bd/",
             color: "#2563eb"
         },
         {
             title: "CDC",
             description: "Career Development Center - Guidance for your professional growth.",
             icon: Briefcase,
-            link: "https://cdc.uams.edu.bd/",
+            link: "https://cdc.rbu.edu.bd/",
             color: "#0891b2"
         },
         {
@@ -67,14 +67,14 @@ const CareerDevelopment = () => {
             title: "Library",
             description: "Access the digital library catalog, journals, and research papers.",
             icon: BookOpen,
-            link: "https://library.uams.edu.bd/",
+            link: "https://library.rbu.edu.bd/",
             color: "#4f46e5"
         },
         {
             title: "BLC",
             description: "Blended Learning Center - Your primary online class and course material hub.",
             icon: Globe,
-            link: "https://elearn.uams.edu.bd/",
+            link: "https://elearn.rbu.edu.bd/",
             color: "#16a34a"
         },
         {
@@ -133,7 +133,7 @@ const CareerDevelopment = () => {
                         <p className="text-indigo-200 text-sm max-w-lg">Our Career Development Center (CDC) offers one-on-one sessions to help you with resume building, interview prep, and career pathing.</p>
                     </div>
                     <a
-                        href="https://cdc.uams.edu.bd/"
+                        href="https://cdc.rbu.edu.bd/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-8 py-3 bg-white text-[#2D2A4F] rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-colors shadow-lg"

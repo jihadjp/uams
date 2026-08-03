@@ -67,6 +67,10 @@ import CareerDevelopment from './pages/student/CareerDevelopment';
 import Clearance from './pages/student/Clearance';
 import CertificatesTranscripts from './pages/student/CertificatesTranscripts';
 import ConvocationApplication from './pages/student/ConvocationApplication';
+import ScholarshipWaiver from './pages/student/ScholarshipWaiver';
+import FinancialAidCircular from './pages/student/FinancialAidCircular';
+import FinancialAidApplication from './pages/student/FinancialAidApplication';
+import FinancialAidManagement from './pages/admin/FinancialAidManagement';
 
 // Placeholder Pages
 const PlaceholderPage = ({ title }) => (
@@ -125,6 +129,7 @@ function App() {
             <Route path="notices" element={<NoticeManagement />} />
             <Route path="document-requests" element={<DocumentManagement />} />
             <Route path="convocation" element={<ConvocationManagement />} />
+            <Route path="financial-aid" element={<FinancialAidManagement />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
           </Route>
@@ -177,6 +182,9 @@ function App() {
             <Route path="clearance" element={<Clearance />} />
             <Route path="transcript-request" element={<CertificatesTranscripts />} />
             <Route path="convocation" element={<ConvocationApplication />} />
+            <Route path="scholarship" element={<ScholarshipWaiver />} />
+            <Route path="scholarship/circulars" element={<FinancialAidCircular />} />
+            <Route path="scholarship/apply/:id" element={<FinancialAidApplication />} />
           </Route>
         </Route>
 

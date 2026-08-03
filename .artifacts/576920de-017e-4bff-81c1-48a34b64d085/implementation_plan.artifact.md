@@ -1,40 +1,71 @@
-# Implementation Plan - Editable Convocation Application
+# Implementation Plan - Financial Aid & Scholarship System
 
-This plan introduces an "Edit" feature for Convocation Applications, allowing students to correct mistakes (like gown size or guest count) before their application is processed by the university.
+This plan outlines the implementation of a comprehensive Financial Aid, Circular, and Scholarship Management system. It will allow the university to publish aid opportunities, students to apply for them, and track their active waivers.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> - **Editing Lock**: Students will only be able to edit their application while the status is `PENDING`. Once the status changes to `VERIFIED`, `APPROVED`, or `REJECTED`, the application is locked to ensure data consistency for logistics (e.g., gown procurement).
+> - **Types of Aid**: The system will support both Fixed Amount and Percentage-based waivers (e.g., 50% tuition waiver).
+> - **Verification Workflow**: Applications will go through a multi-stage review: `PENDING` -> `REVIEWING` -> `APPROVED` or `REJECTED`.
+> - **Waiver Persistence**: Once an application is approved, the waiver record is created and will be visible in the "Scholarship & Waiver" dashboard.
 
 ## Proposed Changes
 
-### 1. Backend Implementation
+### 1. Database & Schema
 
-#### [MODIFY] [ConvocationService.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/ConvocationService.java) & [Impl](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/ConvocationServiceImpl.java)
-- Add `updateApplication(UUID id, ConvocationApplicationRequest request)` method.
-- Add logic to throw an error if a student tries to edit a non-`PENDING` application.
+#### [MODIFY] [university_academic_management_schema.sql](file:///E:/Project/DBMS/uams/backend/university_academic_management_schema.sql)
+- **Table: `financial_aid_circulars`**: Stores published opportunities (Title, description, criteria, deadline, amount/percent).
+- **Table: `financial_aid_applications`**: Tracks student applications (student_id, circular_id, justification, status, attached_docs placeholder).
 
-#### [MODIFY] [ConvocationController.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/controller/ConvocationController.java)
-- Add `PUT /api/convocation/{id}` endpoint for students.
+### 2. Backend Implementation
 
-### 2. Frontend Implementation
+#### [NEW] [Financial Aid Models & Enums](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/model/)
+- `FinancialAidCircular.java`: Entity for aid postings.
+- `FinancialAidApplication.java`: Entity for tracking student requests.
+- `ApplicationStatus.java` (Enum): PENDING, REVIEWING, APPROVED, REJECTED.
 
-#### [MODIFY] [convocationApi.js](file:///E:/Project/DBMS/uams/frontend/src/api/convocationApi.js)
-- Add `updateConvocationApplication(id, data)` function.
+#### [NEW] [Financial Aid DTOs](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/dto/)
+- `FinancialAidCircularResponse`: Detailed circular info.
+- `FinancialAidApplicationRequest`: For student submission.
+- `FinancialAidApplicationResponse`: Status tracking for students.
 
-#### [MODIFY] [ConvocationApplication.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/ConvocationApplication.jsx)
-- Add an **Edit (Pencil icon)** button in the "My Application" table, visible only for `PENDING` rows.
-- Implement logic to load the application data back into the form for editing.
-- Toggle between "Submit" and "Update" mode in the UI.
+#### [NEW] [Financial Aid API Infrastructure](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/)
+- `FinancialAidRepository.java` & `FinancialAidApplicationRepository.java`.
+- `FinancialAidService.java` & `ServiceImpl.java`.
+- `FinancialAidController.java`: Endpoints for students and admins.
+
+### 3. Frontend Implementation
+
+#### [NEW] [financialAidApi.js](file:///E:/Project/DBMS/uams/frontend/src/api/financialAidApi.js)
+- API wrapper for circulars and applications.
+
+#### [NEW] [FinancialAidCircular.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/FinancialAidCircular.jsx)
+- A professional list view of all active circulars with "Apply Now" buttons.
+- High-fidelity cards showing deadline, criteria, and benefits.
+
+#### [NEW] [FinancialAidApplication.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/FinancialAidApplication.jsx)
+- A formal application form where students can select a circular, provide justification, and state their financial background.
+
+#### [NEW] [ScholarshipWaiver.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/ScholarshipWaiver.jsx)
+- A dashboard showing:
+    - **Active Waivers**: Current semester benefits.
+    - **Application History**: List of past applications with their statuses.
+
+#### [NEW] [FinancialAidManagement.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/admin/FinancialAidManagement.jsx)
+- Admin portal to create circulars and review/approve student applications.
+
+#### [MODIFY] [App.jsx](file:///E:/Project/DBMS/uams/frontend/src/App.jsx)
+- Register routes for all new pages.
 
 ## Verification Plan
 
 ### Manual Verification
-1. Login as a **Student**.
-2. Submit a Convocation Application.
-3. Go to "My Application" and click the **Edit** icon.
-4. Change the gown size and guest count.
-5. Save changes and verify the table updates correctly.
-6. Login as an **Admin**, change the status to **VERIFIED**.
-7. Login as a **Student** and verify that the **Edit** button is now hidden/disabled.
+1. Login as **Admin**.
+2. Create a new "Financial Aid Circular" for "Summer 2026 Need-based Scholarship".
+3. Login as **Student**.
+4. View the circular in the **Financial Aid Circular** page.
+5. Click "Apply" and fill out the **Financial Aid Application** form.
+6. Check the **Scholarship & Waiver** page to see the status as "PENDING".
+7. Login as **Admin**, find the application, and mark as "APPROVED" with 50% waiver.
+8. Switch back to **Student** and verify the status is "APPROVED" and visible in "Active Waivers".
+9. Verify the waiver is reflected in the **Fees** (Payment Ledger) if applicable (Optional/Future integration).

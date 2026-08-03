@@ -58,6 +58,7 @@ export const SIDEBAR_CONFIG = {
       ]
     },
     { type: "single", label: "Notice Board", icon: Bell, path: "/portal/notices" },
+    { type: "single", label: "Financial Aid Management", icon: Gem, path: "/portal/financial-aid" },
     { type: "single", label: "Document Requests", icon: Award, path: "/portal/document-requests" },
     { type: "single", label: "Convocation Management", icon: GraduationCap, path: "/portal/convocation" },
     { type: "single", label: "My Profile", icon: UserSquare2, path: "/portal/profile" },
@@ -88,6 +89,7 @@ export const SIDEBAR_CONFIG = {
       ]
     },
     { type: "single", label: "Notice Board", icon: Bell, path: "/portal/notices" },
+    { type: "single", label: "Financial Aid Management", icon: Gem, path: "/portal/financial-aid" },
     { type: "single", label: "Document Requests", icon: Award, path: "/portal/document-requests" },
     { type: "single", label: "Convocation Management", icon: GraduationCap, path: "/portal/convocation" },
     { type: "single", label: "My Profile", icon: UserSquare2, path: "/portal/profile" },
@@ -136,8 +138,6 @@ export const SIDEBAR_CONFIG = {
       children: [
         { label: "Payment Ledger", path: "/student/fees", icon: Wallet },
         { label: "Scholarship & Waiver", path: "/student/scholarship", icon: Gem },
-        { label: "Financial Aid Circular", path: "/student/financial-aid", icon: FileText },
-        { label: "Financial Aid Application", path: "/student/financial-aid-apply", icon: UserPlus },
       ]
     },
     { type: "single", label: "Career Development", icon: Briefcase, path: "/student/career" },

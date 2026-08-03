@@ -54,7 +54,7 @@ const Results = () => {
     setSearching(true);
     try {
       const response = await getAcademicResults(semId);
-      setData(response);
+      setData(response.data);
     } catch (error) {
       toast.error("Failed to fetch results");
     } finally {
@@ -137,7 +137,7 @@ const Results = () => {
                        </div>
                     </div>
                     <div className="flex items-center text-sm font-black text-indigo-600 dark:text-indigo-400 pt-6 mt-6 border-t border-gray-100 dark:border-gray-700">
-                       <Award size={18} className="mr-3" /> SGPA of {selectedSemName}: {data.sgpa.toFixed(2)}
+                       <Award size={18} className="mr-3" /> SGPA of {selectedSemName}: {data.sgpa?.toFixed(2) || '0.00'}
                     </div>
                   </div>
 
@@ -159,7 +159,7 @@ const Results = () => {
                                 <td className="py-4 text-xs font-bold text-gray-400">{i + 1}</td>
                                 <td className="py-4 font-mono text-xs font-black text-gray-700 dark:text-gray-300">{r.courseCode}</td>
                                 <td className="py-4 text-sm font-bold text-gray-600 dark:text-gray-400">{r.courseTitle}</td>
-                                <td className="py-4 text-center text-sm font-medium text-gray-500">{r.credits.toFixed(2)}</td>
+                                <td className="py-4 text-center text-sm font-medium text-gray-500">{r.credits?.toFixed(2) || '0.00'}</td>
                                 <td className="py-4 text-center">
                                    {r.evaluationPending ? (
                                       <span className="text-[9px] px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-full font-black uppercase tracking-tighter">
@@ -178,9 +178,9 @@ const Results = () => {
                         <tfoot>
                            <tr className="bg-gray-50 dark:bg-gray-800/50 font-black text-[10px] uppercase">
                               <td colSpan="3" className="p-4 text-right">Total Credit</td>
-                              <td className="p-4 text-center">{data.totalCredits.toFixed(2)}</td>
+                              <td className="p-4 text-center">{data.totalCredits?.toFixed(2) || '0.00'}</td>
                               <td className="p-4 text-right">SGPA</td>
-                              <td className="p-4 text-right text-indigo-600">{data.sgpa.toFixed(2)}</td>
+                              <td className="p-4 text-right text-indigo-600">{data.sgpa?.toFixed(2) || '0.00'}</td>
                            </tr>
                         </tfoot>
                      </table>
