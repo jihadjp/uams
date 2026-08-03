@@ -183,11 +183,13 @@ const StudentDashboard = () => {
                                     <span className="text-xs font-medium">{summary?.gender || '---'}</span>
                                 </div>
                             </div>
-                            <div className="flex items-center space-x-3 text-white/80" title="Batch">
+                            <div className="flex items-center space-x-3 text-white/80" title="Batch Info">
                                 <Users size={16} className="text-primary-400 shrink-0" />
-                                <div className="flex flex-col text-left">
-                                    <span className="text-[8px] font-black uppercase text-primary-400">Batch</span>
-                                    <span className="text-xs font-medium">{summary?.batch || '---'}</span>
+                                <div className="flex flex-col text-left min-w-0">
+                                    <span className="text-[8px] font-black uppercase text-primary-400 leading-none">Batch Info</span>
+                                    <span className="text-xs font-black truncate mt-0.5">
+                                        No. {summary?.batch} ({summary?.batchInitial})
+                                    </span>
                                 </div>
                             </div>
                             <div className="flex items-center space-x-3 text-white/80" title="Campus">

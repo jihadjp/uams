@@ -16,7 +16,8 @@ import {
     ShieldAlert,
     Key,
     Copy,
-    ExternalLink
+    ExternalLink,
+    Pencil
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Loader from '../../components/common/Loader';
@@ -25,10 +26,11 @@ import Modal from '../../components/common/Modal';
 import useFetch from '../../hooks/useFetch';
 import { formatDate } from '../../utils/formatDate';
 import useAuth from '../../hooks/useAuth';
-import { updateClearance } from '../../api/studentApi';
+import { updateClearance, updateStudent } from '../../api/studentApi';
 import { resetUserPassword } from '../../api/authApi';
 import toast from 'react-hot-toast';
 import FeeManagementModal from './FeeManagementModal';
+import StudentForm from './StudentForm';
 
 const StudentDetail = () => {
     const { id } = useParams();
@@ -39,6 +41,10 @@ const StudentDetail = () => {
     const [laptopLoading, setLaptopLoading] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [isFeeModalOpen, setIsFeeModalOpen] = useState(false);
+
+    // Edit Modal State
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     // Password Reset States
     const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
@@ -65,6 +71,28 @@ const StudentDetail = () => {
             toast.error('Failed to reset password');
         } finally {
             setResetLoading(false);
+        }
+    };
+
+    const handleUpdateSubmit = async (data) => {
+        setIsUpdating(true);
+        try {
+            const payload = {
+                ...data,
+                programId: data.programId || null,
+                advisorId: data.advisorId || null,
+                currentSemester: parseInt(data.currentSemester) || 1,
+                guardianRelation: data.guardianRelation || null,
+                guardianOtherRelation: data.guardianRelation === 'OTHER' ? data.guardianOtherRelation : null,
+            };
+            await updateStudent(id, payload);
+            toast.success('Student updated successfully');
+            setIsEditModalOpen(false);
+            refetch();
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to update student');
+        } finally {
+            setIsUpdating(false);
         }
     };
 
@@ -188,15 +216,26 @@ const StudentDetail = () => {
 
                 <div className="flex items-center space-x-3">
                     {(isAdmin || isRegistrar) && (
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            className="flex items-center space-x-2 bg-amber-50 dark:bg-amber-900/10 text-amber-600 border-amber-100 dark:border-amber-900/30"
-                            onClick={() => setIsResetConfirmOpen(true)}
-                        >
-                            <Key size={16} />
-                            <span>Reset Password</span>
-                        </Button>
+                        <>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                className="flex items-center space-x-2 bg-indigo-50 dark:bg-indigo-900/10 text-indigo-600 border-indigo-100 dark:border-indigo-900/30"
+                                onClick={() => setIsEditModalOpen(true)}
+                            >
+                                <Pencil size={16} />
+                                <span>Edit Profile</span>
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                className="flex items-center space-x-2 bg-amber-50 dark:bg-amber-900/10 text-amber-600 border-amber-100 dark:border-amber-900/30"
+                                onClick={() => setIsResetConfirmOpen(true)}
+                            >
+                                <Key size={16} />
+                                <span>Reset Password</span>
+                            </Button>
+                        </>
                     )}
                     <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest ${getStatusBadge(student?.status)}`}>
                         {student?.status || 'N/A'}
@@ -548,6 +587,22 @@ const StudentDetail = () => {
                             For security reasons, this password will not be shown again. Ensure you have shared it with the student before closing this window.
                         </p>
                     </div>
+                </div>
+            </Modal>
+
+            {/* Edit Profile Modal */}
+            <Modal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                title="Edit Student Profile"
+                size="lg"
+            >
+                <div className="py-2">
+                    <StudentForm
+                        student={student}
+                        onSubmit={handleUpdateSubmit}
+                        isLoading={isUpdating}
+                    />
                 </div>
             </Modal>
         </div>

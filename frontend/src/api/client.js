@@ -24,10 +24,12 @@ client.interceptors.request.use(
 client.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Auto logout on unauthorized
+    const isLoginRequest = error.config?.url?.includes('/auth/login');
+
+    if (error.response?.status === 401 && !isLoginRequest) {
+      // Auto logout on unauthorized, except for login attempts
       useAuthStore.getState().logout();
-      window.location.href = '/login';
+      window.location.href = '/login?expired=true';
     }
     return Promise.reject(error);
   }

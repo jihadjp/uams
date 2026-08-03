@@ -17,6 +17,7 @@ import {
   UserCheck,
   GraduationCap,
   UserX,
+  RefreshCw,
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -36,12 +37,13 @@ import {
 } from '../../api/studentApi';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 
 const StudentList = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [totalElements, setTotalElements] = useState(0);
   const [page, setPage] = useState(0);
   const [pageSize] = useState(10);
@@ -62,7 +64,10 @@ const StudentList = () => {
   const [clearanceConfirm, setClearanceConfirm] = useState({ isOpen: false, student: null });
 
   const fetchStudents = async () => {
-    setLoading(true);
+    const isInitial = students.length === 0;
+    if (isInitial) setLoading(true);
+    else setRefreshing(true);
+
     try {
       const res = await getStudents({
         page,
@@ -78,6 +83,7 @@ const StudentList = () => {
       toast.error('Failed to fetch students');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -242,10 +248,15 @@ const StudentList = () => {
               View, search and manage Royal Bengal University students.
             </p>
           </div>
-          <Button onClick={handleAddClick} className="flex items-center gap-2">
-            <Plus size={18} />
-            <span>Add Student</span>
-          </Button>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <Button onClick={fetchStudents} variant="secondary" className="p-2.5">
+              <RefreshCw size={20} className={loading || refreshing ? 'animate-spin' : ''} />
+            </Button>
+            <Button onClick={handleAddClick} className="flex items-center gap-2 flex-1 md:flex-none justify-center">
+              <Plus size={18} />
+              <span>Add Student</span>
+            </Button>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -292,8 +303,18 @@ const StudentList = () => {
             </div>
           </div>
 
-          <div className="overflow-x-auto min-h-[420px]">
-            <table className="w-full text-left">
+          <div className="overflow-x-auto min-h-[420px] relative">
+            {refreshing && (
+                <div className="absolute inset-x-0 top-0 h-0.5 bg-primary-500/10 overflow-hidden z-20">
+                    <motion.div
+                        initial={{ x: '-100%' }}
+                        animate={{ x: '100%' }}
+                        transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                        className="h-full w-1/3 bg-primary-500"
+                    />
+                </div>
+            )}
+            <table className={`w-full text-left transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
               <thead className="bg-slate-50 dark:bg-white/[0.03] text-slate-500 dark:text-white/30 uppercase text-[10px] font-bold tracking-widest">
               <tr>
                 <th className="px-6 py-4 cursor-pointer hover:text-[#007A55] transition-colors" onClick={() => handleSort('registrationNo')}>
@@ -314,7 +335,7 @@ const StudentList = () => {
               </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/[0.06]">
-              {loading ? (
+              {loading && students.length === 0 ? (
                   Array.from({ length: pageSize }).map((_, i) => (
                       <tr key={i} className="animate-pulse">
                         <td className="px-6 py-4">
@@ -358,12 +379,24 @@ const StudentList = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center text-[#007A55] dark:text-emerald-300 font-bold text-sm border border-emerald-100 dark:border-emerald-500/20">
-                              {student.name ? student.name.charAt(0).toUpperCase() : '?'}
-                            </div>
+                            <Link to={`/portal/students/${student.id}`} className="shrink-0 group/img overflow-hidden w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm transition-transform active:scale-95">
+                              {student.profileImage ? (
+                                <img
+                                  src={student.profileImage.startsWith('/api') ? student.profileImage : `/api/uploads/${student.profileImage}`}
+                                  alt={student.name}
+                                  className="w-full h-full object-cover transition-transform group-hover/img:scale-110"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[#007A55] dark:text-emerald-300 font-black text-sm bg-emerald-50 dark:bg-emerald-500/15">
+                                  {student.name ? student.name.charAt(0).toUpperCase() : '?'}
+                                </div>
+                              )}
+                            </Link>
                             <div className="flex flex-col min-w-0">
                               <div className="flex items-center gap-2">
-                                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{student.name}</p>
+                                <Link to={`/portal/students/${student.id}`} className="text-sm font-bold text-slate-900 dark:text-white truncate hover:text-[#007A55] transition-colors">
+                                  {student.name}
+                                </Link>
                                 {student.isRegistrationCleared && (
                                     <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-black bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20 uppercase tracking-tighter">
                                 Paid

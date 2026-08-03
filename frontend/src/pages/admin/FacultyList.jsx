@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Plus, Edit, Trash2, Eye, ChevronLeft, ChevronRight, UserSquare2, Building2, Copy, AlertTriangle, ArrowUpDown, PackageOpen, Award, Users, ShieldCheck } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Eye, ChevronLeft, ChevronRight, UserSquare2, Building2, Copy, AlertTriangle, ArrowUpDown, PackageOpen, Award, Users, ShieldCheck, RefreshCw } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -10,13 +10,14 @@ import FacultyForm from './FacultyForm';
 import { getFaculty, createFaculty, updateFaculty, deleteFaculty, getDepartments } from '../../api/facultyApi';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { formatDate } from '../../utils/formatDate';
 import useAuth from '../../hooks/useAuth';
 
 const FacultyList = () => {
   const [facultyList, setFacultyList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [totalElements, setTotalElements] = useState(0);
   const [page, setPage] = useState(0);
   const [pageSize] = useState(10);
@@ -36,7 +37,10 @@ const FacultyList = () => {
   const [generatedIdInfo, setGeneratedIdInfo] = useState(null);
 
   const fetchFaculty = async () => {
-    setLoading(true);
+    const isInitial = facultyList.length === 0;
+    if (isInitial) setLoading(true);
+    else setRefreshing(true);
+
     try {
       const res = await getFaculty({
         page,
@@ -51,6 +55,7 @@ const FacultyList = () => {
       toast.error('Failed to fetch faculty');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -165,10 +170,15 @@ const FacultyList = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-200">Faculty Management</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-200">Manage university faculty members and academic staff.</p>
         </div>
-        <Button onClick={handleAddClick} className="flex items-center space-x-2">
-          <Plus size={20} />
-          <span>Add Faculty</span>
-        </Button>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <Button onClick={fetchFaculty} variant="secondary" className="p-2.5">
+            <RefreshCw size={20} className={loading || refreshing ? 'animate-spin' : ''} />
+          </Button>
+          <Button onClick={handleAddClick} className="flex items-center space-x-2 flex-1 md:flex-none justify-center">
+            <Plus size={20} />
+            <span>Add Faculty</span>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Dashboard */}
@@ -201,8 +211,18 @@ const FacultyList = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto min-h-[420px]">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto min-h-[420px] relative">
+          {refreshing && (
+              <div className="absolute inset-x-0 top-0 h-0.5 bg-primary-500/10 overflow-hidden z-20">
+                  <motion.div
+                      initial={{ x: '-100%' }}
+                      animate={{ x: '100%' }}
+                      transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                      className="h-full w-1/3 bg-primary-500"
+                  />
+              </div>
+          )}
+          <table className={`w-full text-left transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
             <thead className="bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 uppercase text-[10px] font-bold tracking-wider">
               <tr>
                 <th className="px-6 py-4 text-center cursor-pointer hover:text-primary-500 transition-colors" onClick={() => handleSort('employeeId')}>
@@ -223,7 +243,7 @@ const FacultyList = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {loading ? (
+              {loading && facultyList.length === 0 ? (
                 Array.from({ length: pageSize }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
                     <td className="px-6 py-4 text-center"><div className="h-5 bg-gray-100 dark:bg-gray-800 rounded w-16 mx-auto"></div></td>
@@ -256,11 +276,23 @@ const FacultyList = () => {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 font-bold text-sm">
-                        {f.name?.charAt(0) || 'F'}
-                      </div>
+                      <Link to={`/portal/faculty/${f.id}`} className="shrink-0 group/img overflow-hidden w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm transition-transform active:scale-95">
+                        {f.profileImage ? (
+                          <img
+                            src={f.profileImage.startsWith('/api') ? f.profileImage : `/api/uploads/${f.profileImage}`}
+                            alt={f.name}
+                            className="w-full h-full object-cover transition-transform group-hover/img:scale-110"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-indigo-600 font-bold text-sm bg-indigo-100 dark:bg-indigo-900/30">
+                            {f.name?.charAt(0) || 'F'}
+                          </div>
+                        )}
+                      </Link>
                       <div>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white leading-none">{f.name}</p>
+                        <Link to={`/portal/faculty/${f.id}`} className="text-sm font-bold text-gray-900 dark:text-white leading-none hover:text-primary-600 transition-colors">
+                            {f.name}
+                        </Link>
                         <p className="text-[11px] text-gray-400 mt-1">{f.email}</p>
                       </div>
                     </div>

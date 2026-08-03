@@ -1,33 +1,34 @@
-# Walkthrough - Dashboard Real Data Sync
+# Walkthrough - Profile Editing from Details Page
 
-I have replaced the hardcoded dummy values in the Student Dashboard with real, dynamic data from the database.
+I have added a convenient **Edit Profile** feature to the Student and Faculty detail pages. This allows administrators and registrars to update user information directly from their profile view.
 
 ## Key Improvements
 
-### 1. Real Batch Synchronization
-- **Dynamic Batch Numbers**: Removed the hardcoded "Batch 67". The system now pulls the student's specific batch number (e.g., Batch 68, Batch 69) directly from their database profile.
-- **Backend Integration**: Updated the `StudentSummaryResponse` DTO and `DashboardServiceImpl` to securely fetch and deliver batch information.
+### 1. Direct Editing Access
+- **Contextual Actions**: Added a new **"Edit Profile"** button in the header of both Student and Faculty detail pages, right next to the "Reset Password" button.
+- **Workflow Efficiency**: Admins no longer need to go back to the main list to update a user's information.
 
-### 2. Institutional Campus Labeling
-- **Professional Default**: Updated the campus label from the placeholder "RBC" to "Main Campus", providing a more formal institutional tone.
-- **Extensibility**: The campus info is now delivered via the API, making it easy to support multiple campuses in the future without changing the frontend code.
+### 2. Seamless User Interface
+- **Modal Integration**: Reused the existing professional forms (`StudentForm` and `FacultyForm`) inside a modal. This ensures a consistent look and feel throughout the management suite.
+- **Real-Time Updates**: Upon saving changes, the modal closes and the detail page **automatically refetches** the data from the backend, providing instant visual feedback.
 
-### 3. UI Integrity
-- **Reliable Fallbacks**: Added "---" fallbacks in the frontend to ensure the UI remains clean even if a student's profile is partially incomplete during first-time login.
+### 3. Integrated Security
+- **Role Protection**: The edit button is only visible to users with the **ADMIN** or **REGISTRAR** role, maintaining strict access control.
+- **Data Integrity**: The update process follows all existing backend validation rules for emails, programs, and other mandatory fields.
 
 ## Visual Changes Summary
 
 | Area | Feature |
 | :--- | :--- |
-| **Profile Banner** | Displays the student's actual assigned Batch number. |
-| **Profile Banner** | Shows "Main Campus" (synced from backend). |
-| **Data Engine** | Fully dynamic API-driven profile summary. |
+| **Profile Headers** | New **"Edit Profile"** button with a pencil icon. |
+| **Editing Flow** | Smooth modal transition for updating personal and academic details. |
+| **Data Sync** | Instant UI refresh after successful profile updates. |
 
 ## Verification Results
 
-- ✅ **Data Accuracy**: Confirmed that the batch number displayed matches the one set in the student's administration record.
-- ✅ **Null Safety**: Verified that the dashboard doesn't crash if a student is not yet assigned to a batch.
-- ✅ **API Optimization**: The new fields were added to the existing summary endpoint to avoid additional network requests.
+- ✅ **Functional Check**: Confirmed that updating a student's guardian info or a faculty's designation reflects immediately on the page.
+- ✅ **API Synchronization**: Verified that the frontend correctly calls the `PUT` endpoints and handles success/error toasts.
+- ✅ **UI Responsiveness**: The edit modal is fully responsive and looks great on all screen sizes.
 
 > [!TIP]
-> To update a student's batch, use the **User Management** section in the Admin Portal. The change will reflect on the student's dashboard immediately.
+> You can now quickly correct typos or update contact information for any user without losing your current view context.

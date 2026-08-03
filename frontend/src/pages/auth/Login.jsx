@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
@@ -10,7 +10,7 @@ import {
   ShieldCheck,
   LogIn,
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 import { loginApi } from '../../api/authApi';
@@ -25,8 +25,16 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const [searchParams] = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (searchParams.get('expired')) {
+      setError('Your session has expired. Please sign in again.');
+      toast.error('Session expired', { id: 'session-expired' });
+    }
+  }, [searchParams]);
 
   const handleLogin = async (event) => {
     event.preventDefault();

@@ -1,6 +1,5 @@
-# Tasks - Fix Hardcoded Dashboard Data
+# Tasks - Profile Editing from Details Page
 
-- [x] Add `batch` field to `StudentSummaryResponse.java`
-- [x] Update `DashboardServiceImpl.java` to populate real batch and campus
-- [x] Update `Dashboard.jsx` UI to use dynamic data
-- [x] Final Verification
+- [x] Implement Edit Profile in `StudentDetail.jsx`
+- [x] Implement Edit Profile in `FacultyDetail.jsx`
+- [x] Final UI Polish and Verification

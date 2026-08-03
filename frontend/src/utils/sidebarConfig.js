@@ -42,6 +42,7 @@ export const SIDEBAR_CONFIG = {
       children: [
         { label: "Students", path: "/portal/students", icon: GraduationCap },
         { label: "Faculty", path: "/portal/faculty", icon: UserSquare2 },
+        { label: "Registrars", path: "/portal/registrars", icon: ShieldCheck },
       ]
     },
     {

@@ -21,7 +21,12 @@ const BatchManagement = () => {
 
   const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
-  const [batchFormData, setBatchFormData] = useState({ batchNumber: '', programId: '' });
+  const [batchFormData, setBatchFormData] = useState({
+    batchNumber: '',
+    programId: '',
+    admissionYear: new Date().getFullYear(),
+    term: 'SPRING'
+  });
   const [sectionFormData, setSectionFormData] = useState({ name: '', batchId: '' });
   const [formLoading, setFormLoading] = useState(false);
 
@@ -52,7 +57,12 @@ const BatchManagement = () => {
       await client.post('/batches', batchFormData);
       toast.success('Batch created successfully');
       setIsBatchModalOpen(false);
-      setBatchFormData({ batchNumber: '', programId: '' });
+      setBatchFormData({
+        batchNumber: '',
+        programId: '',
+        admissionYear: new Date().getFullYear(),
+        term: 'SPRING'
+      });
       fetchData();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to create batch');
@@ -215,7 +225,10 @@ const BatchManagement = () => {
                               </div>
                               <div>
                                  <h3 className="text-xl font-black leading-none tracking-tight">Batch {batch.batchNumber}</h3>
-                                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80 mt-1.5 flex items-center">
+                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] bg-white/20 px-2 py-0.5 rounded mt-2 w-fit">
+                                    Initial: {batch.batchInitial}
+                                 </p>
+                                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] opacity-80 mt-2 flex items-center">
                                     <Building2 size={10} className="mr-1" />
                                     {batch.programName}
                                  </p>
@@ -320,10 +333,33 @@ const BatchManagement = () => {
               </div>
            </div>
 
+           <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Admission Year"
+                type="number"
+                required
+                value={batchFormData.admissionYear}
+                onChange={e => setBatchFormData({ ...batchFormData, admissionYear: e.target.value })}
+              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1">Admission Term</label>
+                <select
+                  required
+                  value={batchFormData.term}
+                  onChange={e => setBatchFormData({ ...batchFormData, term: e.target.value })}
+                  className="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 dark:text-white"
+                >
+                  <option value="SPRING">SPRING (1)</option>
+                  <option value="SUMMER">SUMMER (2)</option>
+                  <option value="FALL">FALL (3)</option>
+                </select>
+              </div>
+           </div>
+
            <Input
-             label="Batch Number"
+             label="Ordinal Batch Number"
              required
-             placeholder="e.g. 242"
+             placeholder="e.g. 67"
              icon={Hash}
              value={batchFormData.batchNumber}
              onChange={(e) => setBatchFormData({ ...batchFormData, batchNumber: e.target.value })}

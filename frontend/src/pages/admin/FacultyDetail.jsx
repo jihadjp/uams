@@ -15,7 +15,8 @@ import {
   Users,
   Key,
   Copy,
-  AlertCircle
+  AlertCircle,
+  Pencil
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Loader from '../../components/common/Loader';
@@ -24,17 +25,23 @@ import Modal from '../../components/common/Modal';
 import useFetch from '../../hooks/useFetch';
 import { formatDate } from '../../utils/formatDate';
 import { getFacultyPerformance } from '../../api/evaluationApi';
+import { updateFaculty } from '../../api/facultyApi';
 import { resetUserPassword } from '../../api/authApi';
 import useAuth from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
+import FacultyForm from './FacultyForm';
 
 const FacultyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAdmin, isRegistrar } = useAuth();
-  const { data: faculty, loading } = useFetch(`/faculties/${id}`);
+  const { data: faculty, loading, refetch } = useFetch(`/faculties/${id}`);
   const [performance, setPerformance] = useState(null);
   const [perfLoading, setPerfLoading] = useState(true);
+
+  // Edit Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Password Reset States
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
@@ -67,6 +74,20 @@ const FacultyDetail = () => {
   const copyToClipboard = () => {
       navigator.clipboard.writeText(tempPassword);
       toast.success('Password copied to clipboard');
+  };
+
+  const handleUpdateSubmit = async (data) => {
+    setIsUpdating(true);
+    try {
+        await updateFaculty(id, data);
+        toast.success('Faculty updated successfully');
+        setIsEditModalOpen(false);
+        refetch();
+    } catch (err) {
+        toast.error(err.response?.data?.message || 'Failed to update faculty');
+    } finally {
+        setIsUpdating(false);
+    }
   };
 
   useEffect(() => {
@@ -103,15 +124,26 @@ const FacultyDetail = () => {
         </button>
 
         {(isAdmin || isRegistrar) && (
-            <Button
-                variant="secondary"
-                size="sm"
-                className="flex items-center space-x-2 bg-amber-50 dark:bg-amber-900/10 text-amber-600 border-amber-100 dark:border-amber-900/30"
-                onClick={() => setIsResetConfirmOpen(true)}
-            >
-                <Key size={16} />
-                <span>Reset Password</span>
-            </Button>
+            <div className="flex items-center gap-3">
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    className="flex items-center space-x-2 bg-indigo-50 dark:bg-indigo-900/10 text-indigo-600 border-indigo-100 dark:border-indigo-900/30"
+                    onClick={() => setIsEditModalOpen(true)}
+                >
+                    <Pencil size={16} />
+                    <span>Edit Profile</span>
+                </Button>
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    className="flex items-center space-x-2 bg-amber-50 dark:bg-amber-900/10 text-amber-600 border-amber-100 dark:border-amber-900/30"
+                    onClick={() => setIsResetConfirmOpen(true)}
+                >
+                    <Key size={16} />
+                    <span>Reset Password</span>
+                </Button>
+            </div>
         )}
       </div>
 
@@ -312,6 +344,22 @@ const FacultyDetail = () => {
                       For security reasons, this password will not be shown again. Ensure you have shared it with the faculty member before closing this window.
                   </p>
               </div>
+          </div>
+      </Modal>
+
+      {/* Edit Profile Modal */}
+      <Modal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          title="Edit Faculty Profile"
+          size="lg"
+      >
+          <div className="py-2">
+              <FacultyForm
+                faculty={faculty}
+                onSubmit={handleUpdateSubmit}
+                isLoading={isUpdating}
+              />
           </div>
       </Modal>
     </div>

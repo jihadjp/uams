@@ -42,6 +42,7 @@ import ProgramList from './pages/admin/ProgramList';
 import BatchManagement from './pages/admin/BatchManagement';
 import DocumentManagement from './pages/admin/DocumentManagement';
 import ConvocationManagement from './pages/admin/ConvocationManagement';
+import RegistrarList from './pages/admin/RegistrarList';
 
 // Common Pages
 import Profile from './pages/common/Profile';
@@ -120,6 +121,7 @@ function App() {
             <Route path="students/:id" element={<StudentDetail />} />
             <Route path="faculty" element={<FacultyList />} />
             <Route path="faculty/:id" element={<FacultyDetail />} />
+            <Route path="registrars" element={<RegistrarList />} />
             <Route path="courses" element={<CourseList />} />
             <Route path="departments" element={<DepartmentList />} />
             <Route path="programs" element={<ProgramList />} />
