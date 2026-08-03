@@ -37,12 +37,13 @@ import { useAuthStore } from '../../store/authStore';
 import { useNavigate } from 'react-router-dom';
 
 // Resource Button component with fixed colorful solid backgrounds
-const ResourceButton = ({ icon: Icon, label, sublabel, color }) => (
+const ResourceButton = ({ icon: Icon, label, sublabel, color, onClick }) => (
     <motion.button
         whileHover={{ y: -4, scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         className="flex flex-col items-center justify-center p-5 rounded-2xl transition-all shadow-sm hover:shadow-md h-full w-full cursor-pointer border-none outline-none"
         style={{ backgroundColor: color }}
+        onClick={onClick}
     >
         <div className="bg-white/20 p-3 rounded-xl mb-3 text-white">
             <Icon size={24} />
@@ -186,14 +187,14 @@ const StudentDashboard = () => {
                                 <Users size={16} className="text-primary-400 shrink-0" />
                                 <div className="flex flex-col text-left">
                                     <span className="text-[8px] font-black uppercase text-primary-400">Batch</span>
-                                    <span className="text-xs font-medium">{user?.batch || '67'}</span>
+                                    <span className="text-xs font-medium">{summary?.batch || '---'}</span>
                                 </div>
                             </div>
                             <div className="flex items-center space-x-3 text-white/80" title="Campus">
                                 <Home size={16} className="text-primary-400 shrink-0" />
                                 <div className="flex flex-col text-left">
                                     <span className="text-[8px] font-black uppercase text-primary-400">Campus</span>
-                                    <span className="text-xs font-medium">{summary?.campus || 'DSC'}</span>
+                                    <span className="text-xs font-medium">{summary?.campus || '---'}</span>
                                 </div>
                             </div>
                             <div className="flex items-center space-x-3 text-white/80" title="Blood Group">
@@ -210,7 +211,10 @@ const StudentDashboard = () => {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="flex items-center space-x-4">
+                <Card
+                    className="flex items-center space-x-4 cursor-pointer hover:border-indigo-500 transition-colors"
+                    onClick={() => navigate('/student/results')}
+                >
                     <div className="p-3 bg-blue-50 dark:bg-blue-950/50 rounded-2xl text-blue-600 dark:text-blue-400 shrink-0">
                         <TrendingUp size={24} />
                     </div>
@@ -219,7 +223,10 @@ const StudentDashboard = () => {
                         <p className="text-xl font-black text-gray-900 dark:text-white">{summary?.cgpa || '0.00'}</p>
                     </div>
                 </Card>
-                <Card className="flex items-center space-x-4">
+                <Card
+                    className="flex items-center space-x-4 cursor-pointer hover:border-purple-500 transition-colors"
+                    onClick={() => navigate('/student/registration')}
+                >
                     <div className="p-3 bg-purple-50 dark:bg-purple-950/50 rounded-2xl text-purple-600 dark:text-purple-400 shrink-0">
                         <BookOpen size={24} />
                     </div>
@@ -228,7 +235,10 @@ const StudentDashboard = () => {
                         <p className="text-xl font-black text-gray-900 dark:text-white">{summary?.enrolledCourses || 0} <span className="text-[10px] font-bold text-gray-400">Courses</span></p>
                     </div>
                 </Card>
-                <Card className="flex items-center space-x-4">
+                <Card
+                    className="flex items-center space-x-4 cursor-pointer hover:border-emerald-500 transition-colors"
+                    onClick={() => navigate('/student/attendance')}
+                >
                     <div className="p-3 bg-green-50 dark:bg-green-950/50 rounded-2xl text-green-600 dark:text-green-400 shrink-0">
                         <ClipboardCheck size={24} />
                     </div>
@@ -238,7 +248,7 @@ const StudentDashboard = () => {
                     </div>
                 </Card>
                 <Card
-                    className="flex items-center space-x-4 cursor-pointer hover:border-primary-500 transition-colors"
+                    className="flex items-center space-x-4 cursor-pointer hover:border-amber-500 transition-colors"
                     onClick={() => navigate('/student/fees')}
                 >
                     <div className="p-3 bg-amber-50 dark:bg-amber-950/50 rounded-2xl text-amber-600 dark:text-amber-400 shrink-0">
@@ -258,27 +268,27 @@ const StudentDashboard = () => {
                 <section className="space-y-4">
                     <h3 className="text-base font-bold text-gray-900 dark:text-white px-1">Learning Resource</h3>
                     <div className="grid grid-cols-3 gap-4">
-                        <ResourceButton icon={Library} label="Library" sublabel="Digital catalog" color="#334155" />
-                        <ResourceButton icon={Globe} label="BLC" sublabel="Online classes" color="#10b981" />
-                        <ResourceButton icon={BookOpen} label="Go Edu" sublabel="Course portal" color="#06b6d4" />
+                        <ResourceButton icon={Library} label="Library" sublabel="Digital catalog" color="#334155" onClick={() => navigate('/student/facilities')} />
+                        <ResourceButton icon={Globe} label="BLC" sublabel="Online classes" color="#10b981" onClick={() => toast.success('Redirecting to BLC Portal...')} />
+                        <ResourceButton icon={BookOpen} label="Go Edu" sublabel="Course portal" color="#06b6d4" onClick={() => toast.success('Redirecting to Go Edu...')} />
                     </div>
                 </section>
 
                 <section className="space-y-4">
                     <h3 className="text-base font-bold text-gray-900 dark:text-white px-1">Student Service</h3>
                     <div className="grid grid-cols-3 gap-4">
-                        <ResourceButton icon={Bus} label="Transport Card" sublabel="Manage pass" color="#6366f1" />
-                        <ResourceButton icon={Home} label="Hall Manage" sublabel="Accommodation" color="#ef4444" />
-                        <ResourceButton icon={Laptop} label="Laptop Scheme" sublabel="Claim device" color="#f59e0b" />
+                        <ResourceButton icon={Bus} label="Transport Card" sublabel="Manage pass" color="#6366f1" onClick={() => navigate('/student/transport')} />
+                        <ResourceButton icon={Home} label="Hall Manage" sublabel="Accommodation" color="#ef4444" onClick={() => navigate('/student/hall')} />
+                        <ResourceButton icon={Laptop} label="Laptop Scheme" sublabel="Claim device" color="#f59e0b" onClick={() => navigate('/student/laptop')} />
                     </div>
                 </section>
 
                 <section className="space-y-4">
                     <h3 className="text-base font-bold text-gray-900 dark:text-white px-1">Academic</h3>
                     <div className="grid grid-cols-3 gap-4">
-                        <ResourceButton icon={TrendingUp} label="Live Result" sublabel="Current marks" color="#1e293b" />
-                        <ResourceButton icon={Calendar} label="Routine" sublabel="Class schedule" color="#7c3aed" />
-                        <ResourceButton icon={GraduationCap} label="Certificate" sublabel="Official copies" color="#10b981" />
+                        <ResourceButton icon={TrendingUp} label="Live Result" sublabel="Current marks" color="#1e293b" onClick={() => navigate('/student/live-results')} />
+                        <ResourceButton icon={Calendar} label="Routine" sublabel="Class schedule" color="#7c3aed" onClick={() => navigate('/student/routine')} />
+                        <ResourceButton icon={GraduationCap} label="Certificate" sublabel="Official copies" color="#10b981" onClick={() => navigate('/student/transcript-request')} />
                     </div>
                 </section>
             </div>

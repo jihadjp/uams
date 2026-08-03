@@ -1,11 +1,6 @@
-# Tasks - Secure Admin Password Reset
+# Tasks - Fix Hardcoded Dashboard Data
 
-- [ ] Create `PasswordResetResponse` DTO
-- [ ] Update `StudentResponse` and `FacultyResponse` with `userId`
-- [ ] Map `userId` in Student and Faculty services
-- [ ] Implement `resetUserPassword` logic in `AuthService`
-- [ ] Add reset password endpoint in `AuthController`
-- [ ] Add `resetUserPassword` to `authApi.js`
-- [ ] Update `StudentDetail.jsx` with Reset Password UI
-- [ ] Update `FacultyDetail.jsx` with Reset Password UI
-- [ ] Final UI Polish and Verification
+- [x] Add `batch` field to `StudentSummaryResponse.java`
+- [x] Update `DashboardServiceImpl.java` to populate real batch and campus
+- [x] Update `Dashboard.jsx` UI to use dynamic data
+- [x] Final Verification

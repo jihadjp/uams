@@ -43,9 +43,16 @@ const FacultyDetail = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const handleResetPassword = async () => {
+      const uId = faculty?.userId;
+      if (!uId) {
+          console.error('Target userId not found in faculty data:', faculty);
+          toast.error('Could not identify user account for reset');
+          return;
+      }
+
       setResetLoading(true);
       try {
-          const res = await resetUserPassword(faculty.userId);
+          const res = await resetUserPassword(uId);
           setTempPassword(res.data.temporaryPassword);
           setIsResetConfirmOpen(false);
           setShowPasswordModal(true);

@@ -4,11 +4,13 @@ import useAuth from '../../hooks/useAuth';
 import { useState, useEffect } from 'react';
 import { useSidebarStore } from '../../store/sidebarStore';
 import { useNoticeStore } from '../../store/noticeStore';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { SIDEBAR_CONFIG } from '../../utils/sidebarConfig';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isCollapsed, toggleCollapsed, toggleMobile } = useSidebarStore();
   const { unreadCount, fetchUnreadCount } = useNoticeStore();
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -65,6 +67,38 @@ const Navbar = () => {
     else navigate('/login');
   };
 
+  // Dynamic Title Logic
+  const getPageTitle = () => {
+    if (!user?.role) return 'Portal';
+    const menu = SIDEBAR_CONFIG[user.role] || [];
+    const path = location.pathname;
+
+    // 1. Direct match in sidebar
+    for (const item of menu) {
+      if (item.type === 'single' && item.path === path) return item.label;
+      if (item.type === 'group' && item.children) {
+        const child = item.children.find(c => c.path === path);
+        if (child) return child.label;
+      }
+    }
+
+    // 2. Fallback for dynamic/detail routes
+    if (path.includes('/students/')) return 'Student Profile';
+    if (path.includes('/faculty/')) return 'Faculty Profile';
+    if (path.includes('/courses/')) return 'Course Details';
+    if (path.includes('/profile')) return 'My Profile';
+    if (path.includes('/settings')) return 'Account Settings';
+    if (path.includes('/scholarship/apply')) return 'Aid Application';
+
+    return 'Portal';
+  };
+
+  const pageTitle = getPageTitle();
+
+  useEffect(() => {
+    document.title = `${pageTitle} | Royal Bengal University`;
+  }, [pageTitle]);
+
   return (
       <header
           className={`h-[72px] bg-white/[0.92] dark:bg-[#09101F]/90 backdrop-blur-xl sticky top-0 z-30 px-5 sm:px-8 flex items-center justify-between border-b border-slate-200 dark:border-white/10 transition-all duration-300 ${isCollapsed ? 'lg:ml-[88px]' : 'lg:ml-[296px]'}`}
@@ -80,6 +114,18 @@ const Navbar = () => {
           >
             <Menu size={20} />
           </button>
+
+          {/* Page Title - Royal Bengal Institutional style */}
+          <div className="hidden sm:block mr-8 shrink-0">
+             <motion.h2
+                key={pageTitle}
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-lg font-black tracking-tight text-slate-900 dark:text-white"
+             >
+                {pageTitle}
+             </motion.h2>
+          </div>
 
           {/* Search - emerald focus like Login */}
           <div className="relative group flex-1">

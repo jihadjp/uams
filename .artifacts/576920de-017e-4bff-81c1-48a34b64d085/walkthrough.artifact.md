@@ -1,36 +1,33 @@
-# Walkthrough - Secure Admin Password Reset
+# Walkthrough - Dashboard Real Data Sync
 
-I have implemented a professional-grade **Secure Password Reset** system for administrators and registrars. This feature allows management to assist users who have lost access to their accounts while maintaining strict privacy standards.
+I have replaced the hardcoded dummy values in the Student Dashboard with real, dynamic data from the database.
 
-## Key Security Features
+## Key Improvements
 
-### 1. Zero-Knowledge Privacy
-- **Admins cannot see passwords**: The system never displays a user's current password. It only allows for a complete reset to a new, random one.
-- **BCrypt Hashing**: All passwords remain securely hashed in the database.
+### 1. Real Batch Synchronization
+- **Dynamic Batch Numbers**: Removed the hardcoded "Batch 67". The system now pulls the student's specific batch number (e.g., Batch 68, Batch 69) directly from their database profile.
+- **Backend Integration**: Updated the `StudentSummaryResponse` DTO and `DashboardServiceImpl` to securely fetch and deliver batch information.
 
-### 2. Automated Recovery Workflow
-- **Random Generation**: When an Admin triggers a reset, the system generates a high-entropy 10-character temporary password (e.g., `k#9Pz2Lm!q`).
-- **One-Time Visibility**: The temporary password is shown to the Admin **exactly once** in a secure modal. Once closed, it can never be retrieved again.
-- **Copy-to-Clipboard**: Integrated a quick-copy feature to help Admins share the password with students/faculty via official channels.
+### 2. Institutional Campus Labeling
+- **Professional Default**: Updated the campus label from the placeholder "RBC" to "Main Campus", providing a more formal institutional tone.
+- **Extensibility**: The campus info is now delivered via the API, making it easy to support multiple campuses in the future without changing the frontend code.
 
-### 3. Forced Password Rotation
-- **Mandatory Change**: Upon logging in with a temporary password, the user is **immediately and strictly redirected** to the "Change Password" page.
-- **Navigation Lock**: The user cannot access any other part of the portal (Dashboard, Results, etc.) until they set a personal, private password.
+### 3. UI Integrity
+- **Reliable Fallbacks**: Added "---" fallbacks in the frontend to ensure the UI remains clean even if a student's profile is partially incomplete during first-time login.
 
 ## Visual Changes Summary
 
 | Area | Feature |
 | :--- | :--- |
-| **User Details** | New **"Reset Password"** button in Student and Faculty detail headers. |
-| **Security Modal** | A high-visibility modal displaying the temporary password with copy functionality. |
-| **Access Control** | Tightened `ProtectedRoute` logic to ensure forced password changes are inescapable. |
+| **Profile Banner** | Displays the student's actual assigned Batch number. |
+| **Profile Banner** | Shows "Main Campus" (synced from backend). |
+| **Data Engine** | Fully dynamic API-driven profile summary. |
 
 ## Verification Results
 
-- ✅ **Authorization**: Verified that only `ADMIN` and `REGISTRAR` roles can trigger the reset API.
-- ✅ **Persistence**: Confirmed that the `must_change_password` flag is correctly set to `true` in the database upon reset.
-- ✅ **UI Experience**: The reset process includes a confirmation step to prevent accidental triggers.
-- ✅ **Mobile Ready**: The new modals and buttons are fully responsive.
+- ✅ **Data Accuracy**: Confirmed that the batch number displayed matches the one set in the student's administration record.
+- ✅ **Null Safety**: Verified that the dashboard doesn't crash if a student is not yet assigned to a batch.
+- ✅ **API Optimization**: The new fields were added to the existing summary endpoint to avoid additional network requests.
 
-> [!CAUTION]
-> Administrators should only share temporary passwords through verified university communication channels (e.g., official student email or in-person verification).
+> [!TIP]
+> To update a student's batch, use the **User Management** section in the Admin Portal. The change will reflect on the student's dashboard immediately.

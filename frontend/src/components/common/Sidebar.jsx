@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSidebarStore } from '../../store/sidebarStore';
 import { useAuthStore } from '../../store/authStore';
@@ -190,7 +190,10 @@ const Sidebar = ({ role }) => {
             >
                 <div className="h-full flex flex-col bg-[#09101F] text-slate-300">
                     {/* Logo - Same as Login Page */}
-                    <div className={`py-7 border-b border-white/[0.06] ${isCollapsed ? 'px-3 flex justify-center' : 'px-6 flex items-center gap-3'}`}>
+                    <Link
+                        to="/"
+                        className={`py-7 border-b border-white/[0.06] ${isCollapsed ? 'px-3 flex justify-center' : 'px-6 flex items-center gap-3'} hover:bg-white/[0.02] transition-colors block`}
+                    >
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white p-1.5 shadow-xl shadow-black/20">
                             <img src="/images/logo.png" alt="Royal Bengal University" className="h-full w-full object-contain" />
                         </div>
@@ -209,7 +212,7 @@ const Sidebar = ({ role }) => {
                                 </p>
                             </motion.div>
                         )}
-                    </div>
+                    </Link>
 
                     <nav className="flex-1 px-3 mt-4 space-y-1 overflow-y-auto custom-scrollbar">
                         {renderNavItems(false)}
@@ -250,7 +253,11 @@ const Sidebar = ({ role }) => {
                                 <X size={18} />
                             </button>
                             <div className="h-full flex flex-col bg-[#09101F]">
-                                <div className="px-6 py-7 flex items-center gap-3 border-b border-white/[0.06]">
+                                <Link
+                                    to="/"
+                                    onClick={() => setMobileOpen(false)}
+                                    className="px-6 py-7 flex items-center gap-3 border-b border-white/[0.06] hover:bg-white/[0.02] transition-colors"
+                                >
                                     <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white p-1.5 shadow-xl">
                                         <img src="/images/logo.png" alt="Royal Bengal University" className="h-full w-full object-contain" />
                                     </div>
@@ -258,7 +265,7 @@ const Sidebar = ({ role }) => {
                                         <h1 className="text-[14px] font-black tracking-tight text-white leading-tight">Royal Bengal University</h1>
                                         <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/40 mt-0.5">University Services</p>
                                     </div>
-                                </div>
+                                </Link>
                                 <nav className="flex-1 px-4 mt-4 space-y-1 overflow-y-auto">{renderNavItems(true)}</nav>
                             </div>
                         </motion.aside>
