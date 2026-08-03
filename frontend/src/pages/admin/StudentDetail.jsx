@@ -13,7 +13,10 @@ import {
     AlertCircle,
     RefreshCw, Laptop,  
     UserSquare2,
-    ShieldAlert
+    ShieldAlert,
+    Key,
+    Copy,
+    ExternalLink
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Loader from '../../components/common/Loader';
@@ -23,6 +26,7 @@ import useFetch from '../../hooks/useFetch';
 import { formatDate } from '../../utils/formatDate';
 import useAuth from '../../hooks/useAuth';
 import { updateClearance } from '../../api/studentApi';
+import { resetUserPassword } from '../../api/authApi';
 import toast from 'react-hot-toast';
 import FeeManagementModal from './FeeManagementModal';
 
@@ -35,6 +39,32 @@ const StudentDetail = () => {
     const [laptopLoading, setLaptopLoading] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [isFeeModalOpen, setIsFeeModalOpen] = useState(false);
+
+    // Password Reset States
+    const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+    const [resetLoading, setResetLoading] = useState(false);
+    const [tempPassword, setTempPassword] = useState(null);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+    const handleResetPassword = async () => {
+        setResetLoading(true);
+        try {
+            const res = await resetUserPassword(student.userId);
+            setTempPassword(res.data.temporaryPassword);
+            setIsResetConfirmOpen(false);
+            setShowPasswordModal(true);
+            toast.success('Password reset successfully');
+        } catch (err) {
+            toast.error('Failed to reset password');
+        } finally {
+            setResetLoading(false);
+        }
+    };
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(tempPassword);
+        toast.success('Password copied to clipboard');
+    };
 
     // Safe check for boolean property regardless of Jackson naming
     const isCleared = Boolean(student?.isRegistrationCleared ?? student?.registrationCleared);
@@ -150,9 +180,20 @@ const StudentDetail = () => {
                 </button>
 
                 <div className="flex items-center space-x-3">
-          <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest ${getStatusBadge(student?.status)}`}>
-            {student?.status || 'N/A'}
-          </span>
+                    {(isAdmin || isRegistrar) && (
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            className="flex items-center space-x-2 bg-amber-50 dark:bg-amber-900/10 text-amber-600 border-amber-100 dark:border-amber-900/30"
+                            onClick={() => setIsResetConfirmOpen(true)}
+                        >
+                            <Key size={16} />
+                            <span>Reset Password</span>
+                        </Button>
+                    )}
+                    <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest ${getStatusBadge(student?.status)}`}>
+                        {student?.status || 'N/A'}
+                    </span>
                 </div>
             </div>
 
@@ -432,6 +473,76 @@ const StudentDetail = () => {
                 onClose={() => setIsFeeModalOpen(false)}
                 student={student}
             />
+
+            {/* Password Reset Confirmation */}
+            <Modal
+                isOpen={isResetConfirmOpen}
+                onClose={() => setIsResetConfirmOpen(false)}
+                title="Secure Password Reset"
+                size="sm"
+            >
+                <div className="text-center space-y-4 py-4">
+                    <div className="w-16 h-16 bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-amber-500/10">
+                        <Key size={32} />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Reset Account Password?</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 font-medium px-2 leading-relaxed">
+                            This will generate a <strong>random temporary password</strong> for <strong>{student?.name}</strong>. The student will be forced to set a new password upon their next login.
+                        </p>
+                    </div>
+                    <div className="flex flex-col space-y-2 pt-4 px-2">
+                        <Button
+                            className="w-full py-3 rounded-xl font-bold text-xs uppercase tracking-widest bg-amber-600 hover:bg-amber-700 text-white"
+                            isLoading={resetLoading}
+                            onClick={handleResetPassword}
+                        >
+                            Confirm Reset
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            className="w-full py-2.5 rounded-xl text-xs font-bold"
+                            onClick={() => setIsResetConfirmOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Temporary Password Display */}
+            <Modal
+                isOpen={showPasswordModal}
+                onClose={() => setShowPasswordModal(false)}
+                title="New Temporary Password"
+                size="sm"
+            >
+                <div className="space-y-6 py-4">
+                    <div className="p-6 bg-indigo-50 dark:bg-indigo-950/30 rounded-3xl border-2 border-dashed border-indigo-200 dark:border-indigo-800 text-center">
+                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-3">Copy & Share with Student</p>
+                        <h2 className="text-3xl font-black text-indigo-700 dark:text-indigo-300 font-mono tracking-widest">
+                            {tempPassword}
+                        </h2>
+                    </div>
+
+                    <div className="flex flex-col space-y-3">
+                        <Button onClick={copyToClipboard} className="w-full py-3.5 flex items-center justify-center gap-2">
+                            <Copy size={18} />
+                            <span>Copy Password</span>
+                        </Button>
+                        <Button variant="secondary" onClick={() => setShowPasswordModal(false)} className="w-full py-3">
+                            Close
+                        </Button>
+                    </div>
+
+                    <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl flex items-start gap-3">
+                        <AlertCircle className="text-gray-400 shrink-0 mt-0.5" size={16} />
+                        <p className="text-[10px] text-gray-500 font-medium leading-relaxed">
+                            For security reasons, this password will not be shown again. Ensure you have shared it with the student before closing this window.
+                        </p>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };

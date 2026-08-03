@@ -1,44 +1,36 @@
-# Walkthrough - Financial Aid & Scholarship System
+# Walkthrough - Secure Admin Password Reset
 
-I have implemented a comprehensive **Financial Aid & Scholarship** management suite for the UAMS portal. This system automates the process of publishing aid opportunities, student applications, and administrative reviews.
+I have implemented a professional-grade **Secure Password Reset** system for administrators and registrars. This feature allows management to assist users who have lost access to their accounts while maintaining strict privacy standards.
 
-## Key Features
+## Key Security Features
 
-### 1. Financial Aid Circulars (The "Marketplace")
-- **Opportunity Discovery**: A dedicated page for students to browse active scholarships and aid programs.
-- **Rich Context**: Each circular includes detailed eligibility criteria, benefits (e.g., "50% Tuition Waiver"), and a clear countdown to the application deadline.
-- **Direct Application**: Students can apply directly from a circular card, which pre-fills the application context.
+### 1. Zero-Knowledge Privacy
+- **Admins cannot see passwords**: The system never displays a user's current password. It only allows for a complete reset to a new, random one.
+- **BCrypt Hashing**: All passwords remain securely hashed in the database.
 
-### 2. Digital Application Portal (Student)
-- **Justification System**: Students provide a formal justification and state their monthly family income to help administrators judge eligibility.
-- **Real-Time Status**: A professional status dashboard (**Scholarship & Waiver**) where students can track their application as it moves from `PENDING` to `REVIEWING` and finally `APPROVED` or `REJECTED`.
-- **Waiver History**: A permanent record of all past aid applications and their outcomes.
+### 2. Automated Recovery Workflow
+- **Random Generation**: When an Admin triggers a reset, the system generates a high-entropy 10-character temporary password (e.g., `k#9Pz2Lm!q`).
+- **One-Time Visibility**: The temporary password is shown to the Admin **exactly once** in a secure modal. Once closed, it can never be retrieved again.
+- **Copy-to-Clipboard**: Integrated a quick-copy feature to help Admins share the password with students/faculty via official channels.
 
-### 3. Administrative Oversight (Admin/Registrar)
-- **Circular Management**: Administrators can create, toggle active status, and set deadlines for new aid programs.
-- **Application Review Engine**: A centralized list of all student applications with the ability to:
-    - View student profiles and justifications.
-    - Update status to Reviewing or Rejected.
-    - **Final Approval**: Grant aid with administrative remarks that the student can see.
-
-### 4. High-End Institutional UI
-- **Elite Design**: Used the standard "Elite" design language with deep indigo gradients, shimmering card effects, and role-specific iconography (Gem for Scholarships, UserPlus for Aid).
-- **Interactive Badges**: High-contrast status badges for clear communication of results.
+### 3. Forced Password Rotation
+- **Mandatory Change**: Upon logging in with a temporary password, the user is **immediately and strictly redirected** to the "Change Password" page.
+- **Navigation Lock**: The user cannot access any other part of the portal (Dashboard, Results, etc.) until they set a personal, private password.
 
 ## Visual Changes Summary
 
-| Role | Area | Feature |
-| :--- | :--- | :--- |
-| **Student** | Financial Service | Three new pages: Circulars, Applications, and Waiver Status. |
-| **Admin** | Document/Finance | New "Financial Aid Management" page for processing applications. |
-| **Common** | Sidebar | Fully integrated navigation for both roles. |
+| Area | Feature |
+| :--- | :--- |
+| **User Details** | New **"Reset Password"** button in Student and Faculty detail headers. |
+| **Security Modal** | A high-visibility modal displaying the temporary password with copy functionality. |
+| **Access Control** | Tightened `ProtectedRoute` logic to ensure forced password changes are inescapable. |
 
 ## Verification Results
 
-- ✅ **SQL Integrity**: Verified new tables `financial_aid_circulars` and `financial_aid_applications` with proper cascading deletes.
-- ✅ **Concurrency**: Confirmed that a student cannot submit more than one application per circular.
-- ✅ **Security**: Verified that aid approval endpoints are strictly limited to `ADMIN` and `REGISTRAR` roles.
-- ✅ **UI Flow**: Confirmed that applying for a circular correctly redirects the student to their status dashboard.
+- ✅ **Authorization**: Verified that only `ADMIN` and `REGISTRAR` roles can trigger the reset API.
+- ✅ **Persistence**: Confirmed that the `must_change_password` flag is correctly set to `true` in the database upon reset.
+- ✅ **UI Experience**: The reset process includes a confirmation step to prevent accidental triggers.
+- ✅ **Mobile Ready**: The new modals and buttons are fully responsive.
 
-> [!TIP]
-> Administrators should regularly update the `is_active` status of circulars to ensure students only see current opportunities.
+> [!CAUTION]
+> Administrators should only share temporary passwords through verified university communication channels (e.g., official student email or in-person verification).

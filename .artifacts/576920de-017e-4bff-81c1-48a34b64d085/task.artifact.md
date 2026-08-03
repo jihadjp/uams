@@ -1,14 +1,11 @@
-# Tasks - Financial Aid & Scholarship System
+# Tasks - Secure Admin Password Reset
 
-- [x] Update SQL Schema with `financial_aid_circulars` and `financial_aid_applications` tables
-- [x] Create Backend Enums (`ApplicationStatus`)
-- [x] Create `FinancialAidCircular` and `FinancialAidApplication` Entities & Repositories
-- [x] Implement `FinancialAidService` and DTOs
-- [x] Create `FinancialAidController` with Student and Admin endpoints
-- [x] Create Frontend `financialAidApi.js`
-- [x] Create `FinancialAidCircular.jsx` (Student View)
-- [x] Create `FinancialAidApplication.jsx` (Form View)
-- [x] Create `ScholarshipWaiver.jsx` (Dashboard View)
-- [x] Create `FinancialAidManagement.jsx` (Admin View)
-- [x] Update `App.jsx` and `sidebarConfig.js`
-- [x] Final UI Polish and Verification
+- [ ] Create `PasswordResetResponse` DTO
+- [ ] Update `StudentResponse` and `FacultyResponse` with `userId`
+- [ ] Map `userId` in Student and Faculty services
+- [ ] Implement `resetUserPassword` logic in `AuthService`
+- [ ] Add reset password endpoint in `AuthController`
+- [ ] Add `resetUserPassword` to `authApi.js`
+- [ ] Update `StudentDetail.jsx` with Reset Password UI
+- [ ] Update `FacultyDetail.jsx` with Reset Password UI
+- [ ] Final UI Polish and Verification

@@ -6,3 +6,5 @@ export const loginApi = async (credentials) => {
 };
 
 export const changePassword = (data) => client.put('/auth/change-password', data);
+
+export const resetUserPassword = (userId) => client.post(`/auth/reset-password/${userId}`);
