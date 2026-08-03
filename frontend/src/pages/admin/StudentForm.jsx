@@ -7,6 +7,7 @@ import client from '../../api/client';
 import { User, Mail, BookOpen, Users, Phone, ShieldCheck, Calendar , Hash, GraduationCap, UserSquare2, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import Loader from '../../components/common/Loader';
 
 const StudentForm = ({ student, onSubmit, isLoading }) => {
     const studentData = student?.data || student;
@@ -15,6 +16,7 @@ const StudentForm = ({ student, onSubmit, isLoading }) => {
     const [programs, setPrograms] = useState([]);
     const [faculties, setFaculties] = useState([]);
     const [batches, setBatches] = useState([]);
+    const [metaLoading, setMetaLoading] = useState(true);
 
     const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
         values: isEdit ? {
@@ -57,6 +59,7 @@ const StudentForm = ({ student, onSubmit, isLoading }) => {
 
     useEffect(() => {
         const fetchData = async () => {
+            setMetaLoading(true);
             try {
                 const [progRes, facRes] = await Promise.all([
                     getPrograms(),
@@ -66,6 +69,8 @@ const StudentForm = ({ student, onSubmit, isLoading }) => {
                 setFaculties(facRes.data?.content || facRes.data || []);
             } catch (err) {
                 toast.error('Failed to load form data');
+            } finally {
+                setMetaLoading(false);
             }
         };
         fetchData();
@@ -78,9 +83,27 @@ const StudentForm = ({ student, onSubmit, isLoading }) => {
             return;
         }
         client.get('/batches/by-program', { params: { programId: selectedProgramId } })
-            .then(res => setBatches(res.data || []))
+            .then(res => {
+                const batchList = res.data || [];
+                setBatches(batchList);
+
+                // If in edit mode and the current student's batch is in this list,
+                // re-set it to ensure the select element picks it up after the list is populated
+                if (isEdit && studentData.batchId && batchList.some(b => b.id === studentData.batchId)) {
+                    setValue('batchId', studentData.batchId);
+                }
+            })
             .catch(() => {});
-    }, [selectedProgramId]);
+    }, [selectedProgramId, isEdit, studentData.batchId, setValue]);
+
+    if (metaLoading) {
+        return (
+            <div className="py-20 flex flex-col items-center justify-center space-y-4">
+                <Loader size="lg" />
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Preparing Form Data...</p>
+            </div>
+        );
+    }
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -168,6 +191,7 @@ const StudentForm = ({ student, onSubmit, isLoading }) => {
                             <BookOpen size={18} />
                         </div>
                         <select
+                            key={`prog-${programs.length}`}
                             {...register('programId', { required: 'Program is required' })}
                             className={`block w-full pl-11 pr-10 py-3 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none ${errors.programId ? 'border-red-400' : ''}`}
                         >
@@ -186,6 +210,7 @@ const StudentForm = ({ student, onSubmit, isLoading }) => {
                             <Users size={18} />
                         </div>
                         <select
+                            key={`batch-${batches.length}`}
                             {...register('batchId', { required: 'Batch is required' })}
                             disabled={!selectedProgramId}
                             className={`block w-full pl-11 pr-10 py-3 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none disabled:opacity-50 ${errors.batchId ? 'border-red-400' : ''}`}
@@ -212,7 +237,7 @@ const StudentForm = ({ student, onSubmit, isLoading }) => {
                         <option value="ON_LEAVE">On Leave</option>
                     </select>
                 </div>
-                {isEdit ? (
+                {isEdit && (
                     <Input
                         label="Current Semester"
                         type="number"
@@ -221,7 +246,8 @@ const StudentForm = ({ student, onSubmit, isLoading }) => {
                         error={errors.currentSemester?.message}
                         placeholder="e.g. 1"
                     />
-                ) : (
+                )}
+                {!isEdit && (
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1">Assign Advisor</label>
                         <div className="relative group">
@@ -249,6 +275,7 @@ const StudentForm = ({ student, onSubmit, isLoading }) => {
                             <UserSquare2 size={18} />
                         </div>
                         <select
+                            key={`fac-${faculties.length}`}
                             {...register('advisorId')}
                             className="block w-full pl-11 pr-10 py-3 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none"
                         >
@@ -260,7 +287,7 @@ const StudentForm = ({ student, onSubmit, isLoading }) => {
                 </div>
             )}
 
-            {/* Guardian Information - Moved outside isEdit */}
+            {/* Guardian Information */}
             <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
                 <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center">
                     <ShieldCheck size={16} className="mr-2 text-primary-500" /> Guardian Information

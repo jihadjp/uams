@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Plus, Edit, Trash2, Building2, Hash, Users, GraduationCap, PackageOpen, ChevronLeft, ChevronRight, ArrowUpDown, ShieldCheck } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Building2, Hash, Users, GraduationCap, PackageOpen, ChevronLeft, ChevronRight, ArrowUpDown, ShieldCheck, RefreshCw } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -10,11 +10,13 @@ import DepartmentForm from './DepartmentForm';
 import { getDepartments, createDepartment, updateDepartment, deleteDepartment } from '../../api/departmentApi';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 
 const DepartmentList = () => {
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
 
   // Pagination & Sorting State
@@ -30,7 +32,10 @@ const DepartmentList = () => {
   const [formLoading, setFormLoading] = useState(false);
 
   const fetchDepartments = async () => {
-    setLoading(true);
+    const isInitial = departments.length === 0;
+    if (isInitial) setLoading(true);
+    else setRefreshing(true);
+
     try {
       const res = await getDepartments({
         page,
@@ -39,11 +44,12 @@ const DepartmentList = () => {
         search: search || undefined
       });
       setDepartments(res.data.content || res.data || []);
-      setTotalElements(res.data.totalElements || (res.data.content ? res.data.content.length : 0));
+      setTotalElements(res.data?.totalElements || (res.data.content ? res.data.content.length : 0));
     } catch (err) {
       toast.error('Failed to fetch departments');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -123,10 +129,15 @@ const DepartmentList = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Departments</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Manage university departments and faculty heads.</p>
         </div>
-        <Button onClick={handleAddClick} className="flex items-center space-x-2">
-          <Plus size={20} />
-          <span>Add Department</span>
-        </Button>
+        <div className="flex items-center gap-3">
+            <Button onClick={fetchDepartments} variant="secondary" className="p-2.5">
+                <RefreshCw size={20} className={loading || refreshing ? 'animate-spin' : ''} />
+            </Button>
+            <Button onClick={handleAddClick} className="flex items-center space-x-2">
+                <Plus size={20} />
+                <span>Add Department</span>
+            </Button>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -147,8 +158,18 @@ const DepartmentList = () => {
            />
         </div>
 
-        <div className="overflow-x-auto min-h-[400px]">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto min-h-[400px] relative">
+          {refreshing && (
+                <div className="absolute inset-x-0 top-0 h-0.5 bg-primary-500/10 overflow-hidden z-20">
+                    <motion.div
+                        initial={{ x: '-100%' }}
+                        animate={{ x: '100%' }}
+                        transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                        className="h-full w-1/3 bg-primary-500"
+                    />
+                </div>
+            )}
+          <table className={`w-full text-left transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
             <thead className="bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 uppercase text-[10px] font-bold tracking-wider">
               <tr>
                 <th className="px-6 py-4 cursor-pointer hover:text-primary-500 transition-colors" onClick={() => handleSort('deptNumber')}>
@@ -169,7 +190,7 @@ const DepartmentList = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {loading ? (
+              {loading && departments.length === 0 ? (
                  Array.from({ length: pageSize }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
                     <td className="px-6 py-4"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-8"></div></td>
@@ -209,7 +230,13 @@ const DepartmentList = () => {
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-2">
                        <div className={`w-2 h-2 rounded-full ${dept.headFacultyName === 'Not Assigned' ? 'bg-gray-300' : 'bg-green-500'}`} />
-                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{dept.headFacultyName}</span>
+                       {dept.headFacultyId ? (
+                           <Link to={`/portal/faculty/${dept.headFacultyId}`} className="text-sm font-bold text-gray-700 dark:text-gray-300 hover:text-primary-600 transition-colors">
+                               {dept.headFacultyName}
+                           </Link>
+                       ) : (
+                           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{dept.headFacultyName}</span>
+                       )}
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">

@@ -1,34 +1,33 @@
-# Walkthrough - Profile Editing from Details Page
+# Walkthrough - Department Management Enhancements
 
-I have added a convenient **Edit Profile** feature to the Student and Faculty detail pages. This allows administrators and registrars to update user information directly from their profile view.
+I have optimized the Department management system to fix data persistence issues and improve administrative navigation.
 
 ## Key Improvements
 
-### 1. Direct Editing Access
-- **Contextual Actions**: Added a new **"Edit Profile"** button in the header of both Student and Faculty detail pages, right next to the "Reset Password" button.
-- **Workflow Efficiency**: Admins no longer need to go back to the main list to update a user's information.
+### 1. Fixed Form Persistence
+- **Head of Dept Dropdown**: Resolved the issue where the "Head of Department" selection was lost during editing. The form now intelligently waits for the faculty list to load from the backend before rendering the selection, ensuring the current value is correctly matched.
+- **Loading State**: Added a professional "Loading Faculty Data..." indicator within the edit modal to prevent users from interacting with the form before it's fully synchronized.
 
-### 2. Seamless User Interface
-- **Modal Integration**: Reused the existing professional forms (`StudentForm` and `FacultyForm`) inside a modal. This ensures a consistent look and feel throughout the management suite.
-- **Real-Time Updates**: Upon saving changes, the modal closes and the detail page **automatically refetches** the data from the backend, providing instant visual feedback.
+### 2. Enhanced List Interaction
+- **Refresh (Sync) Button**: Integrated a new **Refresh** button in the Department List header, allowing administrators to fetch the latest department statistics and head assignments without reloading the entire portal.
+- **Flicker-Free Loading**: Applied the background-refresh pattern with an emerald progress bar, ensuring a smooth visual experience during data updates.
 
-### 3. Integrated Security
-- **Role Protection**: The edit button is only visible to users with the **ADMIN** or **REGISTRAR** role, maintaining strict access control.
-- **Data Integrity**: The update process follows all existing backend validation rules for emails, programs, and other mandatory fields.
+### 3. Integrated Navigation
+- **Direct Faculty Links**: In the department table, the **Head of Department's name** is now a clickable link. Clicking it will take you directly to that specific faculty member's detail page, enabling faster administrative cross-referencing.
 
 ## Visual Changes Summary
 
-| Area | Feature |
+| Feature | Enhancement |
 | :--- | :--- |
-| **Profile Headers** | New **"Edit Profile"** button with a pencil icon. |
-| **Editing Flow** | Smooth modal transition for updating personal and academic details. |
-| **Data Sync** | Instant UI refresh after successful profile updates. |
+| **Department List** | New Sync button and "Smooth Refresh" progress bar. |
+| **Table Column** | Head of Dept names are now interactive links to Faculty Profiles. |
+| **Edit Modal** | Stable dropdowns that correctly persist institutional assignments. |
 
 ## Verification Results
 
-- ✅ **Functional Check**: Confirmed that updating a student's guardian info or a faculty's designation reflects immediately on the page.
-- ✅ **API Synchronization**: Verified that the frontend correctly calls the `PUT` endpoints and handles success/error toasts.
-- ✅ **UI Responsiveness**: The edit modal is fully responsive and looks great on all screen sizes.
+- ✅ **Data Integrity**: Confirmed that `headFacultyId` is correctly passed and mapped between the backend and frontend.
+- ✅ **Navigation**: Verified that clicking a department head's name redirects to the correct `/portal/faculty/:id` route.
+- ✅ **UI Stability**: Confirmed that the form no longer resets to "Not Assigned" when opening the edit modal for an existing department.
 
 > [!TIP]
-> You can now quickly correct typos or update contact information for any user without losing your current view context.
+> If a department head is changed, the statistics (like faculty count) will automatically update when you hit the **Refresh** button on the main list.

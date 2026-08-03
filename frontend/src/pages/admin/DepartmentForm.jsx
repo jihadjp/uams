@@ -3,15 +3,17 @@ import { useEffect, useState } from 'react';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import { getDepartmentFaculty } from '../../api/departmentApi';
-import { Building2, Hash, UserSquare2, Type } from 'lucide-react';
+import { Building2, Hash, UserSquare2, Type, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Loader from '../../components/common/Loader';
 
 const DepartmentForm = ({ department, onSubmit, isLoading }) => {
   const isEdit = !!department;
   const [faculty, setFaculty] = useState([]);
+  const [metaLoading, setMetaLoading] = useState(isEdit);
 
   const { register, handleSubmit, formState: { errors } } = useForm({
-    defaultValues: {
+    values: {
       name: department?.name || '',
       code: department?.code || '',
       deptNumber: department?.deptNumber || '',
@@ -22,19 +24,35 @@ const DepartmentForm = ({ department, onSubmit, isLoading }) => {
   useEffect(() => {
     if (isEdit && department?.id) {
       const fetchFaculty = async () => {
+        setMetaLoading(true);
         try {
           const res = await getDepartmentFaculty(department.id);
-          setFaculty(res.data.content || res.data);
+          setFaculty(res.data.content || res.data || []);
         } catch (err) {
           toast.error('Failed to load department faculty');
+        } finally {
+          setMetaLoading(false);
         }
       };
       fetchFaculty();
     }
   }, [isEdit, department?.id]);
 
+  if (metaLoading) {
+      return (
+          <div className="py-20 flex flex-col items-center justify-center space-y-4">
+              <Loader size="lg" />
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Loading Faculty Data...</p>
+          </div>
+      );
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form
+        key={department?.id || 'new'}
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-6"
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input
           label="Department Name"
@@ -72,12 +90,14 @@ const DepartmentForm = ({ department, onSubmit, isLoading }) => {
                   <UserSquare2 size={18} />
                </div>
                <select
+                 key={`head-${faculty.length}`}
                  {...register('headFacultyId')}
-                 className="block w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none"
+                 className="block w-full pl-11 pr-10 py-3 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none"
                >
                  <option value="">Not Assigned</option>
                  {faculty.map(f => <option key={f.id} value={f.id}>{f.name} ({f.designation})</option>)}
                </select>
+               <ChevronDown size={18} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             </div>
           </div>
         )}
