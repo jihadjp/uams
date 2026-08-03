@@ -30,6 +30,7 @@ import { formatDate } from '../../utils/formatDate';
 const RegistrarList = () => {
     const [registrars, setRegistrars] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [search, setSearch] = useState('');
 
     // Modal States
@@ -53,7 +54,10 @@ const RegistrarList = () => {
     });
 
     const fetchRegistrars = async () => {
-        setLoading(true);
+        const isInitial = registrars.length === 0;
+        if (isInitial) setLoading(true);
+        else setRefreshing(true);
+
         try {
             const res = await getRegistrars();
             setRegistrars(res.data || []);
@@ -61,6 +65,7 @@ const RegistrarList = () => {
             toast.error('Failed to fetch registrars');
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     };
 
@@ -162,7 +167,7 @@ const RegistrarList = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     <Button onClick={fetchRegistrars} variant="secondary" className="p-2.5">
-                        <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+                        <RefreshCw size={20} className={loading || refreshing ? 'animate-spin' : ''} />
                     </Button>
                     <Button onClick={handleAddClick} className="flex items-center gap-2">
                         <Plus size={20} />
@@ -190,8 +195,18 @@ const RegistrarList = () => {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto min-h-[300px]">
-                    <table className="w-full text-left">
+                <div className="overflow-x-auto min-h-[300px] relative">
+                    {refreshing && (
+                        <div className="absolute inset-x-0 top-0 h-0.5 bg-primary-500/10 overflow-hidden z-20">
+                            <motion.div
+                                initial={{ x: '-100%' }}
+                                animate={{ x: '100%' }}
+                                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                                className="h-full w-1/3 bg-primary-500"
+                            />
+                        </div>
+                    )}
+                    <table className={`w-full text-left transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
                         <thead className="bg-slate-50 dark:bg-white/[0.03] text-slate-500 dark:text-white/30 uppercase text-[10px] font-bold tracking-widest">
                             <tr>
                                 <th className="px-6 py-4">Registrar Info</th>
@@ -202,7 +217,7 @@ const RegistrarList = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-white/[0.06]">
-                            {loading ? (
+                            {loading && registrars.length === 0 ? (
                                 Array.from({ length: 3 }).map((_, i) => (
                                     <tr key={i} className="animate-pulse">
                                         <td className="px-6 py-5"><div className="h-10 bg-slate-100 dark:bg-white/5 rounded-xl w-48" /></td>

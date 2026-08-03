@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Plus, Trash2, Users, Layers, GraduationCap, ChevronRight, Hash, Building2, LayoutGrid, Sparkles } from 'lucide-react';
+import { Search, Plus, Trash2, Users, Layers, GraduationCap, ChevronRight, Hash, Building2, LayoutGrid, Sparkles, RefreshCw } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -15,6 +15,7 @@ const BatchManagement = () => {
   const [programs, setPrograms] = useState([]);
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState('');
   const [search, setSearch] = useState('');
   const { isAdmin } = useAuth();
@@ -31,7 +32,10 @@ const BatchManagement = () => {
   const [formLoading, setFormLoading] = useState(false);
 
   const fetchData = async () => {
-    setLoading(true);
+    const isInitial = batches.length === 0;
+    if (isInitial) setLoading(true);
+    else setRefreshing(true);
+
     try {
       const [progRes, batchRes] = await Promise.all([
         client.get('/programs'),
@@ -43,6 +47,7 @@ const BatchManagement = () => {
       toast.error('Failed to fetch data');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -146,10 +151,15 @@ const BatchManagement = () => {
               className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 transition-all dark:text-white"
             />
           </div>
-          <Button onClick={() => setIsBatchModalOpen(true)} className="flex items-center space-x-2 w-full md:w-auto">
-            <Plus size={20} />
-            <span>Create New Batch</span>
-          </Button>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <Button onClick={fetchData} variant="secondary" className="p-2.5">
+              <RefreshCw size={20} className={loading || refreshing ? 'animate-spin' : ''} />
+            </Button>
+            <Button onClick={() => setIsBatchModalOpen(true)} className="flex items-center space-x-2 flex-1 md:flex-none justify-center">
+              <Plus size={20} />
+              <span>Create New Batch</span>
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -187,9 +197,20 @@ const BatchManagement = () => {
         </div>
 
         {/* Main Content: Batches Grid */}
-        <div className="flex-1">
-           {loading ? (
-             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="flex-1 relative">
+           {refreshing && (
+                <div className="absolute inset-x-0 top-0 h-0.5 bg-primary-500/10 overflow-hidden z-20">
+                    <motion.div
+                        initial={{ x: '-100%' }}
+                        animate={{ x: '100%' }}
+                        transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                        className="h-full w-1/3 bg-primary-500"
+                    />
+                </div>
+            )}
+           <div className={`transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+               {loading && batches.length === 0 ? (
+                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {[1, 2, 3, 4].map(i => (
                   <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl h-48 animate-pulse border border-gray-100 dark:border-gray-700">
                     <div className="h-14 bg-gray-100 dark:bg-gray-700 rounded-t-2xl"></div>
@@ -305,6 +326,7 @@ const BatchManagement = () => {
                 <p className="text-sm text-gray-500 mt-1">Create a batch to start managing sections.</p>
              </Card>
            )}
+           </div>
         </div>
       </div>
 

@@ -186,8 +186,18 @@ const Navbar = () => {
             </div>
 
             <div className="relative group">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/15 text-[#007A55] dark:text-emerald-300 border border-emerald-100 dark:border-emerald-500/20 shadow-sm cursor-pointer transition group-hover:shadow-md">
-                <UserIcon size={18} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/15 text-[#007A55] dark:text-emerald-300 border border-emerald-100 dark:border-emerald-500/20 shadow-sm cursor-pointer transition group-hover:shadow-md overflow-hidden">
+                {user?.profileImage ? (
+                  <img
+                    src={user.profileImage.startsWith('http') || user.profileImage.startsWith('/api')
+                      ? user.profileImage
+                      : `/api/uploads/${user.profileImage}`}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <UserIcon size={18} />
+                )}
               </div>
 
               {/* Dropdown - matches new glass design */}

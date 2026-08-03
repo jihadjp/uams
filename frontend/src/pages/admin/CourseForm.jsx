@@ -5,11 +5,13 @@ import Button from '../../components/common/Button';
 import client from '../../api/client';
 import { BookOpen, Type, Building2, ClipboardList, Layers, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Loader from '../../components/common/Loader';
 
 const CourseForm = ({ course, onSubmit, isLoading }) => {
     const isEdit = !!course;
     const [departments, setDepartments] = useState([]);
     const [courses, setCourses] = useState([]);
+    const [metaLoading, setMetaLoading] = useState(true);
 
     const { register, handleSubmit, watch, formState: { errors } } = useForm({
         values: {
@@ -29,6 +31,7 @@ const CourseForm = ({ course, onSubmit, isLoading }) => {
     useEffect(() => {
         let isMounted = true;
         const fetchMeta = async () => {
+            setMetaLoading(true);
             try {
                 const [deptRes, courseRes] = await Promise.all([
                     client.get('/departments'),
@@ -40,11 +43,22 @@ const CourseForm = ({ course, onSubmit, isLoading }) => {
                 setCourses(courseRes.data?.content || courseRes.data || []);
             } catch (err) {
                 toast.error('Failed to load form data');
+            } finally {
+                if (isMounted) setMetaLoading(false);
             }
         };
         fetchMeta();
         return () => { isMounted = false; };
     }, []);
+
+    if (metaLoading) {
+        return (
+            <div className="py-20 flex flex-col items-center justify-center space-y-4">
+                <Loader size="lg" />
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Preparing Form Data...</p>
+            </div>
+        );
+    }
 
     const filteredPrerequisites = Array.isArray(courses) ? courses.filter(c => {
         const courseDeptId = c.departmentId || c.department?.id;
@@ -80,18 +94,11 @@ const CourseForm = ({ course, onSubmit, isLoading }) => {
                             <Building2 size={18} />
                         </div>
                         <select
+                            key={`dept-${departments.length}`}
                             {...register('departmentId', { required: 'Department is required' })}
                             className="block w-full pl-11 pr-10 py-3 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white outline-none appearance-none cursor-pointer"
                         >
                             <option value="">Select Department</option>
-
-                            {/* 💡 API লোড হওয়ার আগ পর্যন্ত যেন ID টি ড্রপডাউনে হারিয়ে না যায় */}
-                            {course?.department && !departments.some(d => String(d.id) === String(course.department.id || course.departmentId)) && (
-                                <option value={course.department.id || course.departmentId}>
-                                    {course.department.name || 'Loading...'}
-                                </option>
-                            )}
-
                             {departments.map(d => (
                                 <option key={d.id} value={d.id}>{d.name}</option>
                             ))}
@@ -159,6 +166,7 @@ const CourseForm = ({ course, onSubmit, isLoading }) => {
                         <BookOpen size={18} />
                     </div>
                     <select
+                        key={`pre-${filteredPrerequisites.length}`}
                         {...register('prerequisiteCourseId')}
                         className="block w-full pl-11 pr-10 py-3 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none appearance-none disabled:opacity-50 cursor-pointer"
                         disabled={!selectedDeptId}

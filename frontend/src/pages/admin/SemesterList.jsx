@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Edit, Trash2, Calendar, CheckCircle2, Circle, MoreVertical, Play, BookOpen, GraduationCap, Archive, Lock, ArrowUpDown, ChevronLeft, ChevronRight, PackageOpen } from 'lucide-react';
+import { Plus, Edit, Trash2, Calendar, CheckCircle2, Circle, MoreVertical, Play, BookOpen, GraduationCap, Archive, Lock, ArrowUpDown, ChevronLeft, ChevronRight, PackageOpen, RefreshCw } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
@@ -16,6 +16,7 @@ import useAuth from '../../hooks/useAuth';
 const SemesterList = () => {
   const [semesters, setSemesters] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Pagination & Sorting State
   const [page, setPage] = useState(0);
@@ -33,7 +34,10 @@ const SemesterList = () => {
   const [managingCalendar, setManagingCalendar] = useState(null);
 
   const fetchSemesters = async () => {
-    setLoading(true);
+    const isInitial = semesters.length === 0;
+    if (isInitial) setLoading(true);
+    else setRefreshing(true);
+
     try {
       const res = await getSemesters({
         page,
@@ -46,6 +50,7 @@ const SemesterList = () => {
       toast.error('Failed to fetch semesters');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -149,10 +154,15 @@ const SemesterList = () => {
           <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none uppercase">Semester Lifecycle</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2 font-bold uppercase text-[10px] tracking-[0.2em]">Manage Academic Terms & Control Enrollment Phases</p>
         </div>
-        <Button onClick={handleAddClick} className="flex items-center space-x-2 bg-[#2D2A4F] text-white">
-          <Plus size={20} />
-          <span>Initialize Term</span>
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button onClick={fetchSemesters} variant="secondary" className="p-2.5">
+            <RefreshCw size={20} className={loading || refreshing ? 'animate-spin' : ''} />
+          </Button>
+          <Button onClick={handleAddClick} className="flex items-center space-x-2 bg-[#2D2A4F] text-white">
+            <Plus size={20} />
+            <span>Initialize Term</span>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Dashboard */}
@@ -163,8 +173,18 @@ const SemesterList = () => {
         <StatCard icon={Calendar} label="Upcoming" value={stats.upcoming} color="warning" delay={0.3} />
       </div>
 
-      <Card className="!p-0 border-none shadow-sm overflow-hidden bg-white dark:bg-gray-900">
-        <div className="overflow-x-auto min-h-[400px]">
+      <Card className="!p-0 border-none shadow-sm overflow-hidden bg-white dark:bg-gray-900 relative">
+        {refreshing && (
+            <div className="absolute inset-x-0 top-0 h-0.5 bg-primary-500/10 overflow-hidden z-20">
+                <motion.div
+                    initial={{ x: '-100%' }}
+                    animate={{ x: '100%' }}
+                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                    className="h-full w-1/3 bg-primary-500"
+                />
+            </div>
+        )}
+        <div className={`overflow-x-auto min-h-[400px] transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
           <table className="w-full text-left">
             <thead className="bg-gray-50 dark:bg-gray-800 text-gray-400 uppercase text-[9px] font-black tracking-widest border-b border-gray-100 dark:border-gray-800">
               <tr>
@@ -186,7 +206,7 @@ const SemesterList = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-              {loading ? (
+              {loading && semesters.length === 0 ? (
                  Array.from({ length: pageSize }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
                     <td className="px-6 py-4"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-2"></div><div className="h-2 bg-gray-100 dark:bg-gray-800 rounded w-16"></div></td>

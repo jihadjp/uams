@@ -59,6 +59,7 @@ const Login = () => {
             id: data.userId,
             name: data.name,
             role: data.role,
+            profileImage: data.profileImage,
             mustChangePassword: data.mustChangePassword,
           },
           data.token

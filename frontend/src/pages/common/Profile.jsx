@@ -19,11 +19,13 @@ import Input from '../../components/common/Input';
 import Loader from '../../components/common/Loader';
 import ProfileHeader  from '../../pages/common/ProfileHeaderCard';
 import useAuth from '../../hooks/useAuth';
+import { useAuthStore } from '../../store/authStore';
 import { getMyProfile, updateProfile, uploadProfileImage } from '../../api/profileApi';
 import toast from 'react-hot-toast';
 
 const Profile = () => {
     const { user, isStudent, isFaculty, isAdmin, isRegistrar } = useAuth();
+    const updateUser = useAuthStore(state => state.updateUser);
     const [profileData, setProfileData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -68,6 +70,7 @@ const Profile = () => {
                 ...prev,
                 user: { ...prev.user, profileImage: res.data.imageUrl },
             }));
+            updateUser({ profileImage: res.data.imageUrl });
             toast.success('Image uploaded successfully', { id: uploadToast });
         } catch (err) {
             toast.error('Failed to upload image', { id: uploadToast });
@@ -96,6 +99,7 @@ const Profile = () => {
                     : undefined,
             };
             await updateProfile(payload);
+            updateUser({ name: payload.name, profileImage: payload.profileImage });
             toast.success('Profile updated successfully');
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to update profile');

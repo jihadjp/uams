@@ -89,12 +89,12 @@ const StudentForm = ({ student, onSubmit, isLoading }) => {
 
                 // If in edit mode and the current student's batch is in this list,
                 // re-set it to ensure the select element picks it up after the list is populated
-                if (isEdit && studentData.batchId && batchList.some(b => b.id === studentData.batchId)) {
+                if (isEdit && studentData?.batchId && batchList.some(b => b.id === studentData.batchId)) {
                     setValue('batchId', studentData.batchId);
                 }
             })
             .catch(() => {});
-    }, [selectedProgramId, isEdit, studentData.batchId, setValue]);
+    }, [selectedProgramId, isEdit, studentData?.batchId, setValue]);
 
     if (metaLoading) {
         return (

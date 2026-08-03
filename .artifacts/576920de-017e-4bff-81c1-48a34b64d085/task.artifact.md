@@ -1,7 +1,9 @@
-# Tasks - Department Management Enhancements
+# Tasks - Enhanced Error Handling for Data Entry
 
-- [ ] Add `headFacultyId` to `DepartmentResponse.java`
-- [ ] Update `DepartmentServiceImpl.java` to populate `headFacultyId`
-- [ ] Add Refresh button and Faculty navigation to `DepartmentList.jsx`
-- [ ] Fix dropdown persistence and add loading guard to `DepartmentForm.jsx`
-- [ ] Final UI Polish and Verification
+- [ ] Add dependency checks to `FacultyServiceImpl.java`
+- [ ] Add dependency checks to `ProgramServiceImpl.java` (if needed, checking department)
+- [ ] Add dependency checks to `BatchServiceImpl.java`
+- [ ] Add dependency checks to `StudentServiceImpl.java`
+- [ ] Add dependency checks to `CourseOfferingServiceImpl.java`
+- [ ] Verify `GlobalExceptionHandler.java` catches and displays these messages
+- [ ] Final Verification

@@ -1,42 +1,48 @@
-# Implementation Plan - Department Management Enhancements
+# Implementation Plan - Enhanced Error Handling for Data Entry
 
-This plan addresses the issue where the "Head of Department" field becomes blank during editing, adds a data refresh feature, and enables navigation from the department list to faculty details.
+This plan introduces descriptive error messages that guide administrators on the correct sequence of data entry. Instead of generic "Not Found" or "Null" exceptions, the system will explicitly state what missing records need to be created first.
 
 ## User Review Required
 
-> [!NOTE]
-> - **Navigation**: Clicking on the Head of Department's name will redirect to the Faculty Detail page.
-> - **Form Persistence**: Drodown selections will be stabilized by ensuring metadata is fully loaded before the form is rendered.
+> [!IMPORTANT]
+> - **Dependency Awareness**: The backend will now check if required tables are empty before processing specific requests.
+> - **Helpful Messages**: Messages will look like: "Please create at least one Program before registering a student."
 
 ## Proposed Changes
 
-### 1. Backend Implementation
+### 1. Backend Service Enhancements
 
-#### [MODIFY] [DepartmentResponse.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/dto/DepartmentResponse.java)
-- Add `private UUID headFacultyId;` field.
+I will update the following services to include "pre-flight" dependency checks:
 
-#### [MODIFY] [DepartmentServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/DepartmentServiceImpl.java)
-- Populate `headFacultyId` in the `mapToResponse` method.
+#### [MODIFY] [StudentServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/StudentServiceImpl.java)
+- Check `programRepository.count()`: If 0, throw "No programs found. Please create a Program first."
+- Check `batchRepository.count()`: If 0, throw "No batches found. Please create a Batch for the selected program first."
 
-### 2. Frontend Implementation
+#### [MODIFY] [FacultyServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/FacultyServiceImpl.java)
+- Check `departmentRepository.count()`: If 0, throw "Please create a Department before adding faculty."
 
-#### [MODIFY] [DepartmentList.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/admin/DepartmentList.jsx)
-- Add a **Refresh (Sync)** button in the header.
-- Wrap the `headFacultyName` in a `Link` component pointing to `/portal/faculty/${dept.headFacultyId}`.
-- Apply a subtle dimmer effect and progress bar during background refreshes (matching Student/Faculty lists).
+#### [MODIFY] [BatchServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/BatchServiceImpl.java)
+- Check `programRepository.count()`: If 0, throw "Please create a Program before defining batches."
 
-#### [MODIFY] [DepartmentForm.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/admin/DepartmentForm.jsx)
-- Implement `metaLoading` guard to wait for the faculty list before showing the dropdown.
-- Use the `values` prop in `useForm` to ensure data from the `department` prop is applied correctly once available.
-- Add a unique `key` to the `select` element to force a re-sync with the form state after metadata loads.
+#### [MODIFY] [CourseOfferingServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/CourseOfferingServiceImpl.java)
+- Check `courseRepository.count()`: If 0, throw "Please create Courses before planning offerings."
+- Check `semesterRepository.count()`: If 0, throw "Please initialize a Semester before planning offerings."
+- Check `facultyRepository.count()`: If 0, throw "Please add Faculty members before assigning them to courses."
+
+### 2. Global Exception Handler
+
+#### [MODIFY] [GlobalExceptionHandler.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/exception/GlobalExceptionHandler.java)
+- Ensure that `IllegalArgumentException` and custom `DependencyMissingException` (or similar) are caught and return a 400 Bad Request with the custom message clearly visible.
 
 ## Verification Plan
 
 ### Manual Verification
-1. Login as **Admin**.
-2. Go to **Departments**.
-3. Click the **Refresh** button and verify the background sync works without flickering.
-4. Click on a **Head of Department's name** and verify it navigates to the correct Faculty Detail page.
-5. Click **Edit** on a department.
-6. Verify that the **Head of Department** dropdown correctly shows the current head and does not reset to blank.
-7. Change the head and save, then verify the change is reflected.
+1. Clear the database (or start with a fresh one).
+2. Attempt to create a **Student**.
+3. Verify the error message: "No programs found. Please create a Program first."
+4. Create a **Department**.
+5. Attempt to create a **Program**.
+6. Verify it works.
+7. Attempt to create a **Student** without a Batch.
+8. Verify the error message: "No batches found...".
+9. Repeat for **Course Offerings** and other entities.

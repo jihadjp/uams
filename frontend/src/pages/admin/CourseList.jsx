@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Plus, Edit, Trash2, BookOpen, Building2, Layers, Filter, CheckCircle2, XCircle, ArrowUpDown, ChevronLeft, ChevronRight, PackageOpen, Award } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, BookOpen, Building2, Layers, Filter, CheckCircle2, XCircle, ArrowUpDown, ChevronLeft, ChevronRight, PackageOpen, Award, RefreshCw } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -16,6 +16,7 @@ import useAuth from '../../hooks/useAuth';
 const CourseList = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedDept, setSelectedDept] = useState('');
   const [selectedType, setSelectedType] = useState('');
@@ -35,7 +36,10 @@ const CourseList = () => {
   const [formLoading, setFormLoading] = useState(false);
 
   const fetchCourses = async () => {
-    setLoading(true);
+    const isInitial = courses.length === 0;
+    if (isInitial) setLoading(true);
+    else setRefreshing(true);
+
     try {
       const res = await getCourses({
         page,
@@ -52,6 +56,7 @@ const CourseList = () => {
       toast.error('Failed to fetch courses');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -159,10 +164,15 @@ const CourseList = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Course Management</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Define university courses and their prerequisites.</p>
         </div>
-        <Button onClick={handleAddClick} className="flex items-center space-x-2">
-          <Plus size={20} />
-          <span>Add Course</span>
-        </Button>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <Button onClick={fetchCourses} variant="secondary" className="p-2.5">
+            <RefreshCw size={20} className={loading || refreshing ? 'animate-spin' : ''} />
+          </Button>
+          <Button onClick={handleAddClick} className="flex items-center space-x-2 flex-1 md:flex-none justify-center">
+            <Plus size={20} />
+            <span>Add Course</span>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Dashboard */}
@@ -217,8 +227,18 @@ const CourseList = () => {
            </div>
         </div>
 
-        <div className="overflow-x-auto min-h-[400px]">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto min-h-[400px] relative">
+          {refreshing && (
+                <div className="absolute inset-x-0 top-0 h-0.5 bg-primary-500/10 overflow-hidden z-20">
+                    <motion.div
+                        initial={{ x: '-100%' }}
+                        animate={{ x: '100%' }}
+                        transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                        className="h-full w-1/3 bg-primary-500"
+                    />
+                </div>
+            )}
+          <table className={`w-full text-left transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
             <thead className="bg-gray-50/50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 uppercase text-[10px] font-black tracking-widest">
               <tr>
                 <th className="px-6 py-5 cursor-pointer hover:text-primary-500 transition-colors" onClick={() => handleSort('title')}>
@@ -240,7 +260,7 @@ const CourseList = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {loading ? (
+              {loading && courses.length === 0 ? (
                 Array.from({ length: pageSize }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
                     <td className="px-6 py-4"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 mb-2"></div><div className="h-2 bg-gray-100 dark:bg-gray-800 rounded w-20"></div></td>

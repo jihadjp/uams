@@ -11,7 +11,8 @@ import {
   Eye,
   Calendar,
   FileText,
-  CheckCircle2
+  CheckCircle2,
+  RefreshCw
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -40,6 +41,7 @@ const categories = [
 const NoticeManagement = () => {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [departments, setDepartments] = useState([]);
   const { isAdmin } = useAuth();
   const { decrementUnread, refresh } = useNoticeStore();
@@ -63,7 +65,10 @@ const NoticeManagement = () => {
   });
 
   const fetchNotices = async () => {
-    setLoading(true);
+    const isInitial = notices.length === 0;
+    if (isInitial) setLoading(true);
+    else setRefreshing(true);
+
     try {
       const res = await getAllNotices();
       setNotices(res.data.content || res.data);
@@ -71,6 +76,7 @@ const NoticeManagement = () => {
       toast.error('Failed to fetch notices');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -174,23 +180,39 @@ const NoticeManagement = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-200">Notice Board Management</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-200">Publish and manage university-wide announcements.</p>
         </div>
-        <div className="flex items-center space-x-3">
-          <Button variant="outline" onClick={handleMarkAllRead} className="flex items-center space-x-2 border-gray-200 text-gray-600 hover:bg-gray-50">
-            <CheckCircle2 size={18} />
-            <span>Mark All Read</span>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <Button onClick={fetchNotices} variant="secondary" className="p-2.5">
+            <RefreshCw size={20} className={loading || refreshing ? 'animate-spin' : ''} />
           </Button>
-          <Button onClick={handleAddClick} className="flex items-center space-x-2">
-            <Plus size={20} />
-            <span>Post Notice</span>
-          </Button>
+          <div className="flex items-center space-x-3 flex-1 md:flex-none">
+            <Button variant="outline" onClick={handleMarkAllRead} className="flex items-center space-x-2 border-gray-200 text-gray-600 hover:bg-gray-50 flex-1 md:flex-none justify-center">
+              <CheckCircle2 size={18} />
+              <span>Mark All Read</span>
+            </Button>
+            <Button onClick={handleAddClick} className="flex items-center space-x-2 flex-1 md:flex-none justify-center">
+              <Plus size={20} />
+              <span>Post Notice</span>
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-6 relative">
+        {refreshing && (
+            <div className="absolute inset-x-0 -top-2 h-0.5 bg-primary-500/10 overflow-hidden z-20">
+                <motion.div
+                    initial={{ x: '-100%' }}
+                    animate={{ x: '100%' }}
+                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                    className="h-full w-1/3 bg-primary-500"
+                />
+            </div>
+        )}
         <AnimatePresence mode="popLayout">
-          {loading ? (
-            <div className="py-20 flex justify-center"><Loader size="lg" /></div>
-          ) : notices.length > 0 ? notices.map((notice, idx) => {
+          <div className={`space-y-6 transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+              {loading && notices.length === 0 ? (
+                <div className="py-20 flex justify-center"><Loader size="lg" /></div>
+              ) : notices.length > 0 ? notices.map((notice, idx) => {
             const isRead = readNotices.includes(notice.id);
             return (
               <motion.div
@@ -250,6 +272,7 @@ const NoticeManagement = () => {
                <p className="text-gray-500 italic">No notices published yet.</p>
             </Card>
           )}
+          </div>
         </AnimatePresence>
       </div>
 

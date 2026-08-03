@@ -16,7 +16,8 @@ import {
   PackageOpen,
   ArrowUpDown,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  RefreshCw
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -41,6 +42,7 @@ const CourseOfferingList = () => {
   const [selectedBatch, setSelectedBatch] = useState('');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { isAdmin } = useAuth();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -117,7 +119,11 @@ const CourseOfferingList = () => {
 
   const fetchOfferings = async () => {
     if (!selectedSemester) return;
-    setLoading(true);
+
+    const isInitial = offerings.length === 0;
+    if (isInitial) setLoading(true);
+    else setRefreshing(true);
+
     try {
       const params = { semesterId: selectedSemester };
       if (selectedDept) params.departmentId = selectedDept;
@@ -130,6 +136,7 @@ const CourseOfferingList = () => {
       toast.error('Failed to fetch offerings');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -235,6 +242,11 @@ const CourseOfferingList = () => {
             <h1 className="text-3xl font-black text-[#2D2A4F] dark:text-white tracking-tight">Course Planning</h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 font-medium uppercase tracking-widest">Plan Semester Offerings</p>
           </div>
+          <div className="flex items-center gap-3">
+            <Button onClick={fetchOfferings} variant="secondary" className="p-2.5">
+                <RefreshCw size={20} className={loading || refreshing ? 'animate-spin' : ''} />
+            </Button>
+          </div>
         </div>
 
         <Card className="!p-6 border-none shadow-xl bg-[#2D2A4F] text-white">
@@ -327,7 +339,18 @@ const CourseOfferingList = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-4 relative">
+                  {refreshing && (
+                        <div className="absolute inset-x-0 -top-4 h-0.5 bg-primary-500/10 overflow-hidden z-20">
+                            <motion.div
+                                initial={{ x: '-100%' }}
+                                animate={{ x: '100%' }}
+                                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                                className="h-full w-1/3 bg-primary-500"
+                            />
+                        </div>
+                    )}
+                  <div className={`space-y-4 transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
                   {catalogLoading ? (
                       Array.from({ length: pageSize }).map((_, i) => (
                           <div key={i} className="h-24 bg-white dark:bg-gray-800 rounded-2xl animate-pulse border border-gray-200 dark:border-gray-700 p-5 flex items-center justify-between">
@@ -435,6 +458,7 @@ const CourseOfferingList = () => {
                         <p className="text-sm text-gray-400 mt-1">Try adjusting your filters or search query.</p>
                       </Card>
                   )}
+                  </div>
                 </div>
 
                 {/* Pagination */}
