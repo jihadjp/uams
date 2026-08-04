@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useEffect, useState, useMemo } from 'react';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
@@ -16,6 +16,7 @@ import {
 import toast from 'react-hot-toast';
 
 const CourseOfferingForm = ({ offering, courseContext, semesterId, batchContext, departmentId, onSubmit, isLoading }) => {
+  console.log("CourseOfferingForm Debug - Offering:", offering);
   const isEdit = !!offering;
   const [departments, setDepartments] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -37,7 +38,7 @@ const CourseOfferingForm = ({ offering, courseContext, semesterId, batchContext,
     semesterId: semesterId || offering?.semesterId || ''
   }), [offering?.id, courseContext?.id, semesterId]);
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, watch, control, formState: { errors } } = useForm({
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
     values: initialValues
@@ -62,69 +63,92 @@ const CourseOfferingForm = ({ offering, courseContext, semesterId, batchContext,
     let isMounted = true;
     const targetDeptId = departmentId || offering?.departmentId || courseContext?.departmentId;
 
-    if (!targetDeptId) return;
+    if (!targetDeptId) {
+      setLoadingOptions(false);
+      return;
+    }
 
     setSelectedDeptId(targetDeptId);
     setLoadingOptions(true);
 
-    Promise.all([
-      client.get('/courses', { params: { departmentId: targetDeptId, size: 1000 } }),
-      client.get('/faculties', { params: { departmentId: targetDeptId, size: 1000 } })
-    ])
-        .then(([cRes, fRes]) => {
-          if (!isMounted) return;
-          const loadedCourses = cRes.data?.content || cRes.data || [];
-          setCourses(loadedCourses);
-          setFaculty(fRes.data?.content || fRes.data || []);
+    const loadData = async () => {
+      try {
+        const [cRes, fRes] = await Promise.all([
+          client.get('/courses', { params: { departmentId: targetDeptId, size: 1000 } }),
+          client.get('/faculties', { params: { departmentId: targetDeptId, size: 1000 } })
+        ]);
 
-          // Sync courseId value to ensure it's selected after options load
-          if (initialValues.courseId) {
-            setValue('courseId', String(initialValues.courseId));
-          }
-        })
-        .catch(() => {
-          toast.error('Failed to load department options');
-        })
-        .finally(() => {
-          if (isMounted) setLoadingOptions(false);
-        });
+        if (!isMounted) return;
 
+        const loadedCourses = cRes.data?.content || cRes.data || [];
+        setCourses(loadedCourses);
+        if (initialValues.courseId) {
+          setValue('courseId', String(initialValues.courseId));
+        }
+
+        const loadedFaculty = fRes.data?.content || fRes.data || [];
+        setFaculty(loadedFaculty);
+        if (offering?.facultyId) {
+          setValue('facultyId', String(offering.facultyId));
+        }
+      } catch (err) {
+        toast.error('Failed to load department options');
+      } finally {
+        if (isMounted) setLoadingOptions(false);
+      }
+    };
+
+    loadData();
     return () => { isMounted = false; };
-  }, [departmentId, offering?.departmentId, courseContext?.departmentId, initialValues.courseId, setValue]);
+  }, [departmentId, offering?.departmentId, offering?.facultyId, courseContext?.departmentId, initialValues.courseId, setValue]);
 
   // 4. Fetch Batches when Department changes
   useEffect(() => {
-    if (!selectedDeptId) {
+    let isMounted = true;
+    const targetDeptId = selectedDeptId || departmentId || offering?.departmentId || courseContext?.departmentId;
+
+    if (!targetDeptId) {
       setBatches([]);
       return;
     }
 
-    client.get('/batches/by-department', { params: { departmentId: selectedDeptId } })
+    client.get('/batches/by-department', { params: { departmentId: targetDeptId } })
       .then(res => {
-        setBatches(res.data || []);
-        // In edit mode, sync the batchId
+        if (!isMounted) return;
+        const loadedBatches = res.data || [];
+        setBatches(loadedBatches);
+        // In edit mode or context mode, sync the batchId
         if (offering?.batchId) {
-           setValue('batchId', offering.batchId, { shouldValidate: true });
+           setValue('batchId', String(offering.batchId), { shouldValidate: true });
         }
       })
       .catch(() => toast.error('Failed to load batches'));
-  }, [selectedDeptId, offering?.batchId, setValue]);
+
+    return () => { isMounted = false; };
+  }, [selectedDeptId, departmentId, offering?.departmentId, offering?.batchId, courseContext?.departmentId, setValue]);
 
   // 5. Fetch Sections when Batch changes
   useEffect(() => {
-    if (!selectedBatchId) {
+    let isMounted = true;
+    const targetBatchId = selectedBatchId || offering?.batchId;
+
+    if (!targetBatchId) {
       setSections([]);
       return;
     }
-    client.get(`/batches/${selectedBatchId}/sections`)
+    client.get(`/batches/${targetBatchId}/sections`)
       .then(res => {
-        setSections(res.data || []);
+        if (!isMounted) return;
+        const loadedSections = res.data || [];
+        setSections(loadedSections);
         if (offering?.sectionId) {
-            setValue('sectionId', offering.sectionId, { shouldValidate: true });
+            setValue('sectionId', String(offering.sectionId), { shouldValidate: true });
         }
       })
       .catch(() => toast.error('Failed to load sections'));
-  }, [selectedBatchId, offering?.sectionId, setValue]);
+
+    return () => { isMounted = false; };
+  }, [selectedBatchId, offering?.batchId, offering?.sectionId, setValue]);
 
   // Handle manual department selection
   const handleDeptSelect = async (deptId) => {
@@ -222,16 +246,21 @@ const CourseOfferingForm = ({ offering, courseContext, semesterId, batchContext,
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                 <Building2 size={18} />
               </div>
-              <select
-                  value={selectedDeptId}
-                  onChange={(e) => handleDeptSelect(e.target.value)}
-                  disabled={!!departmentId || isEdit}
-                  className="block w-full pl-11 pr-10 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 appearance-none disabled:opacity-70 cursor-pointer text-gray-900 dark:text-white"
-              >
-                <option value="">Select Department</option>
-                {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-              </select>
-              <ChevronDown size={18} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              {isEdit || departmentId || courseContext?.departmentId ? (
+                <div className="block w-full pl-11 pr-4 py-3 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm text-gray-600 dark:text-gray-300 font-bold min-h-[46px] flex items-center">
+                  {offering?.departmentName || courseContext?.departmentName || departments.find(d => d.id === (selectedDeptId || departmentId || offering?.departmentId || courseContext?.departmentId))?.name || 'Department Assigned'}
+                </div>
+              ) : (
+                <select
+                    value={selectedDeptId}
+                    onChange={(e) => handleDeptSelect(e.target.value)}
+                    className="block w-full pl-11 pr-10 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 appearance-none cursor-pointer text-gray-900 dark:text-white"
+                >
+                  <option value="">Select Department</option>
+                  {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                </select>
+              )}
+              {!(isEdit || departmentId || courseContext?.departmentId) && <ChevronDown size={18} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />}
             </div>
           </div>
 
@@ -241,15 +270,28 @@ const CourseOfferingForm = ({ offering, courseContext, semesterId, batchContext,
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                 <BookOpen size={18} />
               </div>
-              <select
-                  {...register('courseId', { required: !courseContext ? 'Course selection is required' : false })}
-                  disabled={!!courseContext || isEdit || loadingOptions}
-                  className={`block w-full pl-11 pr-10 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 appearance-none disabled:opacity-70 cursor-pointer text-gray-900 dark:text-white ${errors.courseId ? 'border-red-400' : ''}`}
-              >
-                <option value="">{loadingOptions ? 'Loading Courses...' : 'Select Course'}</option>
-                {courses.map(c => <option key={c.id} value={c.id}>{c.courseCode}: {c.title}</option>)}
-              </select>
-              <ChevronDown size={18} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              {isEdit || courseContext ? (
+                <div className="block w-full pl-11 pr-4 py-3 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm text-gray-600 dark:text-gray-300 font-bold min-h-[46px] flex items-center truncate">
+                  {(courseContext?.courseCode || offering?.courseCode)}: {(courseContext?.title || offering?.courseTitle)}
+                </div>
+              ) : (
+                <Controller
+                    name="courseId"
+                    control={control}
+                    rules={{ required: 'Course selection is required' }}
+                    render={({ field }) => (
+                        <select
+                            {...field}
+                            disabled={loadingOptions}
+                            className={`block w-full pl-11 pr-10 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 appearance-none cursor-pointer text-gray-900 dark:text-white ${errors.courseId ? 'border-red-400' : ''}`}
+                        >
+                          <option value="">{loadingOptions ? 'Loading Courses...' : 'Select Course'}</option>
+                          {courses.map(c => <option key={c.id} value={c.id}>{c.courseCode}: {c.title}</option>)}
+                        </select>
+                    )}
+                />
+              )}
+              {!(isEdit || courseContext) && <ChevronDown size={18} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />}
             </div>
           </div>
         </div>
@@ -262,15 +304,28 @@ const CourseOfferingForm = ({ offering, courseContext, semesterId, batchContext,
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                 <Users size={18} />
               </div>
-              <select
-                  {...register('batchId', { required: 'Target Batch is required' })}
-                  disabled={!selectedCourseId || isEdit}
-                  className={`block w-full pl-11 pr-10 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 appearance-none disabled:opacity-70 cursor-pointer text-gray-900 dark:text-white ${errors.batchId ? 'border-red-400' : ''}`}
-              >
-                <option value="">{!selectedCourseId ? 'Select Course First' : 'Select Batch'}</option>
-                {batches.map(b => <option key={b.id} value={b.id}>Batch {b.batchNumber}</option>)}
-              </select>
-              <ChevronDown size={18} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              {isEdit ? (
+                <div className="block w-full pl-11 pr-4 py-3 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm text-gray-600 dark:text-gray-300 font-bold min-h-[46px] flex items-center">
+                  Batch {offering?.targetBatch || 'Assigned'}
+                </div>
+              ) : (
+                <Controller
+                    name="batchId"
+                    control={control}
+                    rules={{ required: 'Target Batch is required' }}
+                    render={({ field }) => (
+                        <select
+                            {...field}
+                            disabled={!selectedCourseId}
+                            className={`block w-full pl-11 pr-10 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 appearance-none disabled:opacity-70 cursor-pointer text-gray-900 dark:text-white ${errors.batchId ? 'border-red-400' : ''}`}
+                        >
+                          <option value="">{!selectedCourseId ? 'Select Course First' : 'Select Batch'}</option>
+                          {batches.map(b => <option key={b.id} value={b.id}>Batch {b.batchNumber}</option>)}
+                        </select>
+                    )}
+                />
+              )}
+              {!isEdit && <ChevronDown size={18} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />}
             </div>
           </div>
 
@@ -280,15 +335,28 @@ const CourseOfferingForm = ({ offering, courseContext, semesterId, batchContext,
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                 <Layers size={18} />
               </div>
-              <select
-                  {...register('sectionId', { required: 'Section is required' })}
-                  disabled={!selectedBatchId || isEdit}
-                  className={`block w-full pl-11 pr-10 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 appearance-none disabled:opacity-70 cursor-pointer text-gray-900 dark:text-white ${errors.sectionId ? 'border-red-400' : ''}`}
-              >
-                <option value="">{!selectedBatchId ? 'Select Batch First' : 'Select Section'}</option>
-                {sections.map(s => <option key={s.id} value={s.id}>Section {s.name}</option>)}
-              </select>
-              <ChevronDown size={18} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              {isEdit ? (
+                <div className="block w-full pl-11 pr-4 py-3 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm text-gray-600 dark:text-gray-300 font-bold min-h-[46px] flex items-center">
+                  Section {offering?.section || 'Assigned'}
+                </div>
+              ) : (
+                <Controller
+                    name="sectionId"
+                    control={control}
+                    rules={{ required: 'Section is required' }}
+                    render={({ field }) => (
+                        <select
+                            {...field}
+                            disabled={!selectedBatchId}
+                            className={`block w-full pl-11 pr-10 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 appearance-none disabled:opacity-70 cursor-pointer text-gray-900 dark:text-white ${errors.sectionId ? 'border-red-400' : ''}`}
+                        >
+                          <option value="">{!selectedBatchId ? 'Select Batch First' : 'Select Section'}</option>
+                          {sections.map(s => <option key={s.id} value={s.id}>Section {s.name}</option>)}
+                        </select>
+                    )}
+                />
+              )}
+              {!isEdit && <ChevronDown size={18} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />}
             </div>
           </div>
         </div>

@@ -188,6 +188,7 @@ const CourseOfferingList = () => {
 
   const handleEditClick = (e, offering) => {
     e.stopPropagation();
+    console.log("CourseOfferingList Debug - Editing Offering:", offering);
     setPlanningCourse({
       id: offering.courseId,
       courseCode: offering.courseCode,
