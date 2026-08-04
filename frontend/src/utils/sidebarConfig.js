@@ -56,6 +56,7 @@ export const SIDEBAR_CONFIG = {
         { label: "Courses", path: "/portal/courses", icon: BookOpen },
         { label: "Semesters", path: "/portal/semesters", icon: CalendarIcon },
         { label: "Course Offerings", path: "/portal/course-offerings", icon: Layers },
+        { label: "Batch Fee Config", path: "/portal/batch-fees", icon: Wallet },
       ]
     },
     { type: "single", label: "Notice Board", icon: Bell, path: "/portal/notices" },
@@ -87,6 +88,7 @@ export const SIDEBAR_CONFIG = {
         { label: "Courses", path: "/portal/courses", icon: BookOpen },
         { label: "Semesters", path: "/portal/semesters", icon: CalendarIcon },
         { label: "Course Offerings", path: "/portal/course-offerings", icon: Layers },
+        { label: "Batch Fee Config", path: "/portal/batch-fees", icon: Wallet },
       ]
     },
     { type: "single", label: "Notice Board", icon: Bell, path: "/portal/notices" },

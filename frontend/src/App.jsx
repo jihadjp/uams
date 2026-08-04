@@ -40,6 +40,7 @@ import CourseOfferingList from './pages/admin/CourseOfferingList';
 import NoticeManagement from './pages/admin/NoticeManagement';
 import ProgramList from './pages/admin/ProgramList';
 import BatchManagement from './pages/admin/BatchManagement';
+import BatchFeeManagement from './pages/admin/BatchFeeManagement';
 import DocumentManagement from './pages/admin/DocumentManagement';
 import ConvocationManagement from './pages/admin/ConvocationManagement';
 import RegistrarList from './pages/admin/RegistrarList';
@@ -126,6 +127,7 @@ function App() {
             <Route path="departments" element={<DepartmentList />} />
             <Route path="programs" element={<ProgramList />} />
             <Route path="batches" element={<BatchManagement />} />
+            <Route path="batch-fees" element={<BatchFeeManagement />} />
             <Route path="semesters" element={<SemesterList />} />
             <Route path="course-offerings" element={<CourseOfferingList />} />
             <Route path="notices" element={<NoticeManagement />} />

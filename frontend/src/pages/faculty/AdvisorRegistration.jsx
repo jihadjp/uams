@@ -46,6 +46,7 @@ const AdvisorRegistration = () => {
     const [selectedSemesterId, setSelectedSemesterId] = useState('');
     const [myEnrollments, setMyEnrollments] = useState([]);
     const [availableOfferings, setAvailableOfferings] = useState([]);
+    const [feeStatus, setFeeStatus] = useState(null);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const [enrollType, setEnrollType] = useState('REGULAR');
@@ -86,22 +87,26 @@ const AdvisorRegistration = () => {
         if (!selectedSemesterId || !studentInfo?.batchNumber) return;
         setLoading(true);
         try {
-            const [myRes, allRes] = await Promise.all([
+            const [myRes, allRes, feeRes] = await Promise.all([
                 getMyEnrollments(studentId, selectedSemesterId),
                 getAvailableOfferings({
                     semesterId: selectedSemesterId,
                     batch: studentInfo.batchNumber,
                     size: 1000,
                 }),
+                client.get(`/fees`, { params: { studentId } })
             ]);
             setMyEnrollments(myRes.data);
             setAvailableOfferings(allRes.data.content || allRes.data);
+
+            const currentFee = feeRes.data.find(f => f.semesterName.includes(selectedSemester?.name) || f.semesterName === selectedSemester?.name);
+            setFeeStatus(currentFee);
         } catch (err) {
             toast.error('Failed to load registration data');
         } finally {
             setLoading(false);
         }
-    }, [studentId, selectedSemesterId, studentInfo?.batchNumber]);
+    }, [studentId, selectedSemesterId, studentInfo?.batchNumber, selectedSemester?.name]);
 
     useEffect(() => {
         fetchInitialData();
@@ -231,6 +236,8 @@ const AdvisorRegistration = () => {
     const isRegistered = (offeringId) => myEnrollments.some((e) => e.offeringId === offeringId);
     const getEnrollmentId = (offeringId) => myEnrollments.find((e) => e.offeringId === offeringId)?.id;
 
+    const isRegistrationFeePaid = feeStatus ? feeStatus.amountPaid >= feeStatus.registrationFee : true;
+
     if (loading && !studentInfo)
         return (
             <div className="h-[60vh] flex items-center justify-center">
@@ -303,6 +310,27 @@ const AdvisorRegistration = () => {
                                 className={`h-full ${totalCredits > 18 ? 'bg-red-500' : 'bg-gradient-to-r from-[#007A55] to-[#00956A]'}`}
                             />
                         </div>
+
+                        {feeStatus && (
+                            <div className="mt-6 pt-6 border-t border-white/10 grid grid-cols-2 md:grid-cols-4 gap-6">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1">Registration Fee</p>
+                                    <p className="text-sm font-bold">{feeStatus.registrationFee?.toLocaleString()} BDT</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1">Credit Fees</p>
+                                    <p className="text-sm font-bold">{feeStatus.creditFee?.toLocaleString()} BDT</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1">Total Paid</p>
+                                    <p className="text-sm font-bold text-emerald-400">{feeStatus.amountPaid?.toLocaleString()} BDT</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1">Total Due</p>
+                                    <p className="text-sm font-bold text-amber-400">{(feeStatus.amountDue - feeStatus.amountPaid)?.toLocaleString()} BDT</p>
+                                </div>
+                            </div>
+                        )}
                     </Card>
                 </div>
 
@@ -371,6 +399,14 @@ const AdvisorRegistration = () => {
                     </div>
                 </Card>
             </div>
+
+            {/* Payment Warning */}
+            {!isRegistrationFeePaid && (
+                <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 p-4 rounded-2xl flex items-center gap-4 text-amber-800 dark:text-amber-400">
+                    <AlertCircle size={20} />
+                    <p className="text-sm font-bold">Registration Locked: Student has not paid the mandatory registration fee ({feeStatus.registrationFee?.toLocaleString()} BDT) for this semester.</p>
+                </div>
+            )}
 
             {/* Main Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">

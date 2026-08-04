@@ -1,33 +1,37 @@
-# Walkthrough - Restoring Section-based Course Offerings
+# Walkthrough - Semester & Credit-based Fee Management
 
-I have reverted the "Batch-only" model and implemented a professional **Section-based** course offering system. This allows you to assign different teachers and schedules to different sections of the same batch.
+I have implemented a comprehensive fee management system that links course registration with mandatory semester payments.
 
 ## Changes Made
 
-### 1. Backend: Restored Section Logic
-- **Entity Update**: Re-added the `section` field to the [CourseOffering](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/model/CourseOffering.java) model.
-- **Uniqueness**: The system now ensures that each combination of **Course + Semester + Batch + Section** is unique. You can now create separate offerings for Section A and Section B of the same batch.
-- **Build Fix**: Resolved all compilation errors by updating `DashboardServiceImpl`, `ExamServiceImpl`, and `ResultServiceImpl` to correctly pull section names from the Course Offering.
-- **DTO Support**: Updated `StudentResponse` to include a clean `batchNumber` field, fixing a data fetching issue where the student's batch string (e.g., "67 (241)") didn't match the offering's batch number ("67").
+### 1. Backend: Fee Calculation & Enforcement
+- **New Model**: Created [BatchSemesterFee](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/model/BatchSemesterFee.java) to store the fixed registration amount for each batch in a specific semester.
+- **Dynamic Fee Syncing**: Updated the `Fee` model and [FeeServiceImpl](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/FeeServiceImpl.java) to calculate total dues as:
+    `Total Due = [Fixed Batch Registration Fee] + ([Enrolled Credits] * 6,500 BDT)`.
+- **Registration Block**: Updated [EnrollmentServiceImpl](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/EnrollmentServiceImpl.java) to check if a student has paid their mandatory registration fee before allowing any course enrollment.
+- **Auto-Sync**: Every time a student adds or drops a course, the system automatically recalculates their total outstanding credit fees in real-time.
 
-### 2. Frontend: Section-aware Planning
-- **Course Offering Form**: Restored the **Section** dropdown in the planning form. It dynamically filters to show only the sections belonging to your selected batch.
-- **Course Offering List**: The planning table now includes a **Section** column, making it easy to see which teacher is assigned to which specific group.
+### 2. Frontend: Admin Configuration
+- **Batch Fee Management**: Created a new page [BatchFeeManagement.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/admin/BatchFeeManagement.jsx) where admins can set the registration fee for every batch (e.g., Batch 67 = 15,000 BDT, Batch 68 = 18,000 BDT).
+- **Navigation**: Added "Batch Fee Config" to the Admin/Registrar sidebar under Academic Setup.
 
-### 3. Frontend: Professional Advisor Workflow
-- **Student Section Assignment**: Advisors can now assign a student to a specific section (A, B, or C) from the Advising Registration page.
-- **Intelligent Bulk Registration**: The **"Register All Available"** button has been upgraded. It now automatically identifies and enrolls the student ONLY in the course offerings that match their **assigned section**.
-- **Visual Improvements**: Added section badges to the offerings cards and registration tables for better clarity.
+### 3. Frontend: Enhanced Registration Experience
+- **Advisor Registration**:
+    - Added a **Fee Breakdown** (Registration vs. Credit Fees) in the student header.
+    - Added a prominent **Warning Banner** if the student hasn't paid their registration fee, explaining why registration is locked.
+- **Student Portal**:
+    - Updated [CourseRegistration.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/CourseRegistration.jsx) with a detailed fee status grid.
+    - Students now see a clear instruction to pay their registration fee to unlock enrollment.
 
 ## Verification Results
 
-### Data Fetching
-- Fixed the "Data not fetching" issue by ensuring the student's batch number is sent correctly to the search API.
-- Fixed the "Assign Section" API path, ensuring students can be grouped successfully.
+### Fee enforcement logic:
+1.  **Block Unpaid**: Confirmed that `registerCourse` throws an error if the student's `amountPaid` is less than the batch's `registrationFee`.
+2.  **Dynamic Calculation**: Verified that enrolling in a 3-credit course adds `19,500 BDT` (3 * 6500) to the student's `amountDue`.
+3.  **Drop Adjustment**: Verified that dropping a course correctly deducts the corresponding credit fee from the total dues.
 
-### Workflow Example
-1.  **Admin**: Creates "Database Management" for Batch 67 - Section A (Teacher: Sir X).
-2.  **Admin**: Creates "Database Management" for Batch 67 - Section B (Teacher: Sir Y).
-3.  **Advisor**: Assigns Student "Rahim" to **Section A**.
-4.  **Advisor**: Clicks **"Register All Available"**.
-5.  **Result**: Rahim is automatically enrolled in Sir X's class. Sir Y's class is ignored.
+## Pricing Parameters
+> [!IMPORTANT]
+> - **Cost per Credit**: Fixed at **6,500 BDT**.
+> - **Registration Unlock**: Payment of the **Fixed Registration Fee** is required to start registration.
+> - **Final Clearance**: Remaining credit fees must be paid before final exams (standard ERP policy).

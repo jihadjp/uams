@@ -1,55 +1,68 @@
-# Implementation Plan - Reverting to Section-based Course Offerings
+# Implementation Plan - Semester & Credit-based Fee Management
 
-The user correctly identified that "Batch-based" offerings fail when different sections of the same batch have different teachers for the same course. We will move to a professional approach where courses are offered per **Section**, and students are enrolled based on their assigned section.
+The user wants to implement a payment-based course registration system.
+1.  Each batch has a fixed **Registration Fee** per semester.
+2.  Each credit costs **6500 BDT**.
+3.  Students must pay the fixed Registration Fee *before* they are allowed to enroll in any courses.
+4.  The remaining balance (credit fees) can be paid later (before final exams).
 
 ## Proposed Changes
 
 ### Backend Changes
 
-#### [MODIFY] [CourseOffering.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/model/CourseOffering.java)
-- Restore `@ManyToOne @JoinColumn(name = "section_id") private Section section;`.
+#### [NEW] [BatchSemesterFee.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/model/BatchSemesterFee.java)
+- Entity to store the fixed fee for a batch in a specific semester.
+- Fields: `id`, `batch`, `semester`, `registrationFee`.
 
-#### [MODIFY] [CourseOfferingRequest.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/dto/CourseOfferingRequest.java)
-- Restore `private UUID sectionId;`.
+#### [MODIFY] [Fee.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/model/Fee.java)
+- Add fields:
+    - `registrationFee`: The fixed portion (from `BatchSemesterFee`).
+    - `creditFee`: The variable portion (Credits Enrolled * 6500).
+- `amountDue` will be calculated as `registrationFee + creditFee`.
 
-#### [MODIFY] [CourseOfferingResponse.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/dto/CourseOfferingResponse.java)
-- Restore `private UUID sectionId;` and `private String section;`.
-
-#### [MODIFY] [CourseOfferingRepository.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/repository/CourseOfferingRepository.java)
-- Restore uniqueness check with `sectionId`: `existsByCourseIdAndSemesterIdAndBatchIdAndSectionId`.
-
-#### [MODIFY] [CourseOfferingServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/CourseOfferingServiceImpl.java)
-- Update `createOffering`, `updateOffering`, and `mapToResponse` to handle the `section` field.
+#### [MODIFY] [FeeService.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/FeeService.java) & `FeeServiceImpl.java`
+- Add method `syncSemesterFee(UUID studentId, UUID semesterId)`:
+    - Calculates total enrolled credits for the semester.
+    - Fetches `BatchSemesterFee` for the student's batch.
+    - Updates the `Fee` record (or creates one if missing).
+- Add method `isRegistrationPayed(UUID studentId, UUID semesterId)`:
+    - Returns true if `Fee.amountPaid >= BatchSemesterFee.registrationFee`.
 
 #### [MODIFY] [EnrollmentServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/EnrollmentServiceImpl.java)
-- Update `mapToResponse` to use `offering.getSection().getName()`.
-
-#### [MODIFY] [ResultServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/ResultServiceImpl.java)
-- Update `mapToLiveResult` to use `offering.getSection().getName()`.
+- In `registerCourse`:
+    - Before allowing registration, call `feeService.isRegistrationPayed`.
+    - If false, throw `RuntimeException("Registration blocked: Semester registration fee not paid.")`.
+    - After saving enrollment, call `feeService.syncSemesterFee` to update the total amount due.
+- In `dropCourse`:
+    - After dropping, call `feeService.syncSemesterFee` to reduce the total amount due.
 
 ---
 
 ### Frontend Changes
 
-#### [MODIFY] [AdvisorRegistration.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/faculty/AdvisorRegistration.jsx)
-- **Fix API Path**: Change `/api/students/...` to `/students/...`.
-- **Bulk Register Logic**: Update `handleBulkRegister` to only fetch and register offerings that match the student's assigned `sectionId`.
-- **UI**: Re-add the "Section" badge/display in the available offerings cards.
+#### [NEW] Batch Fee Config Page
+- Admin page to set the `registrationFee` for each batch in the upcoming semester.
 
-#### [MODIFY] [CourseOfferingForm.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/admin/CourseOfferingForm.jsx)
-- Re-add the **Section** selection dropdown.
-- Ensure it filters sections based on the selected **Batch**.
+#### [MODIFY] [AdvisorRegistration.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/faculty/AdvisorRegistration.jsx) & [CourseRegistration.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/CourseRegistration.jsx)
+- Display a warning/error if the registration fee is not paid.
+- Show the breakdown of fees (Registration vs Credits).
 
-#### [MODIFY] [CourseOfferingList.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/admin/CourseOfferingList.jsx)
-- Re-add the **Section** column to the offerings table.
+## Open Questions
+
+> [!IMPORTANT]
+> - **Retakes**: Should retake courses also cost 6500/credit? (Assuming yes for now).
+> - **Initial Fee Generation**: When should the `Fee` record be created? (Suggesting: Create it with `amountDue = registrationFee` as soon as the semester starts or when the student first tries to pay).
 
 ## Verification Plan
 
 ### Manual Verification
-1.  **Planning**: Create two DBMS offerings for Batch 67: one for Section A (Teacher X) and one for Section B (Teacher Y).
-2.  **Advising**:
-    *   Open a student from Batch 67.
-    *   Assign them to **Section A**.
-    *   Click **"Register All Available"**.
-    *   Verify they are enrolled in Teacher X's offering, NOT Teacher Y's.
-3.  **Data Fetch**: Verify that the "Assign Section" call no longer fails (status 200).
+1.  Admin sets Batch 67 Registration Fee to **15,000 BDT** for Spring 2024.
+2.  Student from Batch 67 attempts to register for a course *without paying*. System should block them.
+3.  Student pays **15,000 BDT**.
+4.  Student registers for 3 courses (Total 9 credits).
+5.  Check Fee record:
+    - Registration Fee: 15,000
+    - Credit Fee: 9 * 6500 = 58,500
+    - Total Due: 73,500
+    - Amount Paid: 15,000
+6.  Student drops a 3-credit course. Total Due should decrease to 54,000.

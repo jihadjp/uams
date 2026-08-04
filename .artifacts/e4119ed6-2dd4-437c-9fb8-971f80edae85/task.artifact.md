@@ -1,17 +1,16 @@
-# Tasks - Reverting to Section-based Course Offerings
+# Tasks - Semester & Credit-based Fee Management
 
 - [x] **Backend Implementation**
-    - [x] Restore `section` field in `CourseOffering.java`
-    - [x] Update `CourseOfferingRequest` and `CourseOfferingResponse` DTOs
-    - [x] Update `CourseOfferingRepository` uniqueness checks
-    - [x] Update `CourseOfferingServiceImpl` to handle sections
-    - [x] Update `EnrollmentServiceImpl` and `ResultServiceImpl` mappings
+    - [x] Create `BatchSemesterFee` model and repository
+    - [x] Update `Fee` model to include breakdown fields
+    - [x] Update `FeeService` with sync and check logic
+    - [x] Implement `syncSemesterFee` in `FeeServiceImpl`
+    - [x] Integrate fee checks into `EnrollmentServiceImpl`
+    - [x] Create/Update necessary DTOs and Controllers
 - [x] **Frontend Implementation**
-    - [x] Restore Section dropdown in `CourseOfferingForm.jsx`
-    - [x] Restore Section column in `CourseOfferingList.jsx`
-    - [x] Fix Advisor Registration logic
-        - [x] Correct API path for section assignment
-        - [x] Implement section-aware bulk registration
+    - [x] Create Batch Fee Configuration page for Admins
+    - [x] Update Advising & Student Registration pages with fee status/warnings
 - [x] **Verification**
-    - [x] Verify build and data fetching
-    - [x] Verify section-based enrollment workflow
+    - [x] Verify block when registration fee is unpaid
+    - [x] Verify dynamic credit fee calculation on course add/drop
+    - [x] Verify admin can set batch fees

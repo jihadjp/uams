@@ -188,7 +188,7 @@ const TeachingEvaluation = () => {
                      <Button
                        className="px-12 bg-[#312e81]"
                        onClick={handleSubmit}
-                       loading={submitting}
+                       isLoading={submitting}
                      >
                         <Send size={18} className="mr-2" /> Submit
                      </Button>

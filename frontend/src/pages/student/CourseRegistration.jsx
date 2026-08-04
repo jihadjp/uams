@@ -42,6 +42,7 @@ const CourseRegistration = () => {
   const [studentProfile, setStudentProfile] = useState(null);
   const [activeSemester, setActiveSemester] = useState(null);
   const [myEnrollments, setMyEnrollments] = useState([]);
+  const [feeStatus, setFeeStatus] = useState(null);
   const [availableOfferings, setAvailableOfferings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setFormLoading] = useState(false);
@@ -86,14 +87,18 @@ const CourseRegistration = () => {
       }
 
       if (sId) {
-        const [myRes, deptRes] = await Promise.all([
+        const [myRes, deptRes, feeRes] = await Promise.all([
           getMyEnrollments(sId, semester?.id),
-          client.get('/departments')
+          client.get('/departments'),
+          client.get(`/fees`, { params: { studentId: sId } })
         ]);
 
         if (semester) {
             const allRes = await getAvailableOfferings({ semesterId: semester.id, size: 1000 });
             setAvailableOfferings(allRes.data.content || allRes.data);
+
+            const currentFee = feeRes.data.find(f => f.semesterName.includes(semester?.name) || f.semesterName === semester?.name);
+            setFeeStatus(currentFee);
         }
 
         setMyEnrollments(myRes.data);
@@ -176,6 +181,7 @@ const CourseRegistration = () => {
   const isRegistered = (offeringId) => myEnrollments.some(e => e.offeringId === offeringId);
   const getEnrollmentId = (offeringId) => myEnrollments.find(e => e.offeringId === offeringId)?.id;
 
+  const isRegistrationFeePaid = feeStatus ? feeStatus.amountPaid >= feeStatus.registrationFee : true;
   const isDeadlinePassed = activeSemester ? new Date() > new Date(activeSemester.registrationDeadline) : true;
   const isNearDeadline = activeSemester ? (new Date(activeSemester.registrationDeadline) - new Date()) < 24 * 60 * 60 * 1000 : false;
 
@@ -248,8 +254,50 @@ const CourseRegistration = () => {
          </div>
       </div>
 
+      {/* Fee Status Summary */}
+      {feeStatus && (
+          <div className="mx-2 grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="!p-4 bg-indigo-50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-900/20">
+                  <p className="text-[10px] font-black uppercase text-indigo-400 tracking-widest mb-1">Registration Fee</p>
+                  <p className="text-lg font-black text-[#2D2A4F] dark:text-indigo-200">{feeStatus.registrationFee?.toLocaleString()} BDT</p>
+              </Card>
+              <Card className="!p-4 bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/20">
+                  <p className="text-[10px] font-black uppercase text-blue-400 tracking-widest mb-1">Enrolled Credit Fees</p>
+                  <p className="text-lg font-black text-[#2D2A4F] dark:text-blue-200">{feeStatus.creditFee?.toLocaleString()} BDT</p>
+              </Card>
+              <Card className="!p-4 bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/20">
+                  <p className="text-[10px] font-black uppercase text-emerald-400 tracking-widest mb-1">Total Paid</p>
+                  <p className="text-lg font-black text-emerald-600 dark:text-emerald-400">{feeStatus.amountPaid?.toLocaleString()} BDT</p>
+              </Card>
+              <Card className="!p-4 bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/20">
+                  <p className="text-[10px] font-black uppercase text-amber-400 tracking-widest mb-1">Total Outstanding</p>
+                  <p className="text-lg font-black text-amber-600 dark:text-amber-400">{(feeStatus.amountDue - feeStatus.amountPaid)?.toLocaleString()} BDT</p>
+              </Card>
+          </div>
+      )}
+
+      {/* Registration Locked - Fee Unpaid */}
+      {studentProfile?.isRegistrationCleared && !isRegistrationFeePaid && (
+          <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mx-2 p-8 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 rounded-3xl flex flex-col items-center text-center space-y-4"
+          >
+              <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center text-amber-600">
+                  <CreditCard size={32} />
+              </div>
+              <div>
+                  <h3 className="text-xl font-black text-amber-800 dark:text-amber-400">Semester Payment Required</h3>
+                  <p className="text-amber-700/70 dark:text-amber-500/70 font-bold mt-1">
+                      To begin course registration, please pay the mandatory semester registration fee of **{feeStatus?.registrationFee?.toLocaleString()} BDT**.
+                  </p>
+                  <p className="text-xs text-amber-600/50 mt-2 italic">Remaining credit fees can be cleared before final examinations.</p>
+              </div>
+          </motion.div>
+      )}
+
       {/* Cleared but No Courses Message */}
-      {myEnrollments.length === 0 && studentProfile?.isRegistrationCleared && (
+      {myEnrollments.length === 0 && studentProfile?.isRegistrationCleared && isRegistrationFeePaid && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
