@@ -375,7 +375,7 @@ const CourseOfferingList = () => {
                               <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 text-primary-700 rounded-xl flex items-center justify-center font-mono text-xs font-black">
                                 {course.courseCode}
                               </div>
-                              <div>
+                            <div>
                                 <h3 className="text-base font-black text-[#2D2A4F] dark:text-white leading-tight">{course.title}</h3>
                                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{course.creditHours} Credits • {courseOfferings.length} Sections</p>
                               </div>

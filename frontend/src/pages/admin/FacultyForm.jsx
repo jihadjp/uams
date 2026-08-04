@@ -61,8 +61,22 @@ const FacultyForm = ({ faculty, onSubmit, isLoading }) => {
       </div>
     );
   }
+    const designations = [
+        'Dean',
+        'Head of Department',
+        'Professor Emeritus',
+        'Distinguished Professor',
+        'Professor',
+        'Associate Professor',
+        'Assistant Professor',
+        'Senior Lecturer',
+        'Lecturer',
+        'Visiting Professor',
+        'Adjunct Faculty',
+        'Lab Instructor',
+        'Teaching Assistant'
+    ];
 
-  const designations = ['Lecturer', 'Assistant Professor', 'Associate Professor', 'Professor'];
 
   return (
     <form key={facultyData?.id || 'new'} onSubmit={handleSubmit(onSubmit)} className="space-y-6">

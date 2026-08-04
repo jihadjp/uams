@@ -239,11 +239,16 @@ const AdminDashboard = () => {
                                         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
                                         <Tooltip
                                             contentStyle={{
+                                                backgroundColor: '#0B1225', // ডার্ক থিম ব্যাকগ্রাউন্ড
                                                 borderRadius: '12px',
-                                                border: 'none',
-                                                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                                                border: '1px solid rgba(255, 255, 255, 0.1)', // হালকা বর্ডার
+                                                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
+                                                color: '#fff',
+                                                padding: '8px 12px',
                                             }}
-                                            cursor={{ fill: '#f3f4f6', radius: 8 }}
+                                            itemStyle={{ color: '#10b981', fontWeight: 600, fontSize: '12px' }} // টেক্সট কালার
+                                            labelStyle={{ color: '#9ca3af', fontWeight: 700, fontSize: '11px', marginBottom: '2px' }} // টাইটেল কালার
+                                            cursor={{ fill: 'rgba(156, 163, 175, 0.08)', radius: 8 }}
                                         />
                                         <Bar dataKey="students" fill="url(#barGradient)" radius={[8, 8, 0, 0]} barSize={36} />
                                     </BarChart>

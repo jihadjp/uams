@@ -113,7 +113,8 @@ const DepartmentList = () => {
       toast.success('Department deleted');
       fetchDepartments();
     } catch (err) {
-      toast.error('Failed to delete department');
+      const msg = err.response?.data?.message || 'Failed to delete department';
+      toast.error(msg);
     }
   };
 

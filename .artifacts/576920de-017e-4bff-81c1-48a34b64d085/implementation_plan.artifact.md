@@ -1,48 +1,65 @@
-# Implementation Plan - Enhanced Error Handling for Data Entry
+# Implementation Plan - Visual Faculty Directory
 
-This plan introduces descriptive error messages that guide administrators on the correct sequence of data entry. Instead of generic "Not Found" or "Null" exceptions, the system will explicitly state what missing records need to be created first.
+This plan outlines the creation of a visual, institutional-grade Faculty Directory system as per the provided design specifications. It includes structural changes to group departments by "Faculty Divisions" (Schools) and detailed faculty member profiles with photos and status tracking.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> - **Dependency Awareness**: The backend will now check if required tables are empty before processing specific requests.
-> - **Helpful Messages**: Messages will look like: "Please create at least one Program before registering a student."
+> - **Organizational Structure**: Departments will now be grouped into broader "Faculty Divisions" (e.g., Faculty of Science and IT, Faculty of Engineering) to match the hierarchical navigation in the screenshots.
+> - **Faculty Details**: Faculty profiles will include an "Academic Status" (e.g., On Leave, Part-Time) and an "Administrative Position" (e.g., Dean, Associate Dean).
+> - **Public/Common Access**: This directory will be accessible by Students and Administrators, providing a more visual way to explore the university staff compared to the existing administrative tables.
 
 ## Proposed Changes
 
-### 1. Backend Service Enhancements
+### 1. Database & Schema
 
-I will update the following services to include "pre-flight" dependency checks:
+#### [MODIFY] [university_academic_management_schema.sql](file:///E:/Project/DBMS/uams/backend/university_academic_management_schema.sql)
+- Add `faculty_division` VARCHAR(150) to the `departments` table.
+- Add `academic_status` VARCHAR(50) and `administrative_position` VARCHAR(100) to the `faculty` table.
 
-#### [MODIFY] [StudentServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/StudentServiceImpl.java)
-- Check `programRepository.count()`: If 0, throw "No programs found. Please create a Program first."
-- Check `batchRepository.count()`: If 0, throw "No batches found. Please create a Batch for the selected program first."
+### 2. Backend Implementation
 
-#### [MODIFY] [FacultyServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/FacultyServiceImpl.java)
-- Check `departmentRepository.count()`: If 0, throw "Please create a Department before adding faculty."
+#### [MODIFY] Models & DTOs
+- Update `Department.java` and `Faculty.java` entities.
+- Update `DepartmentRequest`, `DepartmentResponse`, `FacultyRequest`, and `FacultyResponse` DTOs to include the new fields.
 
-#### [MODIFY] [BatchServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/BatchServiceImpl.java)
-- Check `programRepository.count()`: If 0, throw "Please create a Program before defining batches."
+#### [MODIFY] Services
+- Update `DepartmentServiceImpl` and `FacultyServiceImpl` to handle mapping and saving of the new attributes.
+- Ensure that the faculty listing endpoint can filter by department ID to populate the department-specific grid.
 
-#### [MODIFY] [CourseOfferingServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/CourseOfferingServiceImpl.java)
-- Check `courseRepository.count()`: If 0, throw "Please create Courses before planning offerings."
-- Check `semesterRepository.count()`: If 0, throw "Please initialize a Semester before planning offerings."
-- Check `facultyRepository.count()`: If 0, throw "Please add Faculty members before assigning them to courses."
+### 3. Frontend Implementation
 
-### 2. Global Exception Handler
+#### [NEW] [FacultyMembers.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/common/FacultyMembers.jsx)
+- Implements the first design: A searchable directory grouped by Faculty Divisions.
+- Each Division block contains a list of its departments as links.
 
-#### [MODIFY] [GlobalExceptionHandler.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/exception/GlobalExceptionHandler.java)
-- Ensure that `IllegalArgumentException` and custom `DependencyMissingException` (or similar) are caught and return a 400 Bad Request with the custom message clearly visible.
+#### [NEW] [DepartmentFacultyView.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/common/DepartmentFacultyView.jsx)
+- Implements the second design: A visual grid of faculty members for a specific department.
+- High-profile cards for Deans/Associate Deans at the top.
+- Cards with photos, linked names, and status badges (e.g., "On Leave").
+- Integrated pagination.
+
+#### [MODIFY] [App.jsx](file:///E:/Project/DBMS/uams/frontend/src/App.jsx)
+- Register routes for `/faculty-directory` and `/faculty-directory/dept/:id`.
+
+#### [MODIFY] [sidebarConfig.js](file:///E:/Project/DBMS/uams/frontend/src/utils/sidebarConfig.js)
+- Add "Faculty Directory" to Student and Admin menus.
+
+#### [MODIFY] Management Forms
+- Update `DepartmentForm.jsx` and `FacultyForm.jsx` to allow Admins to manage the new organizational data.
 
 ## Verification Plan
 
 ### Manual Verification
-1. Clear the database (or start with a fresh one).
-2. Attempt to create a **Student**.
-3. Verify the error message: "No programs found. Please create a Program first."
-4. Create a **Department**.
-5. Attempt to create a **Program**.
-6. Verify it works.
-7. Attempt to create a **Student** without a Batch.
-8. Verify the error message: "No batches found...".
-9. Repeat for **Course Offerings** and other entities.
+1. **Admin Setup**:
+   - Edit an existing Department to assign it to a "Faculty Division" (e.g., Faculty of Engineering).
+   - Edit a Faculty member to set their "Administrative Position" as "Dean" and "Academic Status" as "ACTIVE".
+2. **Directory Browsing**:
+   - Navigate to the **Faculty Members** directory.
+   - Verify departments are correctly grouped under their divisions.
+   - Search for a faculty member using the top search bar.
+3. **Department Grid**:
+   - Click on a department link.
+   - Verify the "Dean" appears at the top.
+   - Verify all faculty cards show the correct photo and designation.
+   - Check if the "On Leave" badge appears correctly for relevant staff.

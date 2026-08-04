@@ -52,8 +52,9 @@ const AdvisorRegistration = () => {
 
     const [search, setSearch] = useState('');
     const [selectedDept, setSelectedDept] = useState('');
-    const [targetSection, setTargetSection] = useState('');
     const [departments, setDepartments] = useState([]);
+    const [batchSections, setBatchSections] = useState([]);
+    const [selectedSectionId, setSelectedSectionId] = useState('');
 
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, data: null, type: '' });
 
@@ -67,6 +68,7 @@ const AdvisorRegistration = () => {
             ]);
 
             setStudentInfo(studentRes.data);
+            setSelectedSectionId(studentRes.data.sectionId || '');
             const sems = semRes.data.content || semRes.data || [];
             setSemesters(sems);
             setDepartments(deptRes.data.content || deptRes.data || []);
@@ -81,14 +83,14 @@ const AdvisorRegistration = () => {
     }, [studentId]);
 
     const fetchRegistrationData = useCallback(async () => {
-        if (!selectedSemesterId || !studentInfo?.batch) return;
+        if (!selectedSemesterId || !studentInfo?.batchNumber) return;
         setLoading(true);
         try {
             const [myRes, allRes] = await Promise.all([
                 getMyEnrollments(studentId, selectedSemesterId),
                 getAvailableOfferings({
                     semesterId: selectedSemesterId,
-                    batch: studentInfo.batch,
+                    batch: studentInfo.batchNumber,
                     size: 1000,
                 }),
             ]);
@@ -99,11 +101,41 @@ const AdvisorRegistration = () => {
         } finally {
             setLoading(false);
         }
-    }, [studentId, selectedSemesterId, studentInfo?.batch]);
+    }, [studentId, selectedSemesterId, studentInfo?.batchNumber]);
 
     useEffect(() => {
         fetchInitialData();
     }, [fetchInitialData]);
+
+    useEffect(() => {
+        const fetchBatchSections = async () => {
+            if (studentInfo?.batchId) {
+                try {
+                    const res = await client.get(`/batches/${studentInfo.batchId}/sections`);
+                    setBatchSections(res.data || []);
+                } catch (err) {
+                    console.error("Failed to fetch batch sections", err);
+                }
+            }
+        };
+        fetchBatchSections();
+    }, [studentInfo?.batchId]);
+
+    const handleSectionChange = async (sectionId) => {
+        setSelectedSectionId(sectionId);
+        if (!sectionId) return;
+
+        setActionLoading(true);
+        try {
+            await client.put(`/students/${studentId}/section?sectionId=${sectionId}`);
+            toast.success('Student section assigned successfully');
+            fetchInitialData();
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to assign section');
+        } finally {
+            setActionLoading(false);
+        }
+    };
 
     useEffect(() => {
         fetchRegistrationData();
@@ -141,16 +173,17 @@ const AdvisorRegistration = () => {
     };
 
     const handleBulkRegister = async () => {
-        if (!targetSection) return;
+        if (!studentInfo?.sectionId) {
+            return toast.error("Please assign a section to the student first");
+        }
 
         const offeringsToRegister = availableOfferings.filter((o) => {
-            const isExactMatch = o.section === targetSection;
-            const isLabMatch = o.section.startsWith(targetSection) && o.section.length > targetSection.length;
-            return (isExactMatch || isLabMatch) && !isRegistered(o.id);
+            const isMatch = o.sectionId === studentInfo.sectionId;
+            return isMatch && !isRegistered(o.id);
         });
 
         if (offeringsToRegister.length === 0) {
-            return toast.error(`No new courses found for Section ${targetSection}`);
+            return toast.error(`No new courses found for your assigned section`);
         }
 
         setActionLoading(true);
@@ -189,13 +222,7 @@ const AdvisorRegistration = () => {
                 o.courseTitle.toLowerCase().includes(search.toLowerCase()) ||
                 o.courseCode.toLowerCase().includes(search.toLowerCase());
             const matchesDept = !selectedDept || o.departmentName === departments.find((d) => d.id === selectedDept)?.name;
-            const matchesSection = !targetSection || o.section === targetSection || o.section.startsWith(targetSection);
-            return matchesSearch && matchesDept && matchesSection;
-        })
-        .sort((a, b) => {
-            if (a.section === targetSection) return -1;
-            if (b.section === targetSection) return 1;
-            return a.section.localeCompare(b.section);
+            return matchesSearch && matchesDept;
         });
 
     const totalCredits = myEnrollments.reduce((sum, e) => sum + (e.creditHours || 0), 0);
@@ -253,6 +280,9 @@ const AdvisorRegistration = () => {
                                         )}
                                         {studentInfo?.isRegistrationCleared ? 'Cleared' : 'Dues Pending'}
                                     </div>
+                                    <div className="inline-flex items-center px-3 py-1 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10">
+                                        <Users size={12} className="mr-2" /> Section: {studentInfo?.sectionName || 'Not Assigned'}
+                                    </div>
                                 </div>
                                 <h2 className="text-3xl font-black tracking-tight">{studentInfo?.name}</h2>
                                 <p className="text-white/50 mt-1 font-medium text-sm">{studentInfo?.programName}</p>
@@ -299,26 +329,24 @@ const AdvisorRegistration = () => {
 
                         <div className="space-y-3 pt-1">
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-white/30 ml-1">Target Section</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-white/30 ml-1">Assign Student Section</label>
                                 <select
-                                    value={targetSection}
-                                    onChange={(e) => setTargetSection(e.target.value)}
+                                    value={selectedSectionId}
+                                    onChange={(e) => handleSectionChange(e.target.value)}
                                     className="w-full px-4 py-2.5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl text-sm font-bold text-indigo-600 dark:text-indigo-300 outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all"
                                 >
-                                    <option value="">Manual Selection</option>
-                                    {Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)).map((s) => (
-                                        <option key={s} value={s}>
-                                            Section {s}
+                                    <option value="">Choose Section</option>
+                                    {batchSections.map((s) => (
+                                        <option key={s.id} value={s.id}>
+                                            Section {s.name}
                                         </option>
                                     ))}
                                 </select>
                             </div>
 
-                            {targetSection && (
-                                <Button onClick={handleBulkRegister} isLoading={actionLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 border-none">
-                                    Register All {targetSection}
-                                </Button>
-                            )}
+                            <Button onClick={handleBulkRegister} isLoading={actionLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 border-none">
+                                Register All Available
+                            </Button>
                         </div>
 
                         <div className="h-px bg-slate-100 dark:bg-white/[0.06] my-1" />
@@ -380,7 +408,7 @@ const AdvisorRegistration = () => {
                                         <span className="text-[10px] font-black uppercase tracking-widest text-[#007A55]">{o.creditHours} Credits</span>
                                     </div>
                                     <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1 line-clamp-1">{o.courseTitle}</h3>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-[#007A55] mb-4">Section {o.section}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-[#007A55] mb-4">Sec {o.section}</p>
 
                                     <div className="space-y-2 mb-5">
                                         <div className="flex items-center text-[11px] font-medium text-slate-500 dark:text-white/40">

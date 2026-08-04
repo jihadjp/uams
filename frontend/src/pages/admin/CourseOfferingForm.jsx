@@ -92,22 +92,23 @@ const CourseOfferingForm = ({ offering, courseContext, semesterId, batchContext,
     return () => { isMounted = false; };
   }, [departmentId, offering?.departmentId, courseContext?.departmentId, initialValues.courseId, setValue]);
 
-  // 4. Fetch Batches when Course changes
+  // 4. Fetch Batches when Department changes
   useEffect(() => {
-    if (!selectedCourseId) return;
-
-    const course = courses.find(c => String(c.id) === String(selectedCourseId));
-    const targetProgramId = course?.programId || courseContext?.programId;
-
-    if (targetProgramId) {
-       client.get('/batches/by-program', { params: { programId: targetProgramId } })
-         .then(res => {
-            setBatches(res.data || []);
-            if (offering?.batchId) setValue('batchId', offering.batchId);
-         })
-         .catch(() => toast.error('Failed to load batches'));
+    if (!selectedDeptId) {
+      setBatches([]);
+      return;
     }
-  }, [selectedCourseId, courses, courseContext?.programId, offering?.batchId, setValue]);
+
+    client.get('/batches/by-department', { params: { departmentId: selectedDeptId } })
+      .then(res => {
+        setBatches(res.data || []);
+        // In edit mode, sync the batchId
+        if (offering?.batchId) {
+           setValue('batchId', offering.batchId, { shouldValidate: true });
+        }
+      })
+      .catch(() => toast.error('Failed to load batches'));
+  }, [selectedDeptId, offering?.batchId, setValue]);
 
   // 5. Fetch Sections when Batch changes
   useEffect(() => {
@@ -118,7 +119,9 @@ const CourseOfferingForm = ({ offering, courseContext, semesterId, batchContext,
     client.get(`/batches/${selectedBatchId}/sections`)
       .then(res => {
         setSections(res.data || []);
-        if (offering?.sectionId) setValue('sectionId', offering.sectionId);
+        if (offering?.sectionId) {
+            setValue('sectionId', offering.sectionId, { shouldValidate: true });
+        }
       })
       .catch(() => toast.error('Failed to load sections'));
   }, [selectedBatchId, offering?.sectionId, setValue]);
@@ -128,6 +131,11 @@ const CourseOfferingForm = ({ offering, courseContext, semesterId, batchContext,
     setSelectedDeptId(deptId);
     setValue('courseId', '');
     setValue('facultyId', '');
+    setValue('batchId', '');
+    setValue('sectionId', '');
+    setBatches([]);
+    setSections([]);
+
     if (!deptId) {
       setCourses([]);
       setFaculty([]);
