@@ -1,17 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
     CheckCircle2,
-    Plus,
-    Trash2,
     AlertCircle,
     Info,
-    Search,
-    Building2,
-    Clock,
-    MapPin,
     Users,
-    UserSquare2,
-    ArrowRight,
     ShieldCheck,
     ShieldAlert,
     ChevronDown,
@@ -19,22 +11,17 @@ import {
     CreditCard
 } from 'lucide-react';
 import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
-import Modal from '../../components/common/Modal';
 import Loader from '../../components/common/Loader';
-import Input from '../../components/common/Input';
 import { useAuthStore } from '../../store/authStore';
 import {
     getAvailableOfferings,
-    getMyEnrollments,
-    registerCourse,
-    dropCourse
+    getMyEnrollments
 } from '../../api/enrollmentApi';
 import { getActiveSemester, getSemesters } from '../../api/semesterApi';
 import { getMyProfile } from '../../api/profileApi';
 import client from '../../api/client';
 import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const CourseRegistration = () => {
     const user = useAuthStore(state => state.user);
@@ -43,23 +30,13 @@ const CourseRegistration = () => {
     const [activeSemester, setActiveSemester] = useState(null);
     const [myEnrollments, setMyEnrollments] = useState([]);
     const [feeStatus, setFeeStatus] = useState(null);
-    const [availableOfferings, setAvailableOfferings] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [actionLoading, setFormLoading] = useState(false);
-
-    // Search & Filter
-    const [search, setSearch] = useState('');
-    const [selectedDept, setSelectedDept] = useState('');
-    const [departments, setDepartments] = useState([]);
 
     // Registered Course Section (History)
     const [semesters, setSemesters] = useState([]);
     const [historySemesterId, setHistorySemesterId] = useState('');
     const [historyEnrollments, setHistoryEnrollments] = useState([]);
     const [historyLoading, setHistoryLoading] = useState(false);
-
-    // Confirm Modals
-    const [confirmModal, setConfirmModal] = useState({ isOpen: false, data: null, type: '' });
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -87,23 +64,18 @@ const CourseRegistration = () => {
             }
 
             if (sId) {
-                const [myRes, deptRes, feeRes] = await Promise.all([
+                const [myRes, feeRes] = await Promise.all([
                     getMyEnrollments(sId, semester?.id),
-                    client.get('/departments'),
                     client.get(`/fees`, { params: { studentId: sId } })
                 ]);
 
                 if (semester) {
-                    const allRes = await getAvailableOfferings({ semesterId: semester.id, size: 1000 });
-                    setAvailableOfferings(allRes.data.content || allRes.data);
-
                     const currentFee = feeRes.data.find(f => f.semesterName.includes(semester?.name) || f.semesterName === semester?.name);
                     setFeeStatus(currentFee);
                 }
 
                 setMyEnrollments(myRes.data);
                 setHistoryEnrollments(myRes.data);
-                setDepartments(deptRes.data.content || deptRes.data);
             }
         } catch (err) {
             if (err.response?.status !== 404 && err.response?.data) {
@@ -136,54 +108,7 @@ const CourseRegistration = () => {
         }
     }, [studentId, historySemesterId]);
 
-    const handleRegister = async () => {
-        setFormLoading(true);
-        try {
-            await registerCourse({
-                studentId: studentId,
-                offeringId: confirmModal.data.id
-            });
-            toast.success('Course registered successfully');
-            setConfirmModal({ isOpen: false, data: null, type: '' });
-            fetchData();
-        } catch (err) {
-            const msg = err.response?.data?.message || 'Registration failed';
-            toast.error(msg);
-        } finally {
-            setFormLoading(false);
-        }
-    };
-
-    const handleDrop = async () => {
-        setFormLoading(true);
-        try {
-            const enrollmentId = confirmModal.data.enrollmentId || confirmModal.data.id;
-            await dropCourse(enrollmentId);
-            toast.success('Course dropped');
-            setConfirmModal({ isOpen: false, data: null, type: '' });
-            fetchData();
-        } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to drop course');
-        } finally {
-            setFormLoading(false);
-        }
-    };
-
-    const filteredOfferings = availableOfferings.filter(o => {
-        const matchesSearch = o.courseTitle.toLowerCase().includes(search.toLowerCase()) ||
-            o.courseCode.toLowerCase().includes(search.toLowerCase());
-        const matchesDept = !selectedDept || o.departmentName === departments.find(d => d.id === selectedDept)?.name;
-        return matchesSearch && matchesDept;
-    });
-
-    const totalCredits = myEnrollments.reduce((sum, e) => sum + (e.creditHours || 0), 0);
-
-    const isRegistered = (offeringId) => myEnrollments.some(e => e.offeringId === offeringId);
-    const getEnrollmentId = (offeringId) => myEnrollments.find(e => e.offeringId === offeringId)?.id;
-
     const isRegistrationFeePaid = feeStatus ? feeStatus.amountPaid >= feeStatus.registrationFee : true;
-    const isDeadlinePassed = activeSemester ? new Date() > new Date(activeSemester.registrationDeadline) : true;
-    const isNearDeadline = activeSemester ? (new Date(activeSemester.registrationDeadline) - new Date()) < 24 * 60 * 60 * 1000 : false;
 
     if (loading) return <div className="h-[60vh] flex items-center justify-center"><Loader size="lg" /></div>;
 
@@ -231,9 +156,12 @@ const CourseRegistration = () => {
                     <Users size={18} />
                     <span>Advisor: {studentProfile?.advisorName || 'Not Assigned'}</span>
                 </div>
-                <Button variant="secondary" className="mt-8" onClick={() => window.location.reload()}>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="mt-8 px-6 py-2.5 bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-sm flex items-center transition-all"
+                >
                     <RefreshCw size={16} className="mr-2" /> Refresh Status
-                </Button>
+                </button>
             </div>
         </div>
     );
@@ -301,32 +229,23 @@ const CourseRegistration = () => {
 
             {/* Search & Table Section */}
             <div className="space-y-6">
-                <div className="flex flex-col space-y-2 max-w-2xl">
-                    <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">Search Semester</label>
-                    <div className="flex flex-col md:flex-row gap-3">
-                        <div className="relative flex-1 group">
-                            <select
-                                value={historySemesterId}
-                                onChange={(e) => setHistorySemesterId(e.target.value)}
-                                className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-5 py-3.5 outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all appearance-none font-bold text-sm cursor-pointer shadow-sm"
-                            >
-                                {semesters.map(sem => (
-                                    <option key={sem.id} value={sem.id}>
-                                        {sem.name}
-                                    </option>
-                                ))}
-                            </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2 pointer-events-none text-gray-400 group-hover:text-[#2D2A4F]">
-                                <span className="text-gray-300">|</span>
-                                <ChevronDown size={18} />
-                            </div>
-                        </div>
-                        <Button
-                            onClick={() => {}}
-                            className="px-12 py-3.5 bg-[#2D2A4F] hover:bg-[#1E1C38] text-white border-none rounded-xl font-bold shadow-lg shadow-[#2D2A4F]/20 transition-all"
+                <div className="flex flex-col space-y-2 max-w-sm">
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 ml-1">Select Semester</label>
+                    <div className="relative group">
+                        <select
+                            value={historySemesterId}
+                            onChange={(e) => setHistorySemesterId(e.target.value)}
+                            className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-5 py-3.5 outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all appearance-none font-bold text-sm cursor-pointer shadow-sm"
                         >
-                            Search
-                        </Button>
+                            {semesters.map(sem => (
+                                <option key={sem.id} value={sem.id}>
+                                    {sem.name}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2 pointer-events-none text-gray-400 group-hover:text-[#2D2A4F]">
+                            <ChevronDown size={18} />
+                        </div>
                     </div>
                 </div>
 
@@ -351,9 +270,9 @@ const CourseRegistration = () => {
                                 <tr key={e.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all">
                                     <td className="px-6 py-5 text-center text-sm font-bold text-gray-400">{idx + 1}</td>
                                     <td className="px-6 py-5">
-                              <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
-                                 {e.courseCode}
-                              </span>
+                                        <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                                            {e.courseCode}
+                                        </span>
                                     </td>
                                     <td className="px-6 py-5">
                                         <p className="text-sm font-bold text-gray-800 dark:text-gray-100">{e.courseTitle}</p>
@@ -362,14 +281,14 @@ const CourseRegistration = () => {
                                         <span className="text-sm font-bold text-gray-700 dark:text-gray-300 tabular-nums">{e.creditHours}</span>
                                     </td>
                                     <td className="px-6 py-5">
-                              <span className="text-[10px] font-black uppercase text-gray-600 dark:text-gray-400">
-                                 {e.enrollmentType || 'REGULAR'}
-                              </span>
+                                        <span className="text-[10px] font-black uppercase text-gray-600 dark:text-gray-400">
+                                            {e.enrollmentType || 'REGULAR'}
+                                        </span>
                                     </td>
                                     <td className="px-6 py-5">
-                              <span className="text-sm font-bold text-gray-600 dark:text-gray-400">
-                                {e.section}
-                              </span>
+                                        <span className="text-sm font-bold text-gray-600 dark:text-gray-400">
+                                            {e.section}
+                                        </span>
                                     </td>
                                     <td className="px-6 py-5">
                                         <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{e.facultyName}</span>

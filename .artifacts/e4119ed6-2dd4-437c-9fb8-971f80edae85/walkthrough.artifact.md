@@ -1,26 +1,24 @@
-# Walkthrough - Automated Student Clearance System
+# Walkthrough - Fix Student Live Results Display
 
-I have updated the Student Clearance system to automatically reflect payment status in real-time. Students will no longer need to wait for manual updates after paying their fees.
+I have resolved the issues affecting the display of course results in the student's Live Results page.
 
 ## Changes Made
 
-### 1. Backend: Payment-linked Eligibility
-- **Dynamic Checks**: Added `isFullFeePaid` to [FeeService](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/FeeService.java) to check if a student has cleared all outstanding dues (Registration + Credits).
-- **Automated Clearance Logic**: Completely overhauled [ClearanceServiceImpl](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/ClearanceServiceImpl.java). It now dynamically generates the clearance list based on the student's payment history:
-    - **Registration Clearance**: Automatically marked as **Cleared** once the fixed batch registration fee is paid.
-    - **Midterm Clearance**: Linked to the registration fee payment (standard ERP policy).
-    - **Final Exam Clearance**: Automatically marked as **Cleared** once the total amount due (including all credit fees) is paid in full.
-- **Manual Overrides**: Maintained compatibility with manual admin overrides in the `SemesterClearance` table. If an admin manually clears a student, they remain cleared regardless of fee status.
+### 1. Backend: Data Integrity & Null Safety
+- **Filtering Dropped Courses**: Updated [ResultServiceImpl](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/ResultServiceImpl.java) to explicitly filter out `DROPPED` enrollments from both Live and Academic result views. This ensures that only active courses are visible to students and faculty.
+- **Defensive Mapping**: Added robust null checks in the `mapToLiveResult` method. If any related data (like a course title, section name, or teacher name) is missing in the database, the system will now display "N/A" instead of failing with a server error.
+
+### 2. Frontend: UX Enhancements
+- **Automatic Loading**: Updated [LiveResults.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/LiveResults.jsx) to automatically fetch and display results for the **Active Semester** (Registration or Ongoing) as soon as the page opens. Students no longer have to manually click "Search" to see their current progress.
+- **Improved Empty States**: Added clearer messaging and icons for cases where no results are found for a selected semester, distinguishing between "Search required" and "No data found".
 
 ## Verification Results
 
-### Automated Status Updates:
-1.  **Scenario A (Initial)**: Student has not paid anything. Clearance page shows red "X" for all categories.
-2.  **Scenario B (Registration Fee Paid)**: Student pays the fixed registration amount. Clearance page immediately updates **Registration** and **Midterm** to green "Check" icons.
-3.  **Scenario C (Full Payment)**: Student pays the remaining credit fees. **Final Exam** status automatically flips to green.
-4.  **Scenario D (Course Drop)**: Student drops a course, reducing their total due. If their previous payment now covers the new total, the **Final Exam** status remains/becomes cleared.
+### Automated Loading:
+- When a student navigates to the Live Results page, the system now identifies the active semester and triggers a data fetch immediately.
 
-## System Logic Summary
-> [!TIP]
-> - **Registration/Midterm**: Paid Amount >= Fixed Registration Fee.
-> - **Final Exam**: Paid Amount >= Total Due (Fixed + Credits).
+### Data Filtering:
+- Verified that courses marked as `DROPPED` are no longer included in the results list, preventing confusion for students who have changed their schedules.
+
+### Error Resilience:
+- Verified that the page remains functional even if some database records have missing faculty assignments or incomplete course details.
