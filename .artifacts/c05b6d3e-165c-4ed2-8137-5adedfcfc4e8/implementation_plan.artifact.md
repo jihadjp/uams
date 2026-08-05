@@ -1,29 +1,25 @@
-# Implementation Plan - Seed Data Generation
+# Implementation Plan - Schema Reorganization for Insertion Order
 
-Generate 20 realistic sample data entries for each table in the `uams` database to facilitate testing and development.
+Organize the table definitions in `university_academic_management_schema.sql` to strictly follow a serial order that respects database dependencies. This ensures that a simple top-to-bottom data insertion script will not encounter foreign key violations.
 
 ## Proposed Changes
 
-### Database Seed Data
+### Database Schema
 
-#### [NEW] [seed_data.sql](file:///E:/Project/DBMS/uams/backend/seed_data.sql)
-Create a new SQL script containing `INSERT` statements for 20 rows per table, following the correct dependency order to maintain referential integrity.
+#### [MODIFY] [university_academic_management_schema.sql](file:///E:/Project/DBMS/uams/backend/university_academic_management_schema.sql)
+Rearrange the `CREATE TABLE` statements into the following order:
 
-## Data Generation Strategy
-
-1.  **Users**: Create a mix of Admin, Faculty, Student, and Registrar roles.
-2.  **Departments**: 20 departments with unique names and codes.
-3.  **Faculty**: Linked to users and departments.
-4.  **Programs**: Linked to departments.
-5.  **Batches & Sections**: Standard academic groupings.
-6.  **Students**: Linked to users, programs, batches, and guardians.
-7.  **Courses**: Academic curriculum entries.
-8.  **Semesters**: Time-based academic cycles.
-9.  **Enrollments, Attendance, Exams, Results**: Transactional academic data.
-10. **Financials & Administrative**: Fees, notices, aid, etc.
+1.  **Level 1 (Independent):** `users`, `departments`, `semesters`, `guardians`, `grading_policies`, `financial_aid_circulars`.
+2.  **Level 2:** `faculty` (users, depts), `programs` (depts), `courses` (depts), `academic_calendars` (semesters).
+3.  **Level 3:** `batches` (programs), `calendar_events` (calendars).
+4.  **Level 4:** `sections` (batches), `batch_semester_fees` (batches, semesters).
+5.  **Level 5:** `students` (users, programs, faculty, batches, sections, guardians), `course_offerings` (courses, semesters, faculty, batches, sections).
+6.  **Level 6:** `enrollments` (students, offerings), `exams` (offerings), `fees` (students, semesters), `notices` (users, depts), `semester_clearance` (students, semesters), `evaluations` (students, offerings), `document_requests` (students), `convocation_applications` (students), `financial_aid_applications` (students, aid circulars).
+7.  **Level 7:** `attendance` (enrollments), `results` (enrollments, exams), `notice_views` (notices, users).
 
 ## Verification Plan
 
 ### Manual Verification
-- Execute the script in a MySQL/MariaDB environment to ensure no foreign key violations or data type mismatches occur.
-- Verify that the data looks "realistic" (e.g., proper names, emails, dates).
+- Review the rearranged file to ensure all foreign keys refer to tables defined above them.
+- Verify that the `ALTER TABLE departments ADD CONSTRAINT fk_department_head` remains after `faculty` to handle the circular dependency.
+- Run a dry-run check of the schema creation in a local MySQL instance.
