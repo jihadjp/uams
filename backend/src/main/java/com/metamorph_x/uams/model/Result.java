@@ -50,12 +50,6 @@ public class Result {
     @Column(name = "marks_obtained", precision = 6, scale = 2)
     private BigDecimal marksObtained;
 
-    @Column(length = 5)
-    private String grade;
-
-    @Column(name = "grade_point", precision = 3, scale = 2)
-    private BigDecimal gradePoint;
-
     @Column(name = "is_final_result", nullable = false)
     private boolean isFinalResult = false;
 

@@ -58,10 +58,8 @@ public class FeeServiceImpl implements FeeService {
         Fee fee = Fee.builder()
                 .student(student)
                 .semester(semester)
-                .amountDue(request.getAmountDue())
                 .amountPaid(BigDecimal.ZERO)
                 .dueDate(request.getDueDate())
-                .status(request.getStatus() != null ? request.getStatus() : FeeStatus.DUE)
                 .build();
 
         return mapToResponse(feeRepository.save(fee));
@@ -74,11 +72,6 @@ public class FeeServiceImpl implements FeeService {
                 .orElseThrow(() -> new RuntimeException("Fee record not found"));
 
         fee.setAmountPaid(fee.getAmountPaid().add(amount));
-        if (fee.getAmountPaid().compareTo(fee.getAmountDue()) >= 0) {
-            fee.setStatus(FeeStatus.PAID);
-        } else {
-            fee.setStatus(FeeStatus.PARTIAL);
-        }
         fee.setPaidAt(LocalDateTime.now());
 
         return mapToResponse(feeRepository.save(fee));
@@ -107,7 +100,6 @@ public class FeeServiceImpl implements FeeService {
                     .student(student)
                     .semester(semester)
                     .amountPaid(BigDecimal.ZERO)
-                    .status(FeeStatus.DUE)
                     .build();
         } else {
             fee = fees.get(0);
@@ -136,16 +128,6 @@ public class FeeServiceImpl implements FeeService {
         // 3. Update Fee Record
         fee.setRegistrationFee(regFee);
         fee.setCreditFee(creditFee);
-        fee.setAmountDue(regFee.add(creditFee));
-
-        // Update status based on payment
-        if (fee.getAmountPaid().compareTo(fee.getAmountDue()) >= 0) {
-            fee.setStatus(FeeStatus.PAID);
-        } else if (fee.getAmountPaid().compareTo(BigDecimal.ZERO) > 0) {
-            fee.setStatus(FeeStatus.PARTIAL);
-        } else {
-            fee.setStatus(FeeStatus.DUE);
-        }
 
         feeRepository.save(fee);
     }
@@ -179,7 +161,8 @@ public class FeeServiceImpl implements FeeService {
         if (fees.isEmpty()) return false;
 
         Fee fee = fees.get(0);
-        return fee.getAmountPaid().compareTo(fee.getAmountDue()) >= 0;
+        BigDecimal amountDue = fee.getRegistrationFee().add(fee.getCreditFee());
+        return fee.getAmountPaid().compareTo(amountDue) >= 0;
     }
 
     private FeeResponse mapToResponse(Fee fee) {
@@ -198,15 +181,25 @@ public class FeeServiceImpl implements FeeService {
             // Log and fall back to Unknown
         }
 
+        BigDecimal amountDue = fee.getRegistrationFee().add(fee.getCreditFee());
+        FeeStatus status;
+        if (fee.getAmountPaid().compareTo(amountDue) >= 0) {
+            status = FeeStatus.PAID;
+        } else if (fee.getAmountPaid().compareTo(BigDecimal.ZERO) > 0) {
+            status = FeeStatus.PARTIAL;
+        } else {
+            status = FeeStatus.DUE;
+        }
+
         return FeeResponse.builder()
                 .id(fee.getId())
                 .studentName(studentName)
                 .semesterName(semesterName)
                 .registrationFee(fee.getRegistrationFee() != null ? fee.getRegistrationFee() : BigDecimal.ZERO)
                 .creditFee(fee.getCreditFee() != null ? fee.getCreditFee() : BigDecimal.ZERO)
-                .amountDue(fee.getAmountDue() != null ? fee.getAmountDue() : BigDecimal.ZERO)
+                .amountDue(amountDue)
                 .amountPaid(fee.getAmountPaid() != null ? fee.getAmountPaid() : BigDecimal.ZERO)
-                .status(fee.getStatus() != null ? fee.getStatus() : FeeStatus.DUE)
+                .status(status)
                 .dueDate(fee.getDueDate())
                 .build();
     }

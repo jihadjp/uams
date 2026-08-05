@@ -33,6 +33,8 @@ import com.metamorph_x.uams.repository.EvaluationRepository;
 import com.metamorph_x.uams.repository.ExamRepository;
 import com.metamorph_x.uams.repository.ResultRepository;
 import com.metamorph_x.uams.repository.StudentRepository;
+import com.metamorph_x.uams.repository.GradingPolicyRepository;
+import com.metamorph_x.uams.model.GradingPolicy;
 import com.metamorph_x.uams.service.ResultService;
 
 import lombok.RequiredArgsConstructor;
@@ -47,6 +49,7 @@ public class ResultServiceImpl implements ResultService {
     private final StudentRepository studentRepository;
     private final EvaluationRepository evaluationRepository;
     private final CourseOfferingRepository offeringRepository;
+    private final GradingPolicyRepository gradingPolicyRepository;
 
     @Override
     public Page<ResultResponse> getAllResults(Pageable pageable) {
@@ -74,8 +77,6 @@ public class ResultServiceImpl implements ResultService {
                             .build());
 
             result.setMarksObtained(request.getMarksObtained());
-            result.setGrade(request.getGrade());
-            result.setGradePoint(request.getGradePoint());
             result.setFinalResult(false);
             
             return mapToResponse(resultRepository.save(result));
@@ -109,19 +110,18 @@ public class ResultServiceImpl implements ResultService {
                 }
             }
 
-            // Best of Midterm vs Improvement
             totalWeightedMarks = totalWeightedMarks.add(midMarks.max(impMarks));
             
-            String grade = calculateGrade(totalWeightedMarks);
-            BigDecimal gp = calculateGradePoint(grade);
+            GradingPolicy policy = gradingPolicyRepository.findByMarks(totalWeightedMarks)
+                    .orElse(GradingPolicy.builder().grade("F").gradePoint(BigDecimal.ZERO).build());
             
             return ResultResponse.builder()
                     .enrollmentId(enrollment.getId())
                     .studentName(enrollment.getStudent().getUser().getName())
                     .courseTitle(enrollment.getOffering().getCourse().getTitle())
                     .marksObtained(totalWeightedMarks)
-                    .grade(grade)
-                    .gradePoint(gp)
+                    .grade(policy.getGrade())
+                    .gradePoint(policy.getGradePoint())
                     .isFinalResult(true)
                     .build();
         }).collect(Collectors.toList());
@@ -143,8 +143,6 @@ public class ResultServiceImpl implements ResultService {
                             .build());
             
             finalResult.setMarksObtained(resp.getMarksObtained());
-            finalResult.setGrade(resp.getGrade());
-            finalResult.setGradePoint(resp.getGradePoint());
             finalResult.setPublishedAt(LocalDateTime.now());
             
             resultRepository.save(finalResult);
@@ -153,35 +151,6 @@ public class ResultServiceImpl implements ResultService {
             enrollmentRepository.save(enrollment);
             calculateAndUpdateCGPA(enrollment.getStudent());
         }
-    }
-
-    private String calculateGrade(BigDecimal marks) {
-        double m = marks.doubleValue();
-        if (m >= 80) return "A+";
-        if (m >= 75) return "A";
-        if (m >= 70) return "A-";
-        if (m >= 65) return "B+";
-        if (m >= 60) return "B";
-        if (m >= 55) return "B-";
-        if (m >= 50) return "C+";
-        if (m >= 45) return "C";
-        if (m >= 40) return "D";
-        return "F";
-    }
-
-    private BigDecimal calculateGradePoint(String grade) {
-        return switch (grade) {
-            case "A+" -> new BigDecimal("4.00");
-            case "A" -> new BigDecimal("3.75");
-            case "A-" -> new BigDecimal("3.50");
-            case "B+" -> new BigDecimal("3.25");
-            case "B" -> new BigDecimal("3.00");
-            case "B-" -> new BigDecimal("2.75");
-            case "C+" -> new BigDecimal("2.50");
-            case "C" -> new BigDecimal("2.25");
-            case "D" -> new BigDecimal("2.00");
-            default -> BigDecimal.ZERO;
-        };
     }
 
     @Override
@@ -204,8 +173,6 @@ public class ResultServiceImpl implements ResultService {
                 .enrollment(enrollment)
                 .exam(exam)
                 .marksObtained(request.getMarksObtained())
-                .grade(request.getGrade())
-                .gradePoint(request.getGradePoint())
                 .isFinalResult(request.isFinalResult())
                 .publishedAt(LocalDateTime.now())
                 .build();
@@ -386,7 +353,9 @@ public class ResultServiceImpl implements ResultService {
                 if (evaluationPending || !offering.isResultsApproved()) {
                     builder.grade("N/A").gradePoint(null);
                 } else {
-                    builder.grade(res.getGrade()).gradePoint(res.getGradePoint().doubleValue());
+                    GradingPolicy policy = gradingPolicyRepository.findByMarks(res.getMarksObtained())
+                            .orElse(GradingPolicy.builder().grade("F").gradePoint(BigDecimal.ZERO).build());
+                    builder.grade(policy.getGrade()).gradePoint(policy.getGradePoint().doubleValue());
                 }
             } else {
                 builder.grade("N/A").gradePoint(null);
@@ -442,9 +411,12 @@ public class ResultServiceImpl implements ResultService {
             BigDecimal credits = result.getEnrollment().getOffering().getCourse().getCreditHours();
             totalCredits = totalCredits.add(credits);
             
-            if (result.getGradePoint() != null) {
-                totalWeightedGradePoints = totalWeightedGradePoints.add(result.getGradePoint().multiply(credits));
-                if (result.getGradePoint().compareTo(BigDecimal.ZERO) > 0) {
+            GradingPolicy policy = gradingPolicyRepository.findByMarks(result.getMarksObtained())
+                    .orElse(GradingPolicy.builder().gradePoint(BigDecimal.ZERO).build());
+            
+            if (policy.getGradePoint() != null) {
+                totalWeightedGradePoints = totalWeightedGradePoints.add(policy.getGradePoint().multiply(credits));
+                if (policy.getGradePoint().compareTo(BigDecimal.ZERO) > 0) {
                     completedCredits = completedCredits.add(credits);
                 }
             }
@@ -583,25 +555,14 @@ public class ResultServiceImpl implements ResultService {
     }
 
     private void calculateAndUpdateCGPA(Student student) {
-        List<Result> finalResults = resultRepository.findByEnrollment_Student_IdAndIsFinalResult(student.getId(), true);
-        if (finalResults.isEmpty()) return;
-
-        BigDecimal totalGradePoints = BigDecimal.ZERO;
-        BigDecimal totalCredits = BigDecimal.ZERO;
-
-        for (Result result : finalResults) {
-            BigDecimal credits = result.getEnrollment().getOffering().getCourse().getCreditHours();
-            totalGradePoints = totalGradePoints.add(result.getGradePoint().multiply(credits));
-            totalCredits = totalCredits.add(credits);
-        }
-
-        if (totalCredits.compareTo(BigDecimal.ZERO) > 0) {
-            student.setCgpa(totalGradePoints.divide(totalCredits, 2, RoundingMode.HALF_UP));
-            studentRepository.save(student);
-        }
+        // No longer updating student.cgpa as it's removed in 3NF.
+        // The value will be calculated dynamically in mapToResponse.
     }
 
     private ResultResponse mapToResponse(Result result) {
+        GradingPolicy policy = gradingPolicyRepository.findByMarks(result.getMarksObtained())
+                .orElse(GradingPolicy.builder().grade("F").gradePoint(BigDecimal.ZERO).build());
+
         return ResultResponse.builder()
                 .id(result.getId())
                 .enrollmentId(result.getEnrollment().getId())
@@ -612,8 +573,8 @@ public class ResultServiceImpl implements ResultService {
                 .examType(result.getExam() != null ? result.getExam().getExamType().name() : "FINAL")
                 .marksObtained(result.getMarksObtained())
                 .creditHours(result.getEnrollment().getOffering().getCourse().getCreditHours())
-                .grade(result.getGrade())
-                .gradePoint(result.getGradePoint())
+                .grade(policy.getGrade())
+                .gradePoint(policy.getGradePoint())
                 .isFinalResult(result.isFinalResult())
                 .publishedAt(result.getPublishedAt())
                 .build();

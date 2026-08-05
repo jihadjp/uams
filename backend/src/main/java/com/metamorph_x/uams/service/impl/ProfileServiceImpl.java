@@ -33,6 +33,8 @@ public class ProfileServiceImpl implements ProfileService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final FacultyRepository facultyRepository;
+    private final com.metamorph_x.uams.repository.ResultRepository resultRepository;
+    private final com.metamorph_x.uams.repository.GradingPolicyRepository gradingPolicyRepository;
     private final PasswordEncoder passwordEncoder;
     private final FileStorageService fileStorageService;
 
@@ -64,7 +66,27 @@ public class ProfileServiceImpl implements ProfileService {
                 studentData.put("registrationNo", s.getRegistrationNo());
                 studentData.put("batch", s.getBatch() != null ? s.getBatch().getBatchNumber() : "N/A");
                 studentData.put("currentSemester", s.getCurrentSemester());
-                studentData.put("cgpa", s.getCgpa());
+
+                // Calculate CGPA dynamically (3NF Compliance)
+                java.math.BigDecimal totalWeightedGradePoints = java.math.BigDecimal.ZERO;
+                java.math.BigDecimal totalCredits = java.math.BigDecimal.ZERO;
+                
+                java.util.List<com.metamorph_x.uams.model.Result> finalResults = resultRepository.findByEnrollment_Student_IdAndIsFinalResult(s.getId(), true);
+                
+                for (com.metamorph_x.uams.model.Result res : finalResults) {
+                    java.math.BigDecimal credits = res.getEnrollment().getOffering().getCourse().getCreditHours();
+                    com.metamorph_x.uams.model.GradingPolicy policy = gradingPolicyRepository.findByMarks(res.getMarksObtained())
+                            .orElse(com.metamorph_x.uams.model.GradingPolicy.builder().gradePoint(java.math.BigDecimal.ZERO).build());
+                    
+                    totalWeightedGradePoints = totalWeightedGradePoints.add(policy.getGradePoint().multiply(credits));
+                    totalCredits = totalCredits.add(credits);
+                }
+
+                java.math.BigDecimal cgpa = totalCredits.compareTo(java.math.BigDecimal.ZERO) > 0 
+                        ? totalWeightedGradePoints.divide(totalCredits, 2, java.math.RoundingMode.HALF_UP) 
+                        : java.math.BigDecimal.ZERO;
+
+                studentData.put("cgpa", cgpa);
                 studentData.put("isRegistrationCleared", s.isRegistrationCleared());
                 studentData.put("status", s.getStatus());
                 studentData.put("guardianName", s.getGuardian() != null ? s.getGuardian().getName() : null);

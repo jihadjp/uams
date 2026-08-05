@@ -62,9 +62,6 @@ public class Notice {
     @Column(length = 50)
     private String category = "General";
 
-    @Column(name = "view_count", nullable = false)
-    private long viewCount = 0;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

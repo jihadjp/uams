@@ -58,6 +58,7 @@ public class DashboardServiceImpl implements DashboardService {
     private final AttendanceRepository attendanceRepository;
     private final FeeRepository feeRepository;
     private final SemesterRepository semesterRepository;
+    private final com.metamorph_x.uams.repository.GradingPolicyRepository gradingPolicyRepository;
 
     @Override
     public AdminStatsResponse getAdminStats() {
@@ -183,7 +184,10 @@ public class DashboardServiceImpl implements DashboardService {
         String feeStatusLabel = student.isRegistrationCleared() ? "Paid" : "Due";
         List<Fee> fees = feeRepository.findByStudent_Id(student.getId());
         if (!fees.isEmpty()) {
-            boolean hasDue = fees.stream().anyMatch(f -> f.getStatus() != FeeStatus.PAID);
+            boolean hasDue = fees.stream().anyMatch(f -> {
+                BigDecimal totalDue = f.getRegistrationFee().add(f.getCreditFee());
+                return f.getAmountPaid().compareTo(totalDue) < 0;
+            });
             if (!hasDue) feeStatusLabel = "Paid";
             else if (!student.isRegistrationCleared()) feeStatusLabel = "Due";
             // If student is manually cleared, we show Paid even if dues exist in DB (as a waiver/admin override)
@@ -197,7 +201,9 @@ public class DashboardServiceImpl implements DashboardService {
         List<StudentSummaryResponse.SemesterGpa> semesterResults = resultsBySemester.entrySet().stream()
                 .map(entry -> {
                     double avgGpa = entry.getValue().stream()
-                            .map(Result::getGradePoint)
+                            .map(r -> gradingPolicyRepository.findByMarks(r.getMarksObtained())
+                                    .map(com.metamorph_x.uams.model.GradingPolicy::getGradePoint)
+                                    .orElse(BigDecimal.ZERO))
                             .filter(gp -> gp != null)
                             .mapToDouble(BigDecimal::doubleValue)
                             .average()
@@ -206,6 +212,21 @@ public class DashboardServiceImpl implements DashboardService {
                 })
                 .sorted((a, b) -> a.getSemesterName().compareTo(b.getSemesterName())) // Simple sort, ideally by semester date
                 .collect(Collectors.toList());
+
+        // Calculate CGPA dynamically (3NF Compliance)
+        BigDecimal totalWeightedGradePoints = BigDecimal.ZERO;
+        BigDecimal totalCredits = BigDecimal.ZERO;
+        List<Result> finalResultsForCgpa = resultRepository.findByEnrollment_Student_IdAndIsFinalResult(student.getId(), true);
+        for (Result res : finalResultsForCgpa) {
+            BigDecimal credits = res.getEnrollment().getOffering().getCourse().getCreditHours();
+            com.metamorph_x.uams.model.GradingPolicy policy = gradingPolicyRepository.findByMarks(res.getMarksObtained())
+                    .orElse(com.metamorph_x.uams.model.GradingPolicy.builder().gradePoint(BigDecimal.ZERO).build());
+            totalWeightedGradePoints = totalWeightedGradePoints.add(policy.getGradePoint().multiply(credits));
+            totalCredits = totalCredits.add(credits);
+        }
+        BigDecimal cgpa = totalCredits.compareTo(BigDecimal.ZERO) > 0 
+                ? totalWeightedGradePoints.divide(totalCredits, 2, java.math.RoundingMode.HALF_UP) 
+                : BigDecimal.ZERO;
 
         return StudentSummaryResponse.builder()
                 .studentName(user.getName())
@@ -221,7 +242,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .bloodGroup(user.getBloodGroup())
                 .profileImage(user.getProfileImage())
                 .campus("Main Campus")
-                .cgpa(student.getCgpa() != null ? student.getCgpa() : BigDecimal.ZERO)
+                .cgpa(cgpa)
                 .enrolledCourses(enrolledCount)
                 .attendancePercent(Math.round(attendancePercent * 10.0) / 10.0)
                 .feeStatus(feeStatusLabel)

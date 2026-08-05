@@ -77,10 +77,6 @@ public class Student {
     @Builder.Default
     private Integer currentSemester = 1;
 
-    @Column(precision = 3, scale = 2)
-    @Builder.Default
-    private BigDecimal cgpa = BigDecimal.ZERO;
-
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "guardian_id")
     private Guardian guardian;

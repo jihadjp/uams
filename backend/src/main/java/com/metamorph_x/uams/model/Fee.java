@@ -62,15 +62,8 @@ public class Fee {
     @Builder.Default
     private BigDecimal creditFee = BigDecimal.ZERO;
 
-    @Column(name = "amount_due", nullable = false, precision = 10, scale = 2)
-    private BigDecimal amountDue;
-
     @Column(name = "amount_paid", nullable = false, precision = 10, scale = 2)
     private BigDecimal amountPaid = BigDecimal.ZERO;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 15)
-    private FeeStatus status = FeeStatus.DUE;
 
     @Column(name = "due_date")
     private LocalDate dueDate;

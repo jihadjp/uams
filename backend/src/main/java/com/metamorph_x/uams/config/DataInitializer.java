@@ -100,7 +100,6 @@ public class DataInitializer implements CommandLineRunner {
                         .ifPresent(fee -> {
                             if (fee.getAmountPaid().compareTo(BigDecimal.ZERO) == 0) {
                                 fee.setAmountPaid(fee.getRegistrationFee());
-                                fee.setStatus(com.metamorph_x.uams.model.enums.FeeStatus.PARTIAL);
                                 feeRepository.save(fee);
                             }
                         });

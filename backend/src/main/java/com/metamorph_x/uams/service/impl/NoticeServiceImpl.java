@@ -71,7 +71,6 @@ public class NoticeServiceImpl implements NoticeService {
                 .postedBy(user)
                 .targetRole(request.getTargetRole())
                 .department(department)
-                .viewCount(0)
                 .build();
 
         return mapToResponse(noticeRepository.save(notice));
@@ -114,16 +113,13 @@ public class NoticeServiceImpl implements NoticeService {
         if (!noticeViewRepository.existsByNoticeIdAndUserId(id, userId)) {
             User user = userRepository.findById(userId).orElse(null);
             if (user != null) {
-                notice.setViewCount(notice.getViewCount() + 1);
-                noticeRepository.save(notice);
-                
                 noticeViewRepository.save(NoticeView.builder()
                         .notice(notice)
                         .user(user)
                         .build());
             }
         }
-        return notice.getViewCount();
+        return noticeViewRepository.countByNoticeId(id);
     }
 
     @Override
@@ -140,7 +136,7 @@ public class NoticeServiceImpl implements NoticeService {
                 .title(notice.getTitle())
                 .content(notice.getContent())
                 .category(notice.getCategory())
-                .viewCount(notice.getViewCount())
+                .viewCount(noticeViewRepository.countByNoticeId(notice.getId()))
                 .postedByName(notice.getPostedBy() != null ? notice.getPostedBy().getName() : "System")
                 .targetRole(notice.getTargetRole())
                 .departmentName(notice.getDepartment() != null ? notice.getDepartment().getName() : "ALL")

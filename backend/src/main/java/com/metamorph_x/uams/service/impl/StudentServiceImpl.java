@@ -29,6 +29,8 @@ import com.metamorph_x.uams.repository.ProgramRepository;
 import com.metamorph_x.uams.repository.SectionRepository;
 import com.metamorph_x.uams.repository.StudentRepository;
 import com.metamorph_x.uams.repository.UserRepository;
+import com.metamorph_x.uams.repository.ResultRepository;
+import com.metamorph_x.uams.repository.GradingPolicyRepository;
 import com.metamorph_x.uams.service.PasswordGeneratorService;
 import com.metamorph_x.uams.service.StudentService;
 
@@ -47,6 +49,8 @@ public class StudentServiceImpl implements StudentService {
     private final PasswordEncoder passwordEncoder;
     private final StudentIdGeneratorServiceImpl idGeneratorService;
     private final PasswordGeneratorService passwordGeneratorService;
+    private final ResultRepository resultRepository;
+    private final GradingPolicyRepository gradingPolicyRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -281,6 +285,25 @@ public class StudentServiceImpl implements StudentService {
             batchStr = student.getBatch().getBatchNumber() + " (" + student.getBatch().getBatchInitial() + ")";
         }
 
+        // Calculate CGPA dynamically
+        java.math.BigDecimal totalWeightedGradePoints = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal totalCredits = java.math.BigDecimal.ZERO;
+        
+        List<com.metamorph_x.uams.model.Result> finalResults = resultRepository.findByEnrollment_Student_IdAndIsFinalResult(student.getId(), true);
+        
+        for (com.metamorph_x.uams.model.Result res : finalResults) {
+            java.math.BigDecimal credits = res.getEnrollment().getOffering().getCourse().getCreditHours();
+            com.metamorph_x.uams.model.GradingPolicy policy = gradingPolicyRepository.findByMarks(res.getMarksObtained())
+                    .orElse(com.metamorph_x.uams.model.GradingPolicy.builder().gradePoint(java.math.BigDecimal.ZERO).build());
+            
+            totalWeightedGradePoints = totalWeightedGradePoints.add(policy.getGradePoint().multiply(credits));
+            totalCredits = totalCredits.add(credits);
+        }
+
+        java.math.BigDecimal cgpa = totalCredits.compareTo(java.math.BigDecimal.ZERO) > 0 
+                ? totalWeightedGradePoints.divide(totalCredits, 2, java.math.RoundingMode.HALF_UP) 
+                : java.math.BigDecimal.ZERO;
+
         return StudentResponse.builder()
                 .id(student.getId())
                 .userId(student.getUser().getId())
@@ -302,7 +325,7 @@ public class StudentServiceImpl implements StudentService {
                 .sectionId(student.getSection() != null ? student.getSection().getId() : null)
                 .sectionName(student.getSection() != null ? student.getSection().getName() : "NOT ASSIGNED")
                 .currentSemester(student.getCurrentSemester())
-                .cgpa(student.getCgpa())
+                .cgpa(cgpa)
                 .isRegistrationCleared(student.isRegistrationCleared())
                 .hasReceivedLaptop(student.isHasReceivedLaptop())
                 .status(student.getStatus())

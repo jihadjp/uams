@@ -70,9 +70,6 @@ public class Evaluation {
     @Column(nullable = false)
     private Integer q10;
 
-    @Column(name = "average_rating", nullable = false, precision = 3, scale = 2)
-    private BigDecimal averageRating;
-
     @Column(columnDefinition = "TEXT")
     private String comments;
 

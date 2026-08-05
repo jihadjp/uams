@@ -47,10 +47,6 @@ public class EvaluationServiceImpl implements EvaluationService {
         CourseOffering offering = offeringRepository.findById(request.getOfferingId())
                 .orElseThrow(() -> new ResourceNotFoundException("Course offering not found"));
 
-        double sum = request.getQ1() + request.getQ2() + request.getQ3() + request.getQ4() + request.getQ5() +
-                     request.getQ6() + request.getQ7() + request.getQ8() + request.getQ9() + request.getQ10();
-        BigDecimal avg = BigDecimal.valueOf(sum / 10.0).setScale(2, RoundingMode.HALF_UP);
-
         Evaluation evaluation = Evaluation.builder()
                 .student(student)
                 .offering(offering)
@@ -64,7 +60,6 @@ public class EvaluationServiceImpl implements EvaluationService {
                 .q8(request.getQ8())
                 .q9(request.getQ9())
                 .q10(request.getQ10())
-                .averageRating(avg)
                 .comments(request.getComments())
                 .build();
 
@@ -111,7 +106,11 @@ public class EvaluationServiceImpl implements EvaluationService {
         }
 
         double totalAvg = evaluations.stream()
-                .mapToDouble(e -> e.getAverageRating().doubleValue())
+                .mapToDouble(e -> {
+                    double sum = e.getQ1() + e.getQ2() + e.getQ3() + e.getQ4() + e.getQ5() + 
+                                 e.getQ6() + e.getQ7() + e.getQ8() + e.getQ9() + e.getQ10();
+                    return sum / 10.0;
+                })
                 .average()
                 .orElse(0.0);
 
@@ -136,12 +135,16 @@ public class EvaluationServiceImpl implements EvaluationService {
             }
         }
 
+        double sum = e.getQ1() + e.getQ2() + e.getQ3() + e.getQ4() + e.getQ5() + 
+                     e.getQ6() + e.getQ7() + e.getQ8() + e.getQ9() + e.getQ10();
+        BigDecimal avg = BigDecimal.valueOf(sum / 10.0).setScale(2, RoundingMode.HALF_UP);
+
         return EvaluationResponse.builder()
                 .id(e.getId())
                 .courseCode(courseCode)
                 .courseTitle(courseTitle)
                 .facultyName(facultyName)
-                .averageRating(e.getAverageRating())
+                .averageRating(avg)
                 .comments(e.getComments())
                 .createdAt(e.getCreatedAt())
                 .build();

@@ -8,4 +8,5 @@ import com.metamorph_x.uams.model.NoticeView;
 @Repository
 public interface NoticeViewRepository extends JpaRepository<NoticeView, UUID> {
     boolean existsByNoticeIdAndUserId(UUID noticeId, UUID userId);
+    long countByNoticeId(UUID noticeId);
 }

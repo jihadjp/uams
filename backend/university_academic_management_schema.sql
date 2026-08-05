@@ -1,6 +1,6 @@
 -- ============================================================
 -- University Academic Management System (UAMS)
--- Full Database Schema based on Java Entities
+-- 100% 3NF Compliant Database Schema & 20 Sample Students
 -- ============================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -91,17 +91,17 @@ CREATE TABLE sections (
     UNIQUE KEY uq_section_batch (name, batch_id)
 ) ENGINE=InnoDB;
 
--- 7. GUARDIANS
+-- 7. GUARDIANS (3NF: Separate entity for personal info of non-students)
 DROP TABLE IF EXISTS guardians;
 CREATE TABLE guardians (
     id                  CHAR(36) PRIMARY KEY,
-    name                VARCHAR(150),
-    phone               VARCHAR(20),
-    relation            ENUM('FATHER', 'MOTHER', 'BROTHER', 'SISTER', 'OTHER'),
+    name                VARCHAR(150) NOT NULL,
+    phone               VARCHAR(20) NOT NULL,
+    relation            ENUM('FATHER', 'MOTHER', 'BROTHER', 'SISTER', 'OTHER') NOT NULL,
     other_relation      VARCHAR(50)
 ) ENGINE=InnoDB;
 
--- 8. STUDENTS
+-- 8. STUDENTS (3NF: Removed 'cgpa' - it's a calculated summary)
 DROP TABLE IF EXISTS students;
 CREATE TABLE students (
     id                  CHAR(36) PRIMARY KEY,
@@ -114,7 +114,6 @@ CREATE TABLE students (
     student_id          VARCHAR(30) UNIQUE NOT NULL,
     registration_no     VARCHAR(30) UNIQUE NOT NULL,
     current_semester    INT NOT NULL DEFAULT 1,
-    cgpa                DECIMAL(3,2) DEFAULT 0.00,
     is_registration_cleared BOOLEAN NOT NULL DEFAULT FALSE,
     has_received_laptop     BOOLEAN NOT NULL DEFAULT FALSE,
     status              ENUM('ACTIVE', 'GRADUATED', 'DROPPED', 'SUSPENDED') NOT NULL DEFAULT 'ACTIVE',
@@ -222,15 +221,13 @@ CREATE TABLE exams (
     CONSTRAINT fk_exam_offering FOREIGN KEY (offering_id) REFERENCES course_offerings(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 15. RESULTS
+-- 15. RESULTS (3NF: Removed 'grade' and 'grade_point' - they are derived from marks_obtained)
 DROP TABLE IF EXISTS results;
 CREATE TABLE results (
     id                      CHAR(36) PRIMARY KEY,
     enrollment_id           CHAR(36) NOT NULL,
     exam_id                 CHAR(36),
     marks_obtained          DECIMAL(6,2),
-    grade                   VARCHAR(5),
-    grade_point             DECIMAL(3,2),
     is_final_result         BOOLEAN NOT NULL DEFAULT FALSE,
     published_at            TIMESTAMP NULL,
     created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -238,7 +235,30 @@ CREATE TABLE results (
     CONSTRAINT fk_result_exam FOREIGN KEY (exam_id) REFERENCES exams(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- 16. FEES
+-- 16. GRADING_POLICIES (3NF: Lookup table for derived values)
+DROP TABLE IF EXISTS grading_policies;
+CREATE TABLE grading_policies (
+    id                      INT AUTO_INCREMENT PRIMARY KEY,
+    min_marks               DECIMAL(5,2) NOT NULL,
+    max_marks               DECIMAL(5,2) NOT NULL,
+    grade                   VARCHAR(5) NOT NULL,
+    grade_point             DECIMAL(3,2) NOT NULL,
+    remarks                 VARCHAR(50)
+) ENGINE=InnoDB;
+
+INSERT INTO grading_policies (min_marks, max_marks, grade, grade_point, remarks) VALUES
+(80.00, 100.00, 'A+', 4.00, 'Outstanding'),
+(75.00, 79.99, 'A', 3.75, 'Excellent'),
+(70.00, 74.99, 'A-', 3.50, 'Very Good'),
+(65.00, 69.99, 'B+', 3.25, 'Good'),
+(60.00, 64.99, 'B', 3.00, 'Satisfactory'),
+(55.00, 59.99, 'B-', 2.75, 'Above Average'),
+(50.00, 54.99, 'C+', 2.50, 'Average'),
+(45.00, 49.99, 'C', 2.25, 'Below Average'),
+(40.00, 44.99, 'D', 2.00, 'Pass'),
+(0.00, 39.99, 'F', 0.00, 'Fail');
+
+-- 17. FEES (3NF: Removed 'amount_due' and 'status' - they are calculated/derived)
 DROP TABLE IF EXISTS fees;
 CREATE TABLE fees (
     id                      CHAR(36) PRIMARY KEY,
@@ -246,9 +266,7 @@ CREATE TABLE fees (
     semester_id             CHAR(36) NOT NULL,
     registration_fee        DECIMAL(10,2) NOT NULL DEFAULT 0,
     credit_fee              DECIMAL(10,2) NOT NULL DEFAULT 0,
-    amount_due              DECIMAL(10,2) NOT NULL,
     amount_paid             DECIMAL(10,2) NOT NULL DEFAULT 0,
-    status                  ENUM('DUE', 'PARTIAL', 'PAID') NOT NULL DEFAULT 'DUE',
     due_date                DATE,
     paid_at                 TIMESTAMP NULL,
     created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -257,7 +275,7 @@ CREATE TABLE fees (
     UNIQUE KEY uq_fee (student_id, semester_id)
 ) ENGINE=InnoDB;
 
--- 17. NOTICES
+-- 18. NOTICES
 DROP TABLE IF EXISTS notices;
 CREATE TABLE notices (
     id                      CHAR(36) PRIMARY KEY,
@@ -267,13 +285,12 @@ CREATE TABLE notices (
     target_role             ENUM('ALL', 'STUDENT', 'FACULTY', 'REGISTRAR') NOT NULL DEFAULT 'ALL',
     department_id           CHAR(36),
     category                VARCHAR(50) DEFAULT 'General',
-    view_count              BIGINT NOT NULL DEFAULT 0,
     created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_notice_user FOREIGN KEY (posted_by) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_notice_department FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- 18. NOTICE_VIEWS
+-- 19. NOTICE_VIEWS
 DROP TABLE IF EXISTS notice_views;
 CREATE TABLE notice_views (
     id                      CHAR(36) PRIMARY KEY,
@@ -285,7 +302,7 @@ CREATE TABLE notice_views (
     UNIQUE KEY uq_notice_view (notice_id, user_id)
 ) ENGINE=InnoDB;
 
--- 19. SEMESTER_CLEARANCE
+-- 20. SEMESTER_CLEARANCE
 DROP TABLE IF EXISTS semester_clearance;
 CREATE TABLE semester_clearance (
     id                      CHAR(36) PRIMARY KEY,
@@ -300,7 +317,7 @@ CREATE TABLE semester_clearance (
     UNIQUE KEY uq_clearance (student_id, semester_id)
 ) ENGINE=InnoDB;
 
--- 20. EVALUATIONS
+-- 21. EVALUATIONS (3NF: Removed 'average_rating' - calculated from q1-q10)
 DROP TABLE IF EXISTS evaluations;
 CREATE TABLE evaluations (
     id                      CHAR(36) PRIMARY KEY,
@@ -316,7 +333,6 @@ CREATE TABLE evaluations (
     q8                      INT NOT NULL,
     q9                      INT NOT NULL,
     q10                     INT NOT NULL,
-    average_rating          DECIMAL(3,2) NOT NULL,
     comments                TEXT,
     created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_evaluation_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
@@ -324,7 +340,7 @@ CREATE TABLE evaluations (
     UNIQUE KEY uq_evaluation (student_id, offering_id)
 ) ENGINE=InnoDB;
 
--- 21. DOCUMENT_REQUESTS
+-- 22. DOCUMENT_REQUESTS
 DROP TABLE IF EXISTS document_requests;
 CREATE TABLE document_requests (
     id                      CHAR(36) PRIMARY KEY,
@@ -340,13 +356,11 @@ CREATE TABLE document_requests (
     CONSTRAINT fk_doc_request_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 22. CONVOCATION_APPLICATIONS
+-- 23. CONVOCATION_APPLICATIONS
 DROP TABLE IF EXISTS convocation_applications;
 CREATE TABLE convocation_applications (
     id                      CHAR(36) PRIMARY KEY,
     student_id              CHAR(36) NOT NULL,
-    cgpa                    DECIMAL(3,2) NOT NULL,
-    credits_completed       DECIMAL(5,2) NOT NULL,
     convocation_year        INT NOT NULL,
     gown_size               ENUM('S', 'M', 'L', 'XL', 'XXL') NOT NULL,
     guest_count             INT NOT NULL DEFAULT 0,
@@ -359,7 +373,7 @@ CREATE TABLE convocation_applications (
     UNIQUE KEY uq_convocation_student (student_id, convocation_year)
 ) ENGINE=InnoDB;
 
--- 23. FINANCIAL_AID_CIRCULARS
+-- 24. FINANCIAL_AID_CIRCULARS
 DROP TABLE IF EXISTS financial_aid_circulars;
 CREATE TABLE financial_aid_circulars (
     id                      CHAR(36) PRIMARY KEY,
@@ -372,7 +386,7 @@ CREATE TABLE financial_aid_circulars (
     created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- 24. FINANCIAL_AID_APPLICATIONS
+-- 25. FINANCIAL_AID_APPLICATIONS
 DROP TABLE IF EXISTS financial_aid_applications;
 CREATE TABLE financial_aid_applications (
     id                      CHAR(36) PRIMARY KEY,
@@ -389,7 +403,7 @@ CREATE TABLE financial_aid_applications (
     UNIQUE KEY uq_fa_app (student_id, circular_id)
 ) ENGINE=InnoDB;
 
--- 25. ACADEMIC_CALENDARS
+-- 26. ACADEMIC_CALENDARS
 DROP TABLE IF EXISTS academic_calendars;
 CREATE TABLE academic_calendars (
     id                      CHAR(36) PRIMARY KEY,
@@ -400,7 +414,7 @@ CREATE TABLE academic_calendars (
     CONSTRAINT fk_calendar_semester FOREIGN KEY (semester_id) REFERENCES semesters(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 26. CALENDAR_EVENTS
+-- 27. CALENDAR_EVENTS
 DROP TABLE IF EXISTS calendar_events;
 CREATE TABLE calendar_events (
     id                      CHAR(36) PRIMARY KEY,
@@ -411,7 +425,7 @@ CREATE TABLE calendar_events (
     CONSTRAINT fk_event_calendar FOREIGN KEY (calendar_id) REFERENCES academic_calendars(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 27. BATCH_SEMESTER_FEES
+-- 28. BATCH_SEMESTER_FEES
 DROP TABLE IF EXISTS batch_semester_fees;
 CREATE TABLE batch_semester_fees (
     id                      CHAR(36) PRIMARY KEY,
@@ -425,3 +439,52 @@ CREATE TABLE batch_semester_fees (
 ) ENGINE=InnoDB;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ============================================================
+-- SEED DATA: 20 SAMPLE STUDENTS
+-- ============================================================
+
+INSERT INTO users (id, name, email, password_hash, role, must_change_password) VALUES
+('u-std-01', 'Abrar Fahad', 'abrar.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-02', 'Nusrat Jahan', 'nusrat.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-03', 'Tahmid Hasan', 'tahmid.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-04', 'Sadiya Islam', 'sadiya.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-05', 'Kamrul Hasan', 'kamrul.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-06', 'Marium Begum', 'marium.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-07', 'Rakibul Islam', 'rakib.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-08', 'Farhana Akter', 'farhana.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-09', 'Jahid Hasan', 'jahid.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-10', 'Sumaiya Afrin', 'sumaiya.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-11', 'Ariful Islam', 'arif.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-12', 'Tania Sultana', 'tania.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-13', 'Mehedi Hasan', 'mehedi.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-14', 'Nabila Islam', 'nabila.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-15', 'Shariful Islam', 'sharif.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-16', 'Afia Anjum', 'afia.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-17', 'Ismail Hasan', 'ismail.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-18', 'Sadia Afrin', 'sadia.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-19', 'Riyad Hasan', 'riyad.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
+('u-std-20', 'Liza Akter', 'liza.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE);
+
+-- Map to Students (Assuming Program ID 'p-cse-01', Batch ID 'b-242', Section ID 's-242-d1' exist)
+INSERT INTO students (id, user_id, program_id, batch_id, section_id, student_id, registration_no, admitted_at) VALUES
+('s-id-01', 'u-std-01', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000001', '242-15-001', '2024-01-10'),
+('s-id-02', 'u-std-02', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000002', '242-15-002', '2024-01-10'),
+('s-id-03', 'u-std-03', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000003', '242-15-003', '2024-01-10'),
+('s-id-04', 'u-std-04', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000004', '242-15-004', '2024-01-10'),
+('s-id-05', 'u-std-05', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000005', '242-15-005', '2024-01-10'),
+('s-id-06', 'u-std-06', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000006', '242-15-006', '2024-01-10'),
+('s-id-07', 'u-std-07', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000007', '242-15-007', '2024-01-10'),
+('s-id-08', 'u-std-08', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000008', '242-15-008', '2024-01-10'),
+('s-id-09', 'u-std-09', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000009', '242-15-009', '2024-01-10'),
+('s-id-10', 'u-std-10', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000010', '242-15-010', '2024-01-10'),
+('s-id-11', 'u-std-11', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000011', '242-15-011', '2024-01-10'),
+('s-id-12', 'u-std-12', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000012', '242-15-012', '2024-01-10'),
+('s-id-13', 'u-std-13', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000013', '242-15-013', '2024-01-10'),
+('s-id-14', 'u-std-14', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000014', '242-15-014', '2024-01-10'),
+('s-id-15', 'u-std-15', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000015', '242-15-015', '2024-01-10'),
+('s-id-16', 'u-std-16', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000016', '242-15-016', '2024-01-10'),
+('s-id-17', 'u-std-17', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000017', '242-15-017', '2024-01-10'),
+('s-id-18', 'u-std-18', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000018', '242-15-018', '2024-01-10'),
+('s-id-19', 'u-std-19', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000019', '242-15-019', '2024-01-10'),
+('s-id-20', 'u-std-20', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000020', '242-15-020', '2024-01-10');
