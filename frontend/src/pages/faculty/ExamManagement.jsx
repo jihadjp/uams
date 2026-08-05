@@ -26,6 +26,8 @@ import { motion } from 'framer-motion';
 const MARK_LIMITS = {
   THEORY: {
     quiz1: 15,
+    quiz2: 15,
+    quiz3: 15,
     presentation: 8,
     attendanceMarks: 7,
     assignment: 5,
@@ -171,11 +173,13 @@ const ExamManagement = () => {
                 <th className="px-4 py-6">Student Information</th>
                 {offering?.courseType === 'THEORY' ? (
                   <>
-                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Quiz (15)</th>
-                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Presentation (8)</th>
-                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Attendance (7)</th>
-                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Assignment (5)</th>
-                    <th className="px-4 py-6 text-center bg-indigo-50/30 dark:bg-indigo-500/5">Midterm (25)</th>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Q1 (15)</th>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Q2 (15)</th>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Q3 (15)</th>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Pres. (8)</th>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Att. (7)</th>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Assig. (5)</th>
+                    <th className="px-4 py-6 text-center bg-indigo-50/30 dark:bg-indigo-500/5">Mid (25)</th>
                     <th className="px-4 py-6 text-center bg-emerald-50/30 dark:bg-emerald-500/5">Final (40)</th>
                   </>
                 ) : (
@@ -211,7 +215,23 @@ const ExamManagement = () => {
                           type="number"
                           value={row.quiz1 || ''}
                           onChange={(e) => handleMarkChange(row.enrollmentId, 'quiz1', e.target.value)}
-                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                          className="w-16 px-2 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-xs outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-5 text-center">
+                        <input
+                          type="number"
+                          value={row.quiz2 || ''}
+                          onChange={(e) => handleMarkChange(row.enrollmentId, 'quiz2', e.target.value)}
+                          className="w-16 px-2 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-xs outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-5 text-center">
+                        <input
+                          type="number"
+                          value={row.quiz3 || ''}
+                          onChange={(e) => handleMarkChange(row.enrollmentId, 'quiz3', e.target.value)}
+                          className="w-16 px-2 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-xs outline-none"
                         />
                       </td>
                       <td className="px-4 py-5 text-center">
@@ -219,7 +239,7 @@ const ExamManagement = () => {
                           type="number"
                           value={row.presentation || ''}
                           onChange={(e) => handleMarkChange(row.enrollmentId, 'presentation', e.target.value)}
-                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                          className="w-16 px-2 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-xs outline-none"
                         />
                       </td>
                       <td className="px-4 py-5 text-center">
@@ -227,7 +247,7 @@ const ExamManagement = () => {
                           type="number"
                           value={row.attendanceMarks || ''}
                           onChange={(e) => handleMarkChange(row.enrollmentId, 'attendanceMarks', e.target.value)}
-                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                          className="w-16 px-2 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-xs outline-none"
                         />
                       </td>
                       <td className="px-4 py-5 text-center">
@@ -235,7 +255,7 @@ const ExamManagement = () => {
                           type="number"
                           value={row.assignment || ''}
                           onChange={(e) => handleMarkChange(row.enrollmentId, 'assignment', e.target.value)}
-                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                          className="w-16 px-2 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-xs outline-none"
                         />
                       </td>
                       <td className="px-4 py-5 text-center">
@@ -243,7 +263,7 @@ const ExamManagement = () => {
                           type="number"
                           value={row.midterm || ''}
                           onChange={(e) => handleMarkChange(row.enrollmentId, 'midterm', e.target.value)}
-                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                          className="w-16 px-2 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-xs outline-none"
                         />
                       </td>
                       <td className="px-4 py-5 text-center">
@@ -251,7 +271,7 @@ const ExamManagement = () => {
                           type="number"
                           value={row.finalExam || ''}
                           onChange={(e) => handleMarkChange(row.enrollmentId, 'finalExam', e.target.value)}
-                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                          className="w-16 px-2 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-xs outline-none"
                         />
                       </td>
                     </>

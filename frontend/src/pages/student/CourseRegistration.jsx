@@ -111,16 +111,27 @@ const CourseRegistration = () => {
 
     const isRegistrationFeePaid = feeStatus ? feeStatus.amountPaid >= feeStatus.registrationFee : true;
 
+    // Deadline Check
+    const now = new Date();
+    const regDeadline = activeSemester?.registrationDeadline ? new Date(activeSemester.registrationDeadline) : null;
+    if (regDeadline) regDeadline.setHours(23, 59, 59, 999);
+    const isRegDeadlinePassed = regDeadline && now > regDeadline;
+
     if (loading) return <div className="h-[60vh] flex items-center justify-center"><Loader size="lg" /></div>;
 
-    if (!activeSemester) return (
+    if (!activeSemester || isRegDeadlinePassed) return (
         <div className="text-center py-24 bg-white dark:bg-gray-800/40 rounded-[2.5rem] border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center space-y-6 mx-4">
             <div className="p-6 bg-amber-50 dark:bg-amber-900/10 rounded-full text-amber-500 animate-pulse">
                 <AlertCircle size={48} />
             </div>
             <div className="space-y-2">
                 <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Registration is Closed</h2>
-                <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">There is no active semester open for course registration at this time. Please check the academic calendar.</p>
+                <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+                    {isRegDeadlinePassed
+                        ? `The registration deadline for ${activeSemester.name} has passed (${activeSemester.registrationDeadline}).`
+                        : "There is no active semester open for course registration at this time."}
+                    Please check the academic calendar.
+                </p>
             </div>
         </div>
     );

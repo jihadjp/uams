@@ -170,14 +170,15 @@ const FacultyStudentResults = () => {
                    </div>
                 </th>
                 <th className="px-6 py-5 text-center">Attendance %</th>
-                <th className="px-6 py-5 text-center">Theory/Lab Marks</th>
-                <th className="px-6 py-5 text-center">Midterm</th>
-                <th className="px-6 py-5 text-center">Final</th>
+                <th className="px-6 py-5 text-center">Quizzes (Avg/15)</th>
+                <th className="px-6 py-5 text-center">Cont. Eval (20)</th>
+                <th className="px-6 py-5 text-center">Midterm (25)</th>
+                <th className="px-6 py-5 text-center">Final (40)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
               {resultsLoading ? (
-                <tr><td colSpan="5" className="py-24 text-center"><Loader /></td></tr>
+                <tr><td colSpan="6" className="py-24 text-center"><Loader /></td></tr>
               ) : filteredResults.length > 0 ? filteredResults.map((r) => (
                 <tr key={r.enrollmentId} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all">
                   <td className="px-6 py-5">
@@ -190,9 +191,15 @@ const FacultyStudentResults = () => {
                   </td>
                   <td className="px-6 py-5 text-center font-black text-indigo-600 dark:text-indigo-400">{r.attendancePercentage}%</td>
                   <td className="px-6 py-5 text-center">
-                     <div className="flex flex-col items-center gap-1">
-                        <span className="text-[10px] text-gray-400">Q: {r.quiz1 || 0} | P: {r.presentation || 0}</span>
-                        <span className="text-[10px] text-gray-400">A: {r.assignment || 0} | Att: {r.attendanceMarks || 0}</span>
+                     <div className="flex flex-col items-center">
+                        <span className="text-sm font-black text-[#2D2A4F] dark:text-white">{(r.quizAverage || 0).toFixed(2)}</span>
+                        <span className="text-[9px] text-gray-400 uppercase tracking-tighter">Q1:{r.quiz1}|Q2:{r.quiz2}|Q3:{r.quiz3}</span>
+                     </div>
+                  </td>
+                  <td className="px-6 py-5 text-center">
+                     <div className="flex flex-col items-center">
+                        <span className="text-sm font-bold text-indigo-500">{(r.presentation + r.attendanceMarks + r.assignment) || 0}</span>
+                        <span className="text-[9px] text-gray-400 uppercase tracking-tighter">P:{r.presentation}|A:{r.assignment}|Att:{r.attendanceMarks}</span>
                      </div>
                   </td>
                   <td className="px-6 py-5 text-center font-bold text-gray-600 dark:text-gray-400">{r.midterm || '0.00'}</td>

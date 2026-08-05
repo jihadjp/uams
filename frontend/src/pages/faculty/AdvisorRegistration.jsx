@@ -242,6 +242,18 @@ const AdvisorRegistration = () => {
 
     const isRegistrationFeePaid = feeStatus ? feeStatus.amountPaid >= feeStatus.registrationFee : true;
 
+    // Deadline Checks
+    const now = new Date();
+    const regDeadline = selectedSemester?.registrationDeadline ? new Date(selectedSemester.registrationDeadline) : null;
+    const addDropDeadline = selectedSemester?.addDropDeadline ? new Date(selectedSemester.addDropDeadline) : regDeadline;
+
+    // Normalize dates to midnight for accurate comparison
+    if (regDeadline) regDeadline.setHours(23, 59, 59, 999);
+    if (addDropDeadline) addDropDeadline.setHours(23, 59, 59, 999);
+
+    const isRegDeadlinePassed = regDeadline && now > regDeadline;
+    const isAddDropDeadlinePassed = addDropDeadline && now > addDropDeadline;
+
     if (loading && !studentInfo)
         return (
             <div className="h-[60vh] flex items-center justify-center">
@@ -377,7 +389,12 @@ const AdvisorRegistration = () => {
                                 </select>
                             </div>
 
-                            <Button onClick={handleBulkRegister} isLoading={actionLoading} className="w-full bg-[#2D2A4F] hover:bg-[#1E1C38] text-white border-none rounded-xl font-bold text-xs py-2.5">
+                            <Button
+                                onClick={handleBulkRegister}
+                                isLoading={actionLoading}
+                                disabled={isRegDeadlinePassed}
+                                className="w-full bg-[#2D2A4F] hover:bg-[#1E1C38] text-white border-none rounded-xl font-bold text-xs py-2.5 disabled:opacity-50"
+                            >
                                 Register All Available
                             </Button>
                         </div>
@@ -410,6 +427,14 @@ const AdvisorRegistration = () => {
                 <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 p-4 rounded-xl sm:rounded-2xl flex items-start sm:items-center gap-3 text-amber-800 dark:text-amber-400 shadow-sm">
                     <AlertCircle size={18} className="shrink-0 mt-0.5 sm:mt-0" />
                     <p className="text-xs sm:text-sm font-bold">Registration Locked: Student has not paid the mandatory registration fee ({feeStatus?.registrationFee?.toLocaleString()} BDT) for this semester.</p>
+                </div>
+            )}
+
+            {/* Deadline Warning */}
+            {isAddDropDeadlinePassed && (
+                <div className="bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 p-4 rounded-xl sm:rounded-2xl flex items-start sm:items-center gap-3 text-rose-800 dark:text-rose-400 shadow-sm">
+                    <AlertCircle size={18} className="shrink-0 mt-0.5 sm:mt-0" />
+                    <p className="text-xs sm:text-sm font-bold">Registration Closed: The Add/Drop deadline for this semester has passed. No further changes can be made.</p>
                 </div>
             )}
 
@@ -489,7 +514,7 @@ const AdvisorRegistration = () => {
                                         <Button
                                             variant={registered ? 'danger' : 'primary'}
                                             size="sm"
-                                            disabled={!registered && isFull}
+                                            disabled={(!registered && (isFull || isRegDeadlinePassed)) || (registered && isAddDropDeadlinePassed)}
                                             onClick={() =>
                                                 setConfirmModal({
                                                     isOpen: true,
@@ -499,7 +524,7 @@ const AdvisorRegistration = () => {
                                             }
                                             className="text-xs px-4 py-1.5 rounded-lg"
                                         >
-                                            {registered ? 'Drop' : isFull ? 'Full' : 'Register'}
+                                            {registered ? 'Drop' : isFull ? 'Full' : isRegDeadlinePassed ? 'Closed' : 'Register'}
                                         </Button>
                                     </div>
                                 </Card>
@@ -529,7 +554,8 @@ const AdvisorRegistration = () => {
                                     </div>
                                     <button
                                         onClick={() => setConfirmModal({ isOpen: true, data: { ...e, enrollmentId: e.id }, type: 'drop' })}
-                                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors shrink-0"
+                                        disabled={isAddDropDeadlinePassed}
+                                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
                                     >
                                         <Trash2 size={14} />
                                     </button>

@@ -15,6 +15,50 @@ import { getSemesters } from '../../api/semesterApi';
 import { getMyProfile } from '../../api/profileApi';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const ResultCard = ({ label, val, max, unit = '', color = 'indigo', highlight = false }) => {
+  const percentage = Math.min(100, (val / max) * 100);
+  const colors = {
+    indigo: 'bg-indigo-600 dark:bg-indigo-500 text-indigo-600',
+    amber: 'bg-amber-500 dark:bg-amber-400 text-amber-500',
+    emerald: 'bg-emerald-600 dark:bg-emerald-500 text-emerald-600',
+    primary: 'bg-primary-600 dark:bg-primary-500 text-primary-600',
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`p-5 rounded-2xl border ${highlight ? 'border-primary-200 dark:border-primary-900/50 bg-primary-50/10' : 'border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800/50'} shadow-sm flex flex-col justify-between group hover:shadow-md transition-all h-full`}
+    >
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">{label}</p>
+        <div className="flex items-baseline gap-1.5">
+          <span className={`text-2xl font-black ${highlight ? 'text-primary-600 dark:text-primary-400' : 'text-[#2D2A4F] dark:text-white'}`}>
+            {typeof val === 'number' ? val.toFixed(unit === '%' ? 1 : 2) : val || 0}
+          </span>
+          <span className="text-[11px] font-bold text-gray-300 uppercase tracking-tighter">/ {max}{unit}</span>
+        </div>
+      </div>
+
+      <div className="mt-5 space-y-2">
+        <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-wider text-gray-400">
+           <span>Progress</span>
+           <span>{Math.round(percentage)}%</span>
+        </div>
+        <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden border border-gray-50 dark:border-gray-700">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${percentage}%` }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className={`h-full ${colors[color].split(' ')[0]}`}
+          />
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 const LiveResults = () => {
   const [studentId, setStudentId] = useState(null);
   const [semesters, setSemesters] = useState([]);
@@ -23,6 +67,7 @@ const LiveResults = () => {
   const [loading, setLoading] = useState(true);
   const [resultsLoading, setResultsLoading] = useState(false);
   const [expandedRow, setExpandedRow] = useState(null);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -51,9 +96,11 @@ const LiveResults = () => {
       setLoading(false);
     }
   }, []);
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
   const fetchResults = async () => {
     if (!studentId || !selectedSemesterId) return;
     setResultsLoading(true);
@@ -67,15 +114,18 @@ const LiveResults = () => {
       setResultsLoading(false);
     }
   };
+
   const toggleRow = (id) => {
     setExpandedRow((prev) => (prev === id ? null : id));
   };
+
   if (loading)
     return (
         <div className="h-[60vh] flex items-center justify-center">
           <Loader size="lg" />
         </div>
     );
+
   return (
       <div className="w-full px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 pb-20 pt-4">
         {/* Semester Filter Section */}
@@ -115,6 +165,7 @@ const LiveResults = () => {
             </Button>
           </div>
         </Card>
+
         {/* Results Table */}
         <Card className="!p-0 overflow-hidden border border-slate-200/80 dark:border-white/10 shadow-sm rounded-2xl sm:rounded-3xl">
           <div className="overflow-x-auto">
@@ -172,9 +223,9 @@ const LiveResults = () => {
                               {idx + 1}
                             </td>
                             <td className="px-4 sm:px-6 py-4 sm:py-5 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200">
-                            {r.courseCode}
-                          </span>
+                              <span className="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200">
+                                {r.courseCode}
+                              </span>
                             </td>
                             <td className="px-4 sm:px-6 py-4 sm:py-5 whitespace-nowrap">
                               <p className="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100">
@@ -182,14 +233,14 @@ const LiveResults = () => {
                               </p>
                             </td>
                             <td className="px-4 sm:px-6 py-4 sm:py-5 text-center whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 tabular-nums">
-                            {r.credits}
-                          </span>
+                              <span className="text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 tabular-nums">
+                                {r.credits}
+                              </span>
                             </td>
                             <td className="px-4 sm:px-6 py-4 sm:py-5 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300">
-                            {r.section}
-                          </span>
+                              <span className="text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300">
+                                {r.section}
+                              </span>
                             </td>
                             <td className="px-4 sm:px-6 py-4 sm:py-5 whitespace-nowrap">
                               <div className="flex items-center gap-2">
@@ -197,97 +248,57 @@ const LiveResults = () => {
                                   <User size={12} />
                                 </div>
                                 <span className="text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300">
-                              {r.teacherName}
-                            </span>
+                                  {r.teacherName}
+                                </span>
                               </div>
                             </td>
                           </tr>
-                          {/* Clean simple key/value expanded panel */}
+
+                          {/* Professional Stat-Card Scorecard */}
                           <AnimatePresence initial={false}>
                             {isExpanded && (
                                 <tr>
-                                  <td colSpan="7" className="p-0 bg-gray-50/60 dark:bg-gray-900/30">
+                                  <td colSpan="7" className="p-0 bg-slate-50/30 dark:bg-gray-900/20">
                                     <motion.div
                                         initial={{ height: 0, opacity: 0 }}
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
-                                        transition={{
-                                          duration: 0.3,
-                                          ease: [0.16, 1, 0.3, 1],
-                                          opacity: { duration: 0.2 },
-                                        }}
                                         className="overflow-hidden"
                                     >
-                                      <div className="px-4 sm:px-8 py-5 sm:py-6">
-                                        <div className="max-w-3xl border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
-                                          <table className="w-full text-left border-collapse">
-                                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                            <tr className="bg-gray-50 dark:bg-gray-800/60">
-                                              <th className="px-4 sm:px-5 py-3 w-1/2 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                Attendance Percentage
-                                              </th>
-                                              <td className="px-4 sm:px-5 py-3 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                {r.attendancePercentage ?? 0}%
-                                              </td>
-                                            </tr>
-                                            <tr>
-                                              <th className="px-4 sm:px-5 py-3 w-1/2 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                Quiz 1
-                                              </th>
-                                              <td className="px-4 sm:px-5 py-3 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                {r.quiz1 ?? 0}
-                                              </td>
-                                            </tr>
-                                            <tr className="bg-gray-50 dark:bg-gray-800/60">
-                                              <th className="px-4 sm:px-5 py-3 w-1/2 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                Quiz 2
-                                              </th>
-                                              <td className="px-4 sm:px-5 py-3 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                {r.quiz2 ?? 0}
-                                              </td>
-                                            </tr>
-                                            <tr>
-                                              <th className="px-4 sm:px-5 py-3 w-1/2 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                Quiz 3
-                                              </th>
-                                              <td className="px-4 sm:px-5 py-3 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                {r.quiz3 ?? 0}
-                                              </td>
-                                            </tr>
-                                            <tr className="bg-gray-50 dark:bg-gray-800/60">
-                                              <th className="px-4 sm:px-5 py-3 w-1/2 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                Quiz Average
-                                              </th>
-                                              <td className="px-4 sm:px-5 py-3 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                {r.quizAverage ?? 0}
-                                              </td>
-                                            </tr>
-                                            <tr>
-                                              <th className="px-4 sm:px-5 py-3 w-1/2 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                Midterm
-                                              </th>
-                                              <td className="px-4 sm:px-5 py-3 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                {r.midterm ?? 0}
-                                              </td>
-                                            </tr>
-                                            <tr className="bg-gray-50 dark:bg-gray-800/60">
-                                              <th className="px-4 sm:px-5 py-3 w-1/2 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                Midterm Improvement
-                                              </th>
-                                              <td className="px-4 sm:px-5 py-3 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                {r.midtermImprovement ?? 0}
-                                              </td>
-                                            </tr>
-                                            <tr>
-                                              <th className="px-4 sm:px-5 py-3 w-1/2 text-[13px] font-bold text-[#007A55] dark:text-emerald-400">
-                                                Final Exam
-                                              </th>
-                                              <td className="px-4 sm:px-5 py-3 text-[13px] font-bold text-[#007A55] dark:text-emerald-400">
-                                                {r.finalExam ?? 0}
-                                              </td>
-                                            </tr>
-                                            </tbody>
-                                          </table>
+                                      <div className="px-4 sm:px-8 py-8 sm:py-12">
+                                        <div className="max-w-6xl mx-auto space-y-10">
+
+                                          {/* Component Grid */}
+                                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+                                            {r.courseType === 'THEORY' ? (
+                                              <>
+                                                <ResultCard label="Attendance Record" val={r.attendancePercentage} max={100} unit="%" color="emerald" />
+                                                <ResultCard label="Attendance Marks" val={r.attendanceMarks} max={7} color="indigo" />
+                                                <ResultCard label="Quiz 1" val={r.quiz1} max={15} color="amber" />
+                                                <ResultCard label="Quiz 2" val={r.quiz2} max={15} color="amber" />
+                                                <ResultCard label="Quiz 3" val={r.quiz3} max={15} color="amber" />
+                                                <ResultCard label="Quiz Average" val={r.quizAverage} max={15} color="amber" highlight />
+                                                <ResultCard label="Presentation" val={r.presentation} max={8} color="indigo" />
+                                                <ResultCard label="Assignment" val={r.assignment} max={5} color="indigo" />
+                                                <ResultCard label="Midterm" val={r.midterm} max={25} color="primary" />
+                                                <ResultCard label="Final Exam" val={r.finalExam} max={40} color="primary" highlight />
+                                              </>
+                                            ) : (
+                                              <>
+                                                <ResultCard label="Attendance Marks" val={r.attendanceMarks} max={10} color="indigo" />
+                                                <ResultCard label="Project Show" val={r.projectShow} max={25} color="indigo" />
+                                                <ResultCard label="Lab Report" val={r.labReport} max={25} color="indigo" />
+                                                <ResultCard label="Final Evaluation" val={r.labEvaluation} max={40} color="emerald" highlight />
+                                              </>
+                                            )}
+                                          </div>
+
+                                          <div className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                                             <Info size={18} className="text-gray-400" />
+                                             <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                                               These results are live and subject to change until approved by the Registrar office.
+                                             </p>
+                                          </div>
                                         </div>
                                       </div>
                                     </motion.div>
@@ -328,4 +339,5 @@ const LiveResults = () => {
       </div>
   );
 };
+
 export default LiveResults;
