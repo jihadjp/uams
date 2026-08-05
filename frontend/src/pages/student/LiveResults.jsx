@@ -15,6 +15,7 @@ import { getSemesters } from '../../api/semesterApi';
 import { getMyProfile } from '../../api/profileApi';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+
 const LiveResults = () => {
   const [studentId, setStudentId] = useState(null);
   const [semesters, setSemesters] = useState([]);
@@ -147,27 +148,29 @@ const LiveResults = () => {
                   results.map((r, idx) => {
                     const isExpanded = expandedRow === r.enrollmentId;
                     const isLab = r.courseType === 'LAB';
-                    // Build the list of (label, value) rows depending on course type
+
                     const detailRows = isLab
                         ? [
-                          ['Attendance Marks', r.attendanceMarks],
-                          ['Project Show', r.projectShow],
-                          ['Lab Report', r.labReport],
-                          ['Lab Final Evaluation', r.labEvaluation],
+                          { label: 'Attendance Percentage', val: `${r.attendancePercentage ?? 0}%`, color: 'bg-emerald-50/50 dark:bg-emerald-900/10' },
+                          { label: 'Attendance Marks', val: r.attendanceMarks, color: 'bg-emerald-50/50 dark:bg-emerald-900/10' },
+                          { label: 'Project Show', val: r.projectShow, color: 'bg-indigo-50/50 dark:bg-indigo-900/10' },
+                          { label: 'Lab Report', val: r.labReport, color: 'bg-indigo-50/50 dark:bg-indigo-900/10' },
+                          { label: 'Lab Final Evaluation', val: r.labEvaluation, color: 'bg-rose-50/50 dark:bg-rose-900/10' },
                         ]
                         : [
-                          ['Attendance Percentage', `${r.attendancePercentage ?? 0}%`],
-                          ['Attendance Marks', r.attendanceMarks],
-                          ['Quiz 1', r.quiz1],
-                          ['Quiz 2', r.quiz2],
-                          ['Quiz 3', r.quiz3],
-                          ['Quiz Average', r.quizAverage],
-                          ['Midterm', r.midterm],
-                          ['Midterm Improvement', r.midtermImprovement],
-                          ['Presentation', r.presentation],
-                          ['Assignment', r.assignment],
-                          ['Final Exam', r.finalExam],
+                          { label: 'Attendance Percentage', val: `${r.attendancePercentage ?? 0}%`, color: 'bg-emerald-50/50 dark:bg-emerald-900/10' },
+                          { label: 'Attendance Marks', val: r.attendanceMarks, color: 'bg-emerald-50/50 dark:bg-emerald-900/10' },
+                          { label: 'Quiz 1', val: r.quiz1, color: 'bg-amber-50/50 dark:bg-amber-900/10' },
+                          { label: 'Quiz 2', val: r.quiz2, color: 'bg-amber-50/50 dark:bg-amber-900/10' },
+                          { label: 'Quiz 3', val: r.quiz3, color: 'bg-amber-50/50 dark:bg-amber-900/10' },
+                          { label: 'Quiz Average', val: (r.quizAverage || 0).toFixed(2), color: 'bg-amber-100/50 dark:bg-amber-900/20 font-black' },
+                          { label: 'Midterm', val: r.midterm, color: 'bg-indigo-50/50 dark:bg-indigo-900/10' },
+                          { label: 'Midterm Improvement', val: r.midtermImprovement, color: 'bg-indigo-50/50 dark:bg-indigo-900/10' },
+                          { label: 'Presentation', val: r.presentation, color: 'bg-purple-50/50 dark:bg-purple-900/10' },
+                          { label: 'Assignment', val: r.assignment, color: 'bg-teal-50/50 dark:bg-teal-900/10' },
+                          { label: 'Final Exam', val: r.finalExam, color: 'bg-[#2D2A4F] text-white' },
                         ];
+
                     return (
                         <Fragment key={r.enrollmentId}>
                           <tr
@@ -224,7 +227,7 @@ const LiveResults = () => {
                               </div>
                             </td>
                           </tr>
-                          {/* Simple 2-column key/value table */}
+                          {/* Expanded Table with Grouped Colors */}
                           <AnimatePresence initial={false}>
                             {isExpanded && (
                                 <tr>
@@ -233,31 +236,22 @@ const LiveResults = () => {
                                         initial={{ height: 0, opacity: 0 }}
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
-                                        transition={{
-                                          duration: 0.3,
-                                          ease: [0.16, 1, 0.3, 1],
-                                          opacity: { duration: 0.2 },
-                                        }}
                                         className="overflow-hidden"
                                     >
                                       <div className="px-4 sm:px-8 py-5 sm:py-6">
-                                        <div className="max-w-3xl border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+                                        <div className="max-w-3xl border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden bg-white dark:bg-gray-800 shadow-xl">
                                           <table className="w-full text-left border-collapse">
-                                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                            {detailRows.map(([label, value], i) => (
-                                                <tr
-                                                    key={label}
-                                                    className={
-                                                      i % 2 === 0
-                                                          ? 'bg-gray-50 dark:bg-gray-800/60'
-                                                          : 'bg-white dark:bg-gray-800'
-                                                    }
-                                                >
-                                                  <th className="px-4 sm:px-5 py-3 w-1/2 text-[13px] font-bold text-gray-800 dark:text-gray-200 text-left">
-                                                    {label}
+                                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                                            {detailRows.map((row) => (
+                                                <tr key={row.label} className={`${row.color} transition-colors`}>
+                                                  <th className="px-6 py-4 w-1/2 text-[11px] sm:text-[13px] font-black uppercase tracking-widest opacity-60 border-r border-gray-200/30 dark:border-white/5">
+                                                    {row.label}
                                                   </th>
-                                                  <td className="px-4 sm:px-5 py-3 text-[13px] font-bold text-gray-800 dark:text-gray-200">
-                                                    {value ?? 0}
+                                                  <td className="px-6 py-4 text-sm sm:text-base font-black tracking-tight">
+                                                    <span className="flex items-center gap-2">
+                                                       {row.val ?? 0}
+                                                       {row.label.includes('Percentage') && <span className="text-[10px] opacity-40"></span>}
+                                                    </span>
                                                   </td>
                                                 </tr>
                                             ))}
