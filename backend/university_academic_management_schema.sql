@@ -1,11 +1,16 @@
 -- ============================================================
 -- University Academic Management System (UAMS)
--- 100% 3NF Compliant Database Schema
+-- Royal Bengal University (RBU)
+-- 3NF Database Schema
+-- Organized by Insertion Order (Dependency Sequence)
 -- ============================================================
+
+CREATE DATABASE IF NOT EXISTS uams;
+USE uams;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
--- 1. USERS
+-- 1. USERS (Independent)
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     id                  CHAR(36) PRIMARY KEY,
@@ -25,7 +30,7 @@ CREATE TABLE users (
     updated_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- 2. DEPARTMENTS
+-- 2. DEPARTMENTS (Independent - FK to Head Faculty added later)
 DROP TABLE IF EXISTS departments;
 CREATE TABLE departments (
     id                  CHAR(36) PRIMARY KEY,
@@ -37,7 +42,69 @@ CREATE TABLE departments (
     created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- 3. FACULTY
+-- 3. SEMESTERS (Independent)
+DROP TABLE IF EXISTS semesters;
+CREATE TABLE semesters (
+    id                      CHAR(36) PRIMARY KEY,
+    name                    VARCHAR(50) NOT NULL,
+    term                    ENUM('SPRING', 'SUMMER', 'FALL') NOT NULL,
+    academic_year           INT NOT NULL,
+    start_date              DATE NOT NULL,
+    end_date                DATE NOT NULL,
+    registration_deadline   DATE NOT NULL,
+    add_drop_deadline       DATE,
+    grade_deadline          DATE,
+    status                  ENUM('UPCOMING', 'REGISTRATION', 'ONGOING', 'FINAL_EXAMS', 'GRADING', 'COMPLETED') NOT NULL DEFAULT 'UPCOMING',
+    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 4. GUARDIANS (Independent)
+DROP TABLE IF EXISTS guardians;
+CREATE TABLE guardians (
+    id                  CHAR(36) PRIMARY KEY,
+    name                VARCHAR(150) NOT NULL,
+    phone               VARCHAR(20) NOT NULL,
+    relation            ENUM('FATHER', 'MOTHER', 'BROTHER', 'SISTER', 'OTHER') NOT NULL,
+    other_relation      VARCHAR(50)
+) ENGINE=InnoDB;
+
+-- 5. GRADING_POLICIES (Independent)
+DROP TABLE IF EXISTS grading_policies;
+CREATE TABLE grading_policies (
+    id                      INT AUTO_INCREMENT PRIMARY KEY,
+    min_marks               DECIMAL(5,2) NOT NULL,
+    max_marks               DECIMAL(5,2) NOT NULL,
+    grade                   VARCHAR(5) NOT NULL,
+    grade_point             DECIMAL(3,2) NOT NULL,
+    remarks                 VARCHAR(50)
+) ENGINE=InnoDB;
+
+INSERT INTO grading_policies (min_marks, max_marks, grade, grade_point, remarks) VALUES
+(80.00, 100.00, 'A+', 4.00, 'Outstanding'),
+(75.00, 79.99, 'A', 3.75, 'Excellent'),
+(70.00, 74.99, 'A-', 3.50, 'Very Good'),
+(65.00, 69.99, 'B+', 3.25, 'Good'),
+(60.00, 64.99, 'B', 3.00, 'Satisfactory'),
+(55.00, 59.99, 'B-', 2.75, 'Above Average'),
+(50.00, 54.99, 'C+', 2.50, 'Average'),
+(45.00, 49.99, 'C', 2.25, 'Below Average'),
+(40.00, 44.99, 'D', 2.00, 'Pass'),
+(0.00, 39.99, 'F', 0.00, 'Fail');
+
+-- 6. FINANCIAL_AID_CIRCULARS (Independent)
+DROP TABLE IF EXISTS financial_aid_circulars;
+CREATE TABLE financial_aid_circulars (
+    id                      CHAR(36) PRIMARY KEY,
+    title                   VARCHAR(200) NOT NULL,
+    description             TEXT NOT NULL,
+    eligibility_criteria    TEXT,
+    benefit_details         TEXT,
+    deadline                DATE NOT NULL,
+    is_active               BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 7. FACULTY (Depends on USERS, DEPARTMENTS)
 DROP TABLE IF EXISTS faculty;
 CREATE TABLE faculty (
     id                  CHAR(36) PRIMARY KEY,
@@ -53,9 +120,10 @@ CREATE TABLE faculty (
     CONSTRAINT fk_faculty_department FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
+-- Circular dependency fix: Add department head link after faculty table exists
 ALTER TABLE departments ADD CONSTRAINT fk_department_head FOREIGN KEY (head_faculty_id) REFERENCES faculty(id) ON DELETE SET NULL;
 
--- 4. PROGRAMS
+-- 8. PROGRAMS (Depends on DEPARTMENTS)
 DROP TABLE IF EXISTS programs;
 CREATE TABLE programs (
     id                  CHAR(36) PRIMARY KEY,
@@ -68,7 +136,36 @@ CREATE TABLE programs (
     CONSTRAINT fk_program_department FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 5. BATCHES
+-- 9. COURSES (Depends on DEPARTMENTS)
+DROP TABLE IF EXISTS courses;
+CREATE TABLE courses (
+    id                      CHAR(36) PRIMARY KEY,
+    department_id           CHAR(36) NOT NULL,
+    course_code             VARCHAR(20) UNIQUE NOT NULL,
+    title                   VARCHAR(200) NOT NULL,
+    credit_hours            DECIMAL(3,1) NOT NULL,
+    prerequisite_course_id  CHAR(36),
+    course_type             ENUM('THEORY', 'LAB', 'PROJECT', 'RESEARCH') NOT NULL DEFAULT 'THEORY',
+    is_active               BOOLEAN NOT NULL DEFAULT TRUE,
+    description             TEXT,
+    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_course_department FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE CASCADE,
+    CONSTRAINT fk_course_prerequisite FOREIGN KEY (prerequisite_course_id) REFERENCES courses(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 10. ACADEMIC_CALENDARS (Depends on SEMESTERS)
+DROP TABLE IF EXISTS academic_calendars;
+CREATE TABLE academic_calendars (
+    id                      CHAR(36) PRIMARY KEY,
+    semester_id             CHAR(36) NOT NULL UNIQUE,
+    academic_year           INT NOT NULL,
+    duration                VARCHAR(100) NOT NULL,
+    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_calendar_semester FOREIGN KEY (semester_id) REFERENCES semesters(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 11. BATCHES (Depends on PROGRAMS)
 DROP TABLE IF EXISTS batches;
 CREATE TABLE batches (
     id                  CHAR(36) PRIMARY KEY,
@@ -80,7 +177,18 @@ CREATE TABLE batches (
     UNIQUE KEY uq_batch_program (batch_number, program_id)
 ) ENGINE=InnoDB;
 
--- 6. SECTIONS
+-- 12. CALENDAR_EVENTS (Depends on ACADEMIC_CALENDARS)
+DROP TABLE IF EXISTS calendar_events;
+CREATE TABLE calendar_events (
+    id                      CHAR(36) PRIMARY KEY,
+    calendar_id             CHAR(36) NOT NULL,
+    title                   VARCHAR(150) NOT NULL,
+    date_value              VARCHAR(100),
+    order_index             INT NOT NULL,
+    CONSTRAINT fk_event_calendar FOREIGN KEY (calendar_id) REFERENCES academic_calendars(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 13. SECTIONS (Depends on BATCHES)
 DROP TABLE IF EXISTS sections;
 CREATE TABLE sections (
     id                  CHAR(36) PRIMARY KEY,
@@ -91,17 +199,20 @@ CREATE TABLE sections (
     UNIQUE KEY uq_section_batch (name, batch_id)
 ) ENGINE=InnoDB;
 
--- 7. GUARDIANS (3NF: Separate entity for personal info of non-students)
-DROP TABLE IF EXISTS guardians;
-CREATE TABLE guardians (
-    id                  CHAR(36) PRIMARY KEY,
-    name                VARCHAR(150) NOT NULL,
-    phone               VARCHAR(20) NOT NULL,
-    relation            ENUM('FATHER', 'MOTHER', 'BROTHER', 'SISTER', 'OTHER') NOT NULL,
-    other_relation      VARCHAR(50)
+-- 14. BATCH_SEMESTER_FEES (Depends on BATCHES, SEMESTERS)
+DROP TABLE IF EXISTS batch_semester_fees;
+CREATE TABLE batch_semester_fees (
+    id                      CHAR(36) PRIMARY KEY,
+    batch_id                CHAR(36) NOT NULL,
+    semester_id             CHAR(36) NOT NULL,
+    registration_fee        DECIMAL(10,2) NOT NULL,
+    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_bsfee_batch FOREIGN KEY (batch_id) REFERENCES batches(id) ON DELETE CASCADE,
+    CONSTRAINT fk_bsfee_semester FOREIGN KEY (semester_id) REFERENCES semesters(id) ON DELETE CASCADE,
+    UNIQUE KEY uq_batch_semester_fee (batch_id, semester_id)
 ) ENGINE=InnoDB;
 
--- 8. STUDENTS (3NF: Removed 'cgpa' - it's a calculated summary)
+-- 15. STUDENTS (Depends on USERS, PROGRAMS, FACULTY, BATCHES, SECTIONS, GUARDIANS)
 DROP TABLE IF EXISTS students;
 CREATE TABLE students (
     id                  CHAR(36) PRIMARY KEY,
@@ -127,41 +238,7 @@ CREATE TABLE students (
     CONSTRAINT fk_student_guardian FOREIGN KEY (guardian_id) REFERENCES guardians(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- 9. COURSES
-DROP TABLE IF EXISTS courses;
-CREATE TABLE courses (
-    id                      CHAR(36) PRIMARY KEY,
-    department_id           CHAR(36) NOT NULL,
-    course_code             VARCHAR(20) UNIQUE NOT NULL,
-    title                   VARCHAR(200) NOT NULL,
-    credit_hours            DECIMAL(3,1) NOT NULL,
-    prerequisite_course_id  CHAR(36),
-    course_type             ENUM('THEORY', 'LAB', 'PROJECT', 'RESEARCH') NOT NULL DEFAULT 'THEORY',
-    is_active               BOOLEAN NOT NULL DEFAULT TRUE,
-    description             TEXT,
-    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_course_department FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE CASCADE,
-    CONSTRAINT fk_course_prerequisite FOREIGN KEY (prerequisite_course_id) REFERENCES courses(id) ON DELETE SET NULL
-) ENGINE=InnoDB;
-
--- 10. SEMESTERS
-DROP TABLE IF EXISTS semesters;
-CREATE TABLE semesters (
-    id                      CHAR(36) PRIMARY KEY,
-    name                    VARCHAR(50) NOT NULL,
-    term                    ENUM('SPRING', 'SUMMER', 'FALL') NOT NULL,
-    academic_year           INT NOT NULL,
-    start_date              DATE NOT NULL,
-    end_date                DATE NOT NULL,
-    registration_deadline   DATE NOT NULL,
-    add_drop_deadline       DATE,
-    grade_deadline          DATE,
-    status                  ENUM('UPCOMING', 'REGISTRATION', 'ONGOING', 'FINAL_EXAMS', 'GRADING', 'COMPLETED') NOT NULL DEFAULT 'UPCOMING',
-    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
--- 11. COURSE_OFFERINGS
+-- 16. COURSE_OFFERINGS (Depends on COURSES, SEMESTERS, FACULTY, BATCHES, SECTIONS)
 DROP TABLE IF EXISTS course_offerings;
 CREATE TABLE course_offerings (
     id                      CHAR(36) PRIMARY KEY,
@@ -181,7 +258,7 @@ CREATE TABLE course_offerings (
     CONSTRAINT fk_offering_section FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- 12. ENROLLMENTS
+-- 17. ENROLLMENTS (Depends on STUDENTS, COURSE_OFFERINGS)
 DROP TABLE IF EXISTS enrollments;
 CREATE TABLE enrollments (
     id                      CHAR(36) PRIMARY KEY,
@@ -195,19 +272,7 @@ CREATE TABLE enrollments (
     UNIQUE KEY uq_enrollment (student_id, offering_id)
 ) ENGINE=InnoDB;
 
--- 13. ATTENDANCE
-DROP TABLE IF EXISTS attendance;
-CREATE TABLE attendance (
-    id                      CHAR(36) PRIMARY KEY,
-    enrollment_id           CHAR(36) NOT NULL,
-    class_date              DATE NOT NULL,
-    status                  ENUM('PRESENT', 'ABSENT', 'LATE') NOT NULL,
-    marked_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_attendance_enrollment FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE,
-    UNIQUE KEY uq_attendance (enrollment_id, class_date)
-) ENGINE=InnoDB;
-
--- 14. EXAMS
+-- 18. EXAMS (Depends on COURSE_OFFERINGS)
 DROP TABLE IF EXISTS exams;
 CREATE TABLE exams (
     id                      CHAR(36) PRIMARY KEY,
@@ -221,44 +286,7 @@ CREATE TABLE exams (
     CONSTRAINT fk_exam_offering FOREIGN KEY (offering_id) REFERENCES course_offerings(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 15. RESULTS (3NF: Removed 'grade' and 'grade_point' - they are derived from marks_obtained)
-DROP TABLE IF EXISTS results;
-CREATE TABLE results (
-    id                      CHAR(36) PRIMARY KEY,
-    enrollment_id           CHAR(36) NOT NULL,
-    exam_id                 CHAR(36),
-    marks_obtained          DECIMAL(6,2),
-    is_final_result         BOOLEAN NOT NULL DEFAULT FALSE,
-    published_at            TIMESTAMP NULL,
-    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_result_enrollment FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE,
-    CONSTRAINT fk_result_exam FOREIGN KEY (exam_id) REFERENCES exams(id) ON DELETE SET NULL
-) ENGINE=InnoDB;
-
--- 16. GRADING_POLICIES (3NF: Lookup table for derived values)
-DROP TABLE IF EXISTS grading_policies;
-CREATE TABLE grading_policies (
-    id                      INT AUTO_INCREMENT PRIMARY KEY,
-    min_marks               DECIMAL(5,2) NOT NULL,
-    max_marks               DECIMAL(5,2) NOT NULL,
-    grade                   VARCHAR(5) NOT NULL,
-    grade_point             DECIMAL(3,2) NOT NULL,
-    remarks                 VARCHAR(50)
-) ENGINE=InnoDB;
-
-INSERT INTO grading_policies (min_marks, max_marks, grade, grade_point, remarks) VALUES
-(80.00, 100.00, 'A+', 4.00, 'Outstanding'),
-(75.00, 79.99, 'A', 3.75, 'Excellent'),
-(70.00, 74.99, 'A-', 3.50, 'Very Good'),
-(65.00, 69.99, 'B+', 3.25, 'Good'),
-(60.00, 64.99, 'B', 3.00, 'Satisfactory'),
-(55.00, 59.99, 'B-', 2.75, 'Above Average'),
-(50.00, 54.99, 'C+', 2.50, 'Average'),
-(45.00, 49.99, 'C', 2.25, 'Below Average'),
-(40.00, 44.99, 'D', 2.00, 'Pass'),
-(0.00, 39.99, 'F', 0.00, 'Fail');
-
--- 17. FEES (3NF: Removed 'amount_due' and 'status' - they are calculated/derived)
+-- 19. FEES (Depends on STUDENTS, SEMESTERS)
 DROP TABLE IF EXISTS fees;
 CREATE TABLE fees (
     id                      CHAR(36) PRIMARY KEY,
@@ -275,7 +303,7 @@ CREATE TABLE fees (
     UNIQUE KEY uq_fee (student_id, semester_id)
 ) ENGINE=InnoDB;
 
--- 18. NOTICES
+-- 20. NOTICES (Depends on USERS, DEPARTMENTS)
 DROP TABLE IF EXISTS notices;
 CREATE TABLE notices (
     id                      CHAR(36) PRIMARY KEY,
@@ -290,19 +318,7 @@ CREATE TABLE notices (
     CONSTRAINT fk_notice_department FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- 19. NOTICE_VIEWS
-DROP TABLE IF EXISTS notice_views;
-CREATE TABLE notice_views (
-    id                      CHAR(36) PRIMARY KEY,
-    notice_id               CHAR(36) NOT NULL,
-    user_id                 CHAR(36) NOT NULL,
-    viewed_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_view_notice FOREIGN KEY (notice_id) REFERENCES notices(id) ON DELETE CASCADE,
-    CONSTRAINT fk_view_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY uq_notice_view (notice_id, user_id)
-) ENGINE=InnoDB;
-
--- 20. SEMESTER_CLEARANCE
+-- 21. SEMESTER_CLEARANCE (Depends on STUDENTS, SEMESTERS)
 DROP TABLE IF EXISTS semester_clearance;
 CREATE TABLE semester_clearance (
     id                      CHAR(36) PRIMARY KEY,
@@ -317,7 +333,7 @@ CREATE TABLE semester_clearance (
     UNIQUE KEY uq_clearance (student_id, semester_id)
 ) ENGINE=InnoDB;
 
--- 21. EVALUATIONS (3NF: Removed 'average_rating' - calculated from q1-q10)
+-- 22. EVALUATIONS (Depends on STUDENTS, COURSE_OFFERINGS)
 DROP TABLE IF EXISTS evaluations;
 CREATE TABLE evaluations (
     id                      CHAR(36) PRIMARY KEY,
@@ -340,7 +356,7 @@ CREATE TABLE evaluations (
     UNIQUE KEY uq_evaluation (student_id, offering_id)
 ) ENGINE=InnoDB;
 
--- 22. DOCUMENT_REQUESTS
+-- 23. DOCUMENT_REQUESTS (Depends on STUDENTS)
 DROP TABLE IF EXISTS document_requests;
 CREATE TABLE document_requests (
     id                      CHAR(36) PRIMARY KEY,
@@ -356,37 +372,27 @@ CREATE TABLE document_requests (
     CONSTRAINT fk_doc_request_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 23. CONVOCATION_APPLICATIONS
+
+-- 24. CONVOCATION_APPLICATIONS (Depends on STUDENTS)
 DROP TABLE IF EXISTS convocation_applications;
 CREATE TABLE convocation_applications (
-    id                      CHAR(36) PRIMARY KEY,
+    id                      VARCHAR(36) PRIMARY KEY,
     student_id              CHAR(36) NOT NULL,
-    convocation_year        INT NOT NULL,
-    gown_size               ENUM('S', 'M', 'L', 'XL', 'XXL') NOT NULL,
-    guest_count             INT NOT NULL DEFAULT 0,
-    fee_amount              DECIMAL(10,2) NOT NULL,
-    is_paid                 BOOLEAN NOT NULL DEFAULT FALSE,
-    status                  ENUM('PENDING', 'VERIFIED', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
-    applied_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_convocation_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-    UNIQUE KEY uq_convocation_student (student_id, convocation_year)
+                                          cgpa                    DECIMAL(3,2) NOT NULL,
+                                          credits_completed       DECIMAL(5,2) NOT NULL,
+                                          convocation_year        INT NOT NULL,
+                                          gown_size               VARCHAR(20) NOT NULL,
+                                          guest_count             INT NOT NULL DEFAULT 0,
+                                          fee_amount              DECIMAL(10,2) NOT NULL,
+                                          is_paid                 BOOLEAN NOT NULL DEFAULT FALSE,
+                                          status                  ENUM('PENDING', 'VERIFIED', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
+                                          applied_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                          updated_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                          CONSTRAINT fk_convocation_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+                                          UNIQUE KEY uq_convocation_student (student_id, convocation_year)
 ) ENGINE=InnoDB;
 
--- 24. FINANCIAL_AID_CIRCULARS
-DROP TABLE IF EXISTS financial_aid_circulars;
-CREATE TABLE financial_aid_circulars (
-    id                      CHAR(36) PRIMARY KEY,
-    title                   VARCHAR(200) NOT NULL,
-    description             TEXT NOT NULL,
-    eligibility_criteria    TEXT,
-    benefit_details         TEXT,
-    deadline                DATE NOT NULL,
-    is_active               BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
--- 25. FINANCIAL_AID_APPLICATIONS
+-- 25. FINANCIAL_AID_APPLICATIONS (Depends on STUDENTS, FINANCIAL_AID_CIRCULARS)
 DROP TABLE IF EXISTS financial_aid_applications;
 CREATE TABLE financial_aid_applications (
     id                      CHAR(36) PRIMARY KEY,
@@ -403,39 +409,42 @@ CREATE TABLE financial_aid_applications (
     UNIQUE KEY uq_fa_app (student_id, circular_id)
 ) ENGINE=InnoDB;
 
--- 26. ACADEMIC_CALENDARS
-DROP TABLE IF EXISTS academic_calendars;
-CREATE TABLE academic_calendars (
+-- 26. ATTENDANCE (Depends on ENROLLMENTS)
+DROP TABLE IF EXISTS attendance;
+CREATE TABLE attendance (
     id                      CHAR(36) PRIMARY KEY,
-    semester_id             CHAR(36) NOT NULL UNIQUE,
-    academic_year           INT NOT NULL,
-    duration                VARCHAR(100) NOT NULL,
-    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_calendar_semester FOREIGN KEY (semester_id) REFERENCES semesters(id) ON DELETE CASCADE
+    enrollment_id           CHAR(36) NOT NULL,
+    class_date              DATE NOT NULL,
+    status                  ENUM('PRESENT', 'ABSENT', 'LATE') NOT NULL,
+    marked_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_attendance_enrollment FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE,
+    UNIQUE KEY uq_attendance (enrollment_id, class_date)
 ) ENGINE=InnoDB;
 
--- 27. CALENDAR_EVENTS
-DROP TABLE IF EXISTS calendar_events;
-CREATE TABLE calendar_events (
+-- 27. RESULTS (Depends on ENROLLMENTS, EXAMS)
+DROP TABLE IF EXISTS results;
+CREATE TABLE results (
     id                      CHAR(36) PRIMARY KEY,
-    calendar_id             CHAR(36) NOT NULL,
-    title                   VARCHAR(150) NOT NULL,
-    date_value              VARCHAR(100),
-    order_index             INT NOT NULL,
-    CONSTRAINT fk_event_calendar FOREIGN KEY (calendar_id) REFERENCES academic_calendars(id) ON DELETE CASCADE
+    enrollment_id           CHAR(36) NOT NULL,
+    exam_id                 CHAR(36),
+    marks_obtained          DECIMAL(6,2),
+    is_final_result         BOOLEAN NOT NULL DEFAULT FALSE,
+    published_at            TIMESTAMP NULL,
+    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_result_enrollment FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE,
+    CONSTRAINT fk_result_exam FOREIGN KEY (exam_id) REFERENCES exams(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- 28. BATCH_SEMESTER_FEES
-DROP TABLE IF EXISTS batch_semester_fees;
-CREATE TABLE batch_semester_fees (
+-- 28. NOTICE_VIEWS (Depends on NOTICES, USERS)
+DROP TABLE IF EXISTS notice_views;
+CREATE TABLE notice_views (
     id                      CHAR(36) PRIMARY KEY,
-    batch_id                CHAR(36) NOT NULL,
-    semester_id             CHAR(36) NOT NULL,
-    registration_fee        DECIMAL(10,2) NOT NULL,
-    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_bsfee_batch FOREIGN KEY (batch_id) REFERENCES batches(id) ON DELETE CASCADE,
-    CONSTRAINT fk_bsfee_semester FOREIGN KEY (semester_id) REFERENCES semesters(id) ON DELETE CASCADE,
-    UNIQUE KEY uq_batch_semester_fee (batch_id, semester_id)
+    notice_id               CHAR(36) NOT NULL,
+    user_id                 CHAR(36) NOT NULL,
+    viewed_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_view_notice FOREIGN KEY (notice_id) REFERENCES notices(id) ON DELETE CASCADE,
+    CONSTRAINT fk_view_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY uq_notice_view (notice_id, user_id)
 ) ENGINE=InnoDB;
 
 SET FOREIGN_KEY_CHECKS = 1;

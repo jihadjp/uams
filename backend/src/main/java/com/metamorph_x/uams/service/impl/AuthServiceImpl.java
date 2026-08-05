@@ -18,6 +18,8 @@ import com.metamorph_x.uams.exception.DuplicateResourceException;
 import com.metamorph_x.uams.exception.ResourceNotFoundException;
 import com.metamorph_x.uams.model.User;
 import com.metamorph_x.uams.model.enums.UserRole;
+import com.metamorph_x.uams.repository.FacultyRepository;
+import com.metamorph_x.uams.repository.StudentRepository;
 import com.metamorph_x.uams.repository.UserRepository;
 import com.metamorph_x.uams.security.JwtUtil;
 import com.metamorph_x.uams.service.AuthService;
@@ -33,6 +35,8 @@ public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
+    private final FacultyRepository facultyRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final PasswordGeneratorService passwordGeneratorService;
@@ -51,11 +55,23 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtUtil.generateToken((UserDetails) authentication.getPrincipal());
 
+        String identifier = null;
+        if (user.getRole() == UserRole.STUDENT) {
+            identifier = studentRepository.findByUser_Id(user.getId())
+                    .map(s -> s.getStudentId())
+                    .orElse(null);
+        } else if (user.getRole() == UserRole.FACULTY) {
+            identifier = facultyRepository.findByUser_Id(user.getId())
+                    .map(f -> f.getEmployeeId())
+                    .orElse(null);
+        }
+
         return ResponseEntity.ok(LoginResponse.builder()
                 .token(token)
                 .role(user.getRole())
                 .userId(user.getId())
                 .name(user.getName())
+                .identifier(identifier)
                 .profileImage(user.getProfileImage())
                 .mustChangePassword(user.isMustChangePassword())
                 .build());

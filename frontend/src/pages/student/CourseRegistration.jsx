@@ -23,6 +23,7 @@ import { getMyFees } from '../../api/feeApi';
 import client from '../../api/client';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const CourseRegistration = () => {
     const user = useAuthStore(state => state.user);
@@ -164,10 +165,13 @@ const CourseRegistration = () => {
                 <p className="text-gray-500 dark:text-gray-400 text-lg max-w-md mx-auto font-medium">Your registration access is now open. Please contact your advisor to assign a section and courses for this semester.</p>
             </div>
             <div className="pt-4 flex flex-col items-center space-y-4">
-                <div className="inline-flex items-center space-x-3 px-6 py-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl text-indigo-600 dark:text-indigo-400 font-bold text-sm">
+                <Link
+                    to="/student/mentor"
+                    className="inline-flex items-center space-x-3 px-6 py-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all cursor-pointer"
+                >
                     <Users size={18} />
                     <span>Advisor: {studentProfile?.advisorName || 'Not Assigned'}</span>
-                </div>
+                </Link>
                 <button
                     onClick={() => window.location.reload()}
                     className="mt-8 px-6 py-2.5 bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-sm flex items-center transition-all"

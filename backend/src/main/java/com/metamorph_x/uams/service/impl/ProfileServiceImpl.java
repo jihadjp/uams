@@ -92,6 +92,7 @@ public class ProfileServiceImpl implements ProfileService {
                 studentData.put("guardianName", s.getGuardian() != null ? s.getGuardian().getName() : null);
                 studentData.put("guardianPhone", s.getGuardian() != null ? s.getGuardian().getPhone() : null);
                 studentData.put("guardianRelation", s.getGuardian() != null ? s.getGuardian().getRelation() : null);
+                studentData.put("guardianOtherRelation", s.getGuardian() != null ? s.getGuardian().getOtherRelation() : null);
                 
                 // Advisor Details (Mentor)
                 if (s.getAdvisor() != null && s.getAdvisor().getUser() != null) {
@@ -171,12 +172,23 @@ public class ProfileServiceImpl implements ProfileService {
                         guardian.setName(gName);
                         guardian.setPhone(gPhone);
                         
-                        if (gRelation != null) {
+                        if (gRelation != null && !gRelation.isEmpty()) {
                             try {
-                                guardian.setRelation(com.metamorph_x.uams.model.enums.GuardianRelation.valueOf(gRelation));
-                            } catch (Exception e) {}
+                                GuardianRelation relation = GuardianRelation.valueOf(gRelation);
+                                guardian.setRelation(relation);
+                                
+                                // Set or Clear Other Relation based on the relation type
+                                if (relation == GuardianRelation.OTHER) {
+                                    if (sData.get("guardianOtherRelation") != null) {
+                                        guardian.setOtherRelation((String) sData.get("guardianOtherRelation"));
+                                    }
+                                } else {
+                                    guardian.setOtherRelation(null);
+                                }
+                            } catch (Exception e) {
+                                log.warn("Invalid guardian relation: {}", gRelation);
+                            }
                         }
-                        if (sData.get("guardianOtherRelation") != null) guardian.setOtherRelation((String) sData.get("guardianOtherRelation"));
                         
                         s.setGuardian(guardian);
                     } else if ((gPhone != null && !gPhone.trim().isEmpty()) || (gRelation != null && !gRelation.trim().isEmpty())) {

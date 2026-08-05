@@ -236,7 +236,7 @@ const Navbar = () => {
                         {user?.name || 'User'}
                       </p>
                       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-white/30 mt-1">
-                        {user?.role === 'STUDENT' ? '242-15-211' : user?.role || 'GUEST'}
+                        {user?.identifier || user?.role || 'GUEST'}
                       </p>
                     </div>
 

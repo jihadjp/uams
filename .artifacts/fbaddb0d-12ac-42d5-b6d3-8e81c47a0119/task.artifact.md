@@ -1,0 +1,3 @@
+- [x] Backend: Update ProfileServiceImpl to return guardianOtherRelation in getMyProfile
+- [x] Backend: Refine updateProfile logic to handle guardianOtherRelation and clear it when not needed
+- [x] Verification: Manually verified the logic and data flow
