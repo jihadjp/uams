@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-  Plus,
   Edit,
   Trash2,
   Calendar,
@@ -22,7 +21,6 @@ import {
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
-import Loader from '../../components/common/Loader';
 import StatCard from '../../components/common/StatCard';
 import CourseOfferingForm from './CourseOfferingForm';
 import { getCourseOfferings, createCourseOffering, updateCourseOffering, deleteCourseOffering } from '../../api/courseOfferingApi';
@@ -159,23 +157,6 @@ const CourseOfferingList = () => {
     }));
   };
 
-  const groupedOfferings = useMemo(() => {
-    const groups = {};
-    offerings.forEach(o => {
-      const key = `${o.courseCode}`;
-      if (!groups[key]) {
-        groups[key] = {
-          code: o.courseCode,
-          title: o.courseTitle,
-          credits: o.creditHours,
-          items: []
-        };
-      }
-      groups[key].items.push(o);
-    });
-    return Object.values(groups).sort((a, b) => a.code.localeCompare(b.code));
-  }, [offerings]);
-
   const toggleCourse = (code) => {
     setExpandedCourses(prev => ({ ...prev, [code]: !prev[code] }));
   };
@@ -188,7 +169,6 @@ const CourseOfferingList = () => {
 
   const handleEditClick = (e, offering) => {
     e.stopPropagation();
-    console.log("CourseOfferingList Debug - Editing Offering:", offering);
     setPlanningCourse({
       id: offering.courseId,
       courseCode: offering.courseCode,
@@ -236,66 +216,62 @@ const CourseOfferingList = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="space-y-8 pb-12"
+          className="w-full px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 pb-20 pt-4"
       >
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
-          <div>
-            <h1 className="text-3xl font-black text-[#2D2A4F] dark:text-white tracking-tight">Course Planning</h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 font-medium uppercase tracking-widest">Plan Semester Offerings</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button onClick={fetchOfferings} variant="secondary" className="p-2.5">
-                <RefreshCw size={20} className={loading || refreshing ? 'animate-spin' : ''} />
-            </Button>
-          </div>
+        {/* Top Action Bar */}
+        <div className="flex justify-end items-center">
+          <Button onClick={fetchOfferings} variant="secondary" className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/10">
+            <RefreshCw size={18} className={loading || refreshing ? 'animate-spin' : ''} />
+          </Button>
         </div>
 
-        <Card className="!p-6 border-none shadow-xl bg-[#2D2A4F] text-white">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
+        {/* Context Filter Card */}
+        <Card className="!p-5 sm:!p-6 border border-slate-200/80 dark:border-white/10 rounded-2xl sm:rounded-3xl bg-[#0B1225] text-white">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300 ml-1">Semester</label>
               <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-300" size={18} />
+                <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 text-indigo-300 pointer-events-none" size={16} />
                 <select
                     value={selectedSemester}
                     onChange={(e) => setSelectedSemester(e.target.value)}
-                    className="w-full pl-12 pr-10 py-4 bg-white/10 border border-white/15 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-400/60 text-sm font-bold appearance-none cursor-pointer text-white"
+                    className="w-full pl-10 pr-9 py-3 bg-white/10 border border-white/15 rounded-xl sm:rounded-2xl outline-none text-xs sm:text-sm font-bold appearance-none cursor-pointer text-white"
                 >
                   <option value="" className="text-gray-900">Select Semester</option>
                   {semesters.map(s => (
                       <option key={s.id} value={s.id} className="text-gray-900">{s.name} {s.active ? '(Active)' : ''}</option>
                   ))}
                 </select>
-                <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60" />
+                <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/60 pointer-events-none" />
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300 ml-1">Department</label>
               <div className="relative">
-                <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-300" size={18} />
+                <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 text-indigo-300 pointer-events-none" size={16} />
                 <select
                     value={selectedDept}
                     onChange={(e) => setSelectedDept(e.target.value)}
-                    className="w-full pl-12 pr-10 py-4 bg-white/10 border border-white/15 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-400/60 text-sm font-bold appearance-none cursor-pointer text-white"
+                    className="w-full pl-10 pr-9 py-3 bg-white/10 border border-white/15 rounded-xl sm:rounded-2xl outline-none text-xs sm:text-sm font-bold appearance-none cursor-pointer text-white"
                 >
                   <option value="" className="text-gray-900">Choose Department</option>
                   {departments.map(d => <option key={d.id} value={d.id} className="text-gray-900">{d.name}</option>)}
                 </select>
-                <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60" />
+                <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/60 pointer-events-none" />
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300 ml-1">Batch Filter (Optional)</label>
               <div className="relative group">
-                <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-300" size={18} />
+                <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 text-indigo-300 pointer-events-none" size={16} />
                 <input
                     type="text"
                     placeholder="e.g. 242"
                     value={selectedBatch}
                     onChange={(e) => setSelectedBatch(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/15 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-400/60 text-sm font-bold placeholder:text-white/40 text-white"
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/15 rounded-xl sm:rounded-2xl outline-none text-xs sm:text-sm font-bold placeholder:text-white/40 text-white"
                 />
               </div>
             </div>
@@ -303,7 +279,7 @@ const CourseOfferingList = () => {
         </Card>
 
         {isContextSelected && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <StatCard icon={LayoutGrid} label="Total Sections" value={stats.total} color="primary" />
               <StatCard icon={TrendingUp} label="Total Credits" value={stats.credits} color="success" delay={0.1} />
               <StatCard icon={BookOpen} label="Unique Courses" value={stats.unique} color="info" delay={0.2} />
@@ -313,172 +289,174 @@ const CourseOfferingList = () => {
 
         <AnimatePresence mode="wait">
           {!isContextSelected ? (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-24 text-center space-y-6">
-                <div className="w-24 h-24 bg-primary-50 dark:bg-gray-800 rounded-[2.5rem] flex items-center justify-center mx-auto text-primary-300">
-                  <Layers size={48} />
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-16 sm:py-24 text-center space-y-4">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-50 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto text-slate-300 dark:text-white/20">
+                  <Layers size={36} />
                 </div>
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-black text-[#2D2A4F] dark:text-white">Planning Context Required</h3>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium max-w-sm mx-auto text-sm">Please select a Semester and Department above to start planning.</p>
+                <div className="space-y-1">
+                  <h3 className="text-lg sm:text-xl font-black text-[#2D2A4F] dark:text-white">Planning Context Required</h3>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium max-w-sm mx-auto text-xs sm:text-sm">Please select a Semester and Department above to start planning.</p>
                 </div>
               </motion.div>
           ) : (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-6 bg-primary-500 rounded-full" />
-                    <h2 className="text-xl font-black text-[#2D2A4F] dark:text-white uppercase tracking-tight">Course Catalog</h2>
+              <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 sm:space-y-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-1.5 h-5 bg-[#007A55] rounded-full" />
+                    <h2 className="text-base sm:text-lg font-black text-[#2D2A4F] dark:text-white uppercase tracking-tight">Course Catalog</h2>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="relative w-64">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                      <input placeholder="Filter catalog..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-700 outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-300" />
+                  <div className="flex items-center space-x-2.5">
+                    <div className="relative w-full sm:w-64">
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                      <input placeholder="Filter catalog..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 bg-white dark:bg-gray-800/80 border border-slate-200/80 dark:border-white/10 rounded-xl text-xs text-gray-700 dark:text-white outline-none" />
                     </div>
-                    <div className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-1">
-                      <button onClick={() => handleSort('courseCode')} className={`p-1.5 rounded-lg transition-all ${sort.key === 'courseCode' ? 'bg-primary-600 text-white' : 'text-gray-400 hover:text-primary-600 hover:bg-primary-50'}`} title="Sort by Code"><ArrowUpDown size={14} /></button>
+                    <div className="flex items-center bg-white dark:bg-gray-800/80 border border-slate-200/80 dark:border-white/10 rounded-xl p-1 shrink-0">
+                      <button onClick={() => handleSort('courseCode')} className={`p-1.5 rounded-lg transition-all ${sort.key === 'courseCode' ? 'bg-[#2D2A4F] text-white' : 'text-gray-400 hover:text-[#2D2A4F]'}`} title="Sort by Code"><ArrowUpDown size={14} /></button>
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 relative">
+                <div className="grid grid-cols-1 gap-3 sm:gap-4 relative">
                   {refreshing && (
-                        <div className="absolute inset-x-0 -top-4 h-0.5 bg-primary-500/10 overflow-hidden z-20">
-                            <motion.div
-                                initial={{ x: '-100%' }}
-                                animate={{ x: '100%' }}
-                                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                                className="h-full w-1/3 bg-primary-500"
-                            />
-                        </div>
-                    )}
-                  <div className={`space-y-4 transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
-                  {catalogLoading ? (
-                      Array.from({ length: pageSize }).map((_, i) => (
-                          <div key={i} className="h-24 bg-white dark:bg-gray-800 rounded-2xl animate-pulse border border-gray-200 dark:border-gray-700 p-5 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl"></div>
-                              <div className="space-y-2">
-                                <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-48"></div>
-                                <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded w-32"></div>
-                              </div>
-                            </div>
-                            <div className="h-8 bg-gray-100 dark:bg-gray-700 rounded-lg w-24"></div>
-                          </div>
-                      ))
-                  ) : catalog.length > 0 ? catalog.map((course) => {
-                    const courseOfferings = offerings.filter(o => String(o.courseId) === String(course.id));
-                    const isExpanded = expandedCourses[course.courseCode];
-
-                    return (
-                        <Card key={course.id} className={`!p-0 border overflow-hidden transition-all ${isExpanded ? 'border-primary-300 ring-2 ring-primary-500/15 shadow-md' : 'border-gray-200 dark:border-gray-700 shadow-sm'}`}>
-                          <div onClick={() => toggleCourse(course.courseCode)} className="p-5 flex items-center justify-between cursor-pointer bg-white dark:bg-gray-800 hover:bg-primary-50/50 dark:hover:bg-gray-800/50 transition-colors">
-                            <div className="flex items-center space-x-4">
-                              <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 text-primary-700 rounded-xl flex items-center justify-center font-mono text-xs font-black">
-                                {course.courseCode}
-                              </div>
-                            <div>
-                                <h3 className="text-base font-black text-[#2D2A4F] dark:text-white leading-tight">{course.title}</h3>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{course.creditHours} Credits • {courseOfferings.length} Sections</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                              <Button size="sm" onClick={(e) => { e.stopPropagation(); handleAddClick(course); }} className="bg-primary-600 hover:bg-primary-700 text-white text-[9px] font-black uppercase px-4 py-2 rounded-lg shadow-sm">Add Section</Button>
-                              {isExpanded ? <ChevronUp className="text-primary-400" /> : <ChevronDown className="text-gray-300" />}
-                            </div>
-                          </div>
-
-                          <AnimatePresence>
-                            {isExpanded && (
-                                <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden bg-slate-50 dark:bg-gray-900/40 border-t border-gray-200 dark:border-gray-700">
-                                  {courseOfferings.length > 0 ? (
-                                      <div className="p-4">
-                                        <table className="w-full text-left bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-                                          <thead className="text-[10px] font-black text-gray-500 uppercase tracking-widest bg-gray-100 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                                          <tr>
-                                            <th className="px-6 py-4">Section</th>
-                                            <th className="px-6 py-4">Batch</th>
-                                            <th className="px-6 py-4">Teacher</th>
-                                            <th className="px-6 py-4 text-center">Enrollment</th>
-                                            <th className="px-6 py-4 text-right">Actions</th>
-                                          </tr>
-                                          </thead>
-                                          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                                          {courseOfferings.map(o => {
-                                            const fillPercentage = Math.min(100, (o.enrolledCount / o.seatLimit) * 100);
-                                            const isFull = o.enrolledCount >= o.seatLimit;
-
-                                            return (
-                                                <tr key={o.id} className="text-sm hover:bg-primary-50/40 dark:hover:bg-gray-800/60 transition-colors">
-                                                  <td className="px-6 py-4">
-                                                    <div className="flex flex-col">
-                                                      <span className="font-black text-primary-600">Sec {o.section}</span>
-                                                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">ID: {o.id.substring(0, 8)}</span>
-                                                    </div>
-                                                  </td>
-                                                  <td className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400">{o.targetBatch}</td>
-                                                  <td className="px-6 py-4 font-bold text-gray-700 dark:text-gray-200">{o.facultyName}</td>
-                                                  <td className="px-6 py-4">
-                                                    <div className="flex flex-col items-center space-y-1.5">
-                                                      <div className="flex justify-between w-full text-[10px] font-black tabular-nums">
-                                                        <span className={isFull ? 'text-red-500' : 'text-primary-600'}>{o.enrolledCount}</span>
-                                                        <span className="text-gray-400">/ {o.seatLimit}</span>
-                                                      </div>
-                                                      <div className="w-24 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700">
-                                                        <motion.div
-                                                            initial={{ width: 0 }}
-                                                            animate={{ width: `${fillPercentage}%` }}
-                                                            className={`h-full ${isFull ? 'bg-red-500' : 'bg-primary-500'}`}
-                                                        />
-                                                      </div>
-                                                    </div>
-                                                  </td>
-                                                  <td className="px-6 py-4 text-right">
-                                                    <div className="flex justify-end space-x-1">
-                                                      <button onClick={(e) => handleEditClick(e, o)} className="p-2 text-gray-400 hover:text-primary-600 transition-colors"><Edit size={16} /></button>
-                                                      {isAdmin && <button onClick={(e) => handleDelete(e, o.id)} className="p-2 text-gray-400 hover:text-red-600 transition-colors"><Trash2 size={16} /></button>}
-                                                    </div>
-                                                  </td>
-                                                </tr>
-                                            );
-                                          })}
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                  ) : (
-                                      <div className="p-8 text-center text-gray-400 italic text-xs">No sections planned yet.</div>
-                                  )}
-                                </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </Card>
-                    );
-                  }) : (
-                      <Card className="py-20 text-center border-2 border-dashed border-gray-200 bg-white dark:bg-gray-800">
-                        <PackageOpen className="mx-auto text-gray-300 mb-4" size={48} />
-                        <h3 className="text-lg font-bold text-gray-500">No courses found in catalog</h3>
-                        <p className="text-sm text-gray-400 mt-1">Try adjusting your filters or search query.</p>
-                      </Card>
+                      <div className="absolute inset-x-0 -top-4 h-0.5 bg-emerald-500/10 overflow-hidden z-20">
+                        <motion.div
+                            initial={{ x: '-100%' }}
+                            animate={{ x: '100%' }}
+                            transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                            className="h-full w-1/3 bg-[#007A55]"
+                        />
+                      </div>
                   )}
+                  <div className={`space-y-3 sm:space-y-4 transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+                    {catalogLoading ? (
+                        Array.from({ length: pageSize }).map((_, i) => (
+                            <div key={i} className="h-20 sm:h-24 bg-white dark:bg-gray-800/80 rounded-2xl sm:rounded-3xl animate-pulse border border-slate-200/80 dark:border-white/10 p-4 sm:p-5 flex items-center justify-between">
+                              <div className="flex items-center space-x-3.5">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 dark:bg-gray-700 rounded-xl sm:rounded-2xl" />
+                                <div className="space-y-2">
+                                  <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-40 sm:w-48" />
+                                  <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded w-24 sm:w-32" />
+                                </div>
+                              </div>
+                              <div className="h-8 bg-gray-100 dark:bg-gray-700 rounded-lg w-20 sm:w-24" />
+                            </div>
+                        ))
+                    ) : catalog.length > 0 ? catalog.map((course) => {
+                      const courseOfferings = offerings.filter(o => String(o.courseId) === String(course.id));
+                      const isExpanded = expandedCourses[course.courseCode];
+
+                      return (
+                          <Card key={course.id} className={`!p-0 border border-slate-200/80 dark:border-white/10 rounded-2xl sm:rounded-3xl overflow-hidden transition-all bg-white dark:bg-gray-800/80 ${isExpanded ? 'hover:border-indigo-500/30' : ''}`}>
+                            <div onClick={() => toggleCourse(course.courseCode)} className="p-4 sm:p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50/60 dark:hover:bg-gray-800/50 transition-colors">
+                              <div className="flex items-center space-x-3.5 sm:space-x-4 min-w-0">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 rounded-xl sm:rounded-2xl flex items-center justify-center font-mono text-xs font-black shrink-0">
+                                  {course.courseCode}
+                                </div>
+                                <div className="min-w-0">
+                                  <h3 className="text-xs sm:text-base font-black text-[#2D2A4F] dark:text-white leading-tight truncate">{course.title}</h3>
+                                  <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 truncate">{course.creditHours} Credits • {courseOfferings.length} Sections</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+                                <Button size="sm" onClick={(e) => { e.stopPropagation(); handleAddClick(course); }} className="bg-[#2D2A4F] hover:bg-[#1E1C38] text-white text-[9px] sm:text-[10px] font-black uppercase px-3 sm:px-4 py-2 rounded-xl border-none">Add Section</Button>
+                                {isExpanded ? <ChevronUp className="text-indigo-500" size={18} /> : <ChevronDown className="text-gray-400" size={18} />}
+                              </div>
+                            </div>
+
+                            <AnimatePresence>
+                              {isExpanded && (
+                                  <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden bg-slate-50/70 dark:bg-gray-900/40 border-t border-slate-100 dark:border-gray-700/60">
+                                    {courseOfferings.length > 0 ? (
+                                        <div className="p-3 sm:p-4">
+                                          <div className="overflow-x-auto rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-800/80">
+                                            <table className="w-full text-left border-collapse">
+                                              <thead className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest bg-slate-50 dark:bg-gray-900/50 border-b border-slate-100 dark:border-gray-700">
+                                              <tr>
+                                                <th className="px-4 sm:px-6 py-3.5 whitespace-nowrap">Section</th>
+                                                <th className="px-4 sm:px-6 py-3.5 whitespace-nowrap">Batch</th>
+                                                <th className="px-4 sm:px-6 py-3.5 whitespace-nowrap">Teacher</th>
+                                                <th className="px-4 sm:px-6 py-3.5 text-center whitespace-nowrap">Enrollment</th>
+                                                <th className="px-4 sm:px-6 py-3.5 text-right whitespace-nowrap">Actions</th>
+                                              </tr>
+                                              </thead>
+                                              <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
+                                              {courseOfferings.map(o => {
+                                                const fillPercentage = Math.min(100, (o.enrolledCount / o.seatLimit) * 100);
+                                                const isFull = o.enrolledCount >= o.seatLimit;
+
+                                                return (
+                                                    <tr key={o.id} className="text-xs sm:text-sm hover:bg-slate-50/60 dark:hover:bg-gray-800/60 transition-colors">
+                                                      <td className="px-4 sm:px-6 py-3.5 whitespace-nowrap">
+                                                        <div className="flex flex-col">
+                                                          <span className="font-black text-[#007A55] dark:text-emerald-400">Sec {o.section}</span>
+                                                          <span className="text-[9px] font-bold text-gray-400 font-mono mt-0.5">ID: {o.id.substring(0, 8)}</span>
+                                                        </div>
+                                                      </td>
+                                                      <td className="px-4 sm:px-6 py-3.5 font-bold text-gray-600 dark:text-gray-300 whitespace-nowrap">{o.targetBatch}</td>
+                                                      <td className="px-4 sm:px-6 py-3.5 font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap">{o.facultyName}</td>
+                                                      <td className="px-4 sm:px-6 py-3.5 whitespace-nowrap">
+                                                        <div className="flex flex-col items-center space-y-1">
+                                                          <div className="flex justify-between w-24 text-[10px] font-black tabular-nums">
+                                                            <span className={isFull ? 'text-red-500' : 'text-[#007A55] dark:text-emerald-400'}>{o.enrolledCount}</span>
+                                                            <span className="text-gray-400">/ {o.seatLimit}</span>
+                                                          </div>
+                                                          <div className="w-24 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden border border-gray-200/60 dark:border-gray-700">
+                                                            <motion.div
+                                                                initial={{ width: 0 }}
+                                                                animate={{ width: `${fillPercentage}%` }}
+                                                                className={`h-full ${isFull ? 'bg-red-500' : 'bg-[#007A55]'}`}
+                                                            />
+                                                          </div>
+                                                        </div>
+                                                      </td>
+                                                      <td className="px-4 sm:px-6 py-3.5 text-right whitespace-nowrap">
+                                                        <div className="flex justify-end gap-1">
+                                                          <button onClick={(e) => handleEditClick(e, o)} className="p-1.5 text-slate-400 hover:text-[#007A55] transition-colors" title="Edit Section"><Edit size={16} /></button>
+                                                          {isAdmin && <button onClick={(e) => handleDelete(e, o.id)} className="p-1.5 text-slate-400 hover:text-red-500 transition-colors" title="Delete Section"><Trash2 size={16} /></button>}
+                                                        </div>
+                                                      </td>
+                                                    </tr>
+                                                );
+                                              })}
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                        </div>
+                                    ) : (
+                                        <div className="p-6 text-center text-gray-400 italic text-xs">No sections planned yet.</div>
+                                    )}
+                                  </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </Card>
+                      );
+                    }) : (
+                        <Card className="py-16 text-center border border-dashed border-slate-200/80 dark:border-white/10 bg-slate-50/50 dark:bg-white/[0.02] rounded-2xl sm:rounded-3xl">
+                          <PackageOpen className="mx-auto text-slate-300 dark:text-white/20 mb-3" size={40} />
+                          <h3 className="text-sm sm:text-base font-bold text-slate-600 dark:text-white/40">No courses found in catalog</h3>
+                          <p className="text-xs text-slate-400 dark:text-white/30 mt-0.5">Try adjusting your filters or search query.</p>
+                        </Card>
+                    )}
                   </div>
                 </div>
 
                 {/* Pagination */}
                 {totalElements > pageSize && (
-                    <div className="flex items-center justify-between px-2 pt-4">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Showing {catalog.length} of {totalElements} courses</p>
-                      <div className="flex items-center space-x-2">
+                    <div className="flex items-center justify-between px-1 pt-2">
+                      <p className="text-xs text-slate-500 dark:text-white/30 font-medium">Showing {catalog.length} of {totalElements} courses</p>
+                      <div className="flex items-center gap-2">
                         <button
                             disabled={page === 0}
                             onClick={() => setPage(p => p - 1)}
-                            className="p-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 disabled:opacity-30 hover:bg-primary-50 dark:hover:bg-gray-700 transition-all text-gray-600"
+                            className="p-2 rounded-xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-gray-800 disabled:opacity-30 hover:bg-slate-50 text-slate-600 dark:text-white/60 transition-all"
                         >
                           <ChevronLeft size={16} />
                         </button>
-                        <span className="text-xs font-black text-[#2D2A4F] dark:text-white px-2">Page {page + 1}</span>
+                        <span className="text-xs font-black text-[#2D2A4F] dark:text-white px-1">Page {page + 1}</span>
                         <button
                             disabled={(page + 1) * pageSize >= totalElements}
                             onClick={() => setPage(p => p + 1)}
-                            className="p-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 disabled:opacity-30 hover:bg-primary-50 dark:hover:bg-gray-700 transition-all text-gray-600"
+                            className="p-2 rounded-xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-gray-800 disabled:opacity-30 hover:bg-slate-50 text-slate-600 dark:text-white/60 transition-all"
                         >
                           <ChevronRight size={16} />
                         </button>

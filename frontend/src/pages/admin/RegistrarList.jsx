@@ -11,20 +11,17 @@ import {
     Phone,
     Copy,
     Key,
-    AlertTriangle,
-    RefreshCw,
-    MoreVertical
+    RefreshCw
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Modal from '../../components/common/Modal';
-import Loader from '../../components/common/Loader';
 import StatCard from '../../components/common/StatCard';
 import { getRegistrars, createRegistrar, updateRegistrar, deleteRegistrar } from '../../api/registrarApi';
 import { resetUserPassword } from '../../api/authApi';
 import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { formatDate } from '../../utils/formatDate';
 
 const RegistrarList = () => {
@@ -159,38 +156,34 @@ const RegistrarList = () => {
     };
 
     return (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">Registrar Management</h1>
-                    <p className="text-slate-500 dark:text-white/40 mt-1 text-sm font-medium">Control and manage academic operations staff.</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Button onClick={fetchRegistrars} variant="secondary" className="p-2.5">
-                        <RefreshCw size={20} className={loading || refreshing ? 'animate-spin' : ''} />
-                    </Button>
-                    <Button onClick={handleAddClick} className="flex items-center gap-2">
-                        <Plus size={20} />
-                        <span>New Registrar</span>
-                    </Button>
-                </div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 pb-20 pt-4">
+            {/* Top Action Bar */}
+            <div className="flex justify-end items-center gap-2 sm:gap-3">
+                <Button onClick={fetchRegistrars} variant="secondary" className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/10">
+                    <RefreshCw size={18} className={loading || refreshing ? 'animate-spin' : ''} />
+                </Button>
+                <Button onClick={handleAddClick} className="bg-[#2D2A4F] hover:bg-[#1E1C38] text-white flex items-center gap-2 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm py-2.5 px-4 border-none">
+                    <Plus size={16} />
+                    <span>New Registrar</span>
+                </Button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                 <StatCard icon={ShieldCheck} label="Total Registrars" value={stats.total} color="primary" />
                 <StatCard icon={UserCircle} label="Active Staff" value={stats.active} color="success" delay={0.1} />
                 <StatCard icon={ShieldAlert} label="Suspended" value={stats.inactive} color="danger" delay={0.2} />
             </div>
 
-            <Card className="!p-0">
-                <div className="p-6 border-b border-slate-100 dark:border-white/[0.06]">
+            <Card className="!p-0 overflow-hidden border border-slate-200/80 dark:border-white/10 rounded-2xl sm:rounded-3xl bg-white dark:bg-gray-800/80">
+                <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-white/[0.06]">
                     <div className="relative group max-w-md">
-                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#007A55] transition-colors" size={18} />
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#007A55] transition-colors" size={16} />
                         <Input
                             placeholder="Search registrars by name or email..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="!pl-11"
+                            className="!pl-10 text-xs sm:text-sm"
                         />
                     </div>
                 </div>
@@ -207,85 +200,85 @@ const RegistrarList = () => {
                         </div>
                     )}
                     <table className={`w-full text-left transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
-                        <thead className="bg-slate-50 dark:bg-white/[0.03] text-slate-500 dark:text-white/30 uppercase text-[10px] font-bold tracking-widest">
-                            <tr>
-                                <th className="px-6 py-4">Registrar Info</th>
-                                <th className="px-6 py-4">Contact</th>
-                                <th className="px-6 py-4 text-center">Status</th>
-                                <th className="px-6 py-4">Joined At</th>
-                                <th className="px-6 py-4 text-right">Actions</th>
-                            </tr>
+                        <thead className="bg-slate-50/80 dark:bg-white/[0.03] text-slate-500 dark:text-white/30 uppercase text-[10px] font-bold tracking-widest border-b border-slate-100 dark:border-white/[0.06]">
+                        <tr>
+                            <th className="px-4 sm:px-6 py-3.5 whitespace-nowrap">Registrar Info</th>
+                            <th className="px-4 sm:px-6 py-3.5 whitespace-nowrap">Contact</th>
+                            <th className="px-4 sm:px-6 py-3.5 text-center whitespace-nowrap">Status</th>
+                            <th className="px-4 sm:px-6 py-3.5 whitespace-nowrap">Joined At</th>
+                            <th className="px-4 sm:px-6 py-3.5 text-right whitespace-nowrap">Actions</th>
+                        </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-white/[0.06]">
-                            {loading && registrars.length === 0 ? (
-                                Array.from({ length: 3 }).map((_, i) => (
-                                    <tr key={i} className="animate-pulse">
-                                        <td className="px-6 py-5"><div className="h-10 bg-slate-100 dark:bg-white/5 rounded-xl w-48" /></td>
-                                        <td className="px-6 py-5"><div className="h-4 bg-slate-100 dark:bg-white/5 rounded w-32" /></td>
-                                        <td className="px-6 py-5"><div className="h-6 bg-slate-100 dark:bg-white/5 rounded-full w-20 mx-auto" /></td>
-                                        <td colSpan={2} />
-                                    </tr>
-                                ))
-                            ) : filteredRegistrars.length > 0 ? (
-                                filteredRegistrars.map((r) => (
-                                    <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors group">
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold border border-indigo-100 dark:border-indigo-500/20">
-                                                    {r.name.charAt(0).toUpperCase()}
-                                                </div>
-                                                <div className="flex flex-col min-w-0">
-                                                    <p className="text-sm font-black text-slate-900 dark:text-white truncate">{r.name}</p>
-                                                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">REG STAFF</p>
-                                                </div>
+                        {loading && registrars.length === 0 ? (
+                            Array.from({ length: 3 }).map((_, i) => (
+                                <tr key={i} className="animate-pulse">
+                                    <td className="px-4 sm:px-6 py-4"><div className="h-10 bg-slate-100 dark:bg-white/5 rounded-xl w-48" /></td>
+                                    <td className="px-4 sm:px-6 py-4"><div className="h-4 bg-slate-100 dark:bg-white/5 rounded w-32" /></td>
+                                    <td className="px-4 sm:px-6 py-4"><div className="h-6 bg-slate-100 dark:bg-white/5 rounded-full w-20 mx-auto" /></td>
+                                    <td colSpan={2} />
+                                </tr>
+                            ))
+                        ) : filteredRegistrars.length > 0 ? (
+                            filteredRegistrars.map((r) => (
+                                <tr key={r.id} className="hover:bg-slate-50/60 dark:hover:bg-white/[0.04] transition-colors group">
+                                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-xs sm:text-sm border border-indigo-100 dark:border-indigo-500/20 shrink-0">
+                                                {r.name.charAt(0).toUpperCase()}
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex flex-col gap-1">
-                                                <div className="flex items-center text-xs text-slate-600 dark:text-white/70">
-                                                    <Mail size={12} className="mr-1.5 opacity-50" />
-                                                    {r.email}
-                                                </div>
-                                                <div className="flex items-center text-[10px] text-slate-400 font-medium">
-                                                    <Phone size={10} className="mr-1.5 opacity-50" />
-                                                    {r.phone || 'No phone'}
-                                                </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <p className="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate">{r.name}</p>
+                                                <p className="text-[9px] sm:text-[10px] text-slate-400 font-medium uppercase tracking-tighter">REG STAFF</p>
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-5 text-center">
-                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                                        </div>
+                                    </td>
+                                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                        <div className="flex flex-col gap-0.5">
+                                            <div className="flex items-center text-xs text-slate-600 dark:text-white/70">
+                                                <Mail size={12} className="mr-1.5 opacity-50 shrink-0" />
+                                                {r.email}
+                                            </div>
+                                            <div className="flex items-center text-[10px] text-slate-400 font-medium">
+                                                <Phone size={10} className="mr-1.5 opacity-50 shrink-0" />
+                                                {r.phone || 'No phone'}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-4 sm:px-6 py-4 text-center whitespace-nowrap">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest border ${
                                                 r.isActive
-                                                ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/20'
-                                                : 'bg-red-100 text-red-700 border-red-200 dark:bg-red-500/15 dark:text-red-300 dark:border-red-500/20'
+                                                    ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/20'
+                                                    : 'bg-red-100 text-red-700 border-red-200 dark:bg-red-500/15 dark:text-red-300 dark:border-red-500/20'
                                             }`}>
                                                 {r.isActive ? 'Active' : 'Suspended'}
                                             </span>
-                                        </td>
-                                        <td className="px-6 py-5">
+                                    </td>
+                                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                                             <span className="text-xs font-bold text-slate-500 dark:text-white/40">
                                                 {formatDate(r.createdAt)}
                                             </span>
-                                        </td>
-                                        <td className="px-6 py-5 text-right">
-                                            <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => handleResetPassword(r.id)} className="p-2 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/15 rounded-xl transition-all" title="Reset Password">
-                                                    <Key size={18} />
-                                                </button>
-                                                <button onClick={() => handleEditClick(r)} className="p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/15 rounded-xl transition-all" title="Edit Profile">
-                                                    <Edit size={18} />
-                                                </button>
-                                                <button onClick={() => handleDelete(r.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/15 rounded-xl transition-all" title="Delete Account">
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-20 text-center text-slate-400 font-bold italic">No registrars found.</td>
+                                    </td>
+                                    <td className="px-4 sm:px-6 py-4 text-right whitespace-nowrap">
+                                        <div className="flex justify-end gap-1">
+                                            <button onClick={() => handleResetPassword(r.id)} className="p-1.5 sm:p-2 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/15 rounded-xl transition-all" title="Reset Password">
+                                                <Key size={16} />
+                                            </button>
+                                            <button onClick={() => handleEditClick(r)} className="p-1.5 sm:p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/15 rounded-xl transition-all" title="Edit Profile">
+                                                <Edit size={16} />
+                                            </button>
+                                            <button onClick={() => handleDelete(r.id)} className="p-1.5 sm:p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/15 rounded-xl transition-all" title="Delete Account">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
-                            )}
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={5} className="px-6 py-16 text-center text-slate-400 dark:text-white/30 text-xs sm:text-sm font-bold italic">No registrars found.</td>
+                            </tr>
+                        )}
                         </tbody>
                     </table>
                 </div>
@@ -302,20 +295,20 @@ const RegistrarList = () => {
                 size="md"
             >
                 {generatedPassword ? (
-                    <div className="text-center space-y-6 py-4">
-                        <div className="p-6 bg-emerald-50 dark:bg-emerald-500/10 rounded-3xl border-2 border-dashed border-emerald-200 dark:border-emerald-800">
-                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3">Temporary Password</p>
-                            <h2 className="text-3xl font-black text-emerald-700 dark:text-emerald-300 font-mono tracking-widest">{generatedPassword}</h2>
+                    <div className="text-center space-y-5 sm:space-y-6 py-2">
+                        <div className="p-5 sm:p-6 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl sm:rounded-3xl border border-emerald-200 dark:border-emerald-800">
+                            <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-2">Temporary Password</p>
+                            <h2 className="text-2xl sm:text-3xl font-black text-emerald-700 dark:text-emerald-300 font-mono tracking-widest">{generatedPassword}</h2>
                         </div>
-                        <div className="flex flex-col gap-3">
-                            <Button onClick={() => { navigator.clipboard.writeText(generatedPassword); toast.success('Copied!'); }} className="w-full py-4">
-                                <Copy size={18} className="mr-2" /> Copy Password
+                        <div className="flex flex-col gap-2.5">
+                            <Button onClick={() => { navigator.clipboard.writeText(generatedPassword); toast.success('Copied!'); }} className="w-full py-3 bg-[#2D2A4F] hover:bg-[#1E1C38] text-white rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm border-none">
+                                <Copy size={16} className="mr-2" /> Copy Password
                             </Button>
-                            <Button variant="secondary" onClick={() => { setIsModalOpen(false); setGeneratedPassword(null); }} className="w-full py-3">Done</Button>
+                            <Button variant="secondary" onClick={() => { setIsModalOpen(false); setGeneratedPassword(null); }} className="w-full py-2.5 text-xs font-bold bg-transparent border-none">Done</Button>
                         </div>
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                         <Input
                             label="Full Name"
                             required
@@ -332,17 +325,17 @@ const RegistrarList = () => {
                             value={formData.email}
                             onChange={e => setFormData({...formData, email: e.target.value})}
                         />
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Input
                                 label="Phone Number"
                                 placeholder="017xxxxxxxx"
                                 value={formData.phone}
                                 onChange={e => setFormData({...formData, phone: e.target.value})}
                             />
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                                 <label className="text-xs font-bold text-slate-700 dark:text-white/70 ml-1">Gender</label>
                                 <select
-                                    className="w-full px-4 py-3.5 bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 rounded-2xl text-sm font-medium outline-none dark:text-white"
+                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.06] border border-slate-200/80 dark:border-white/10 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium outline-none dark:text-white cursor-pointer"
                                     value={formData.gender}
                                     onChange={e => setFormData({...formData, gender: e.target.value})}
                                 >
@@ -353,9 +346,9 @@ const RegistrarList = () => {
                             </div>
                         </div>
                         {editingRegistrar && (
-                            <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-white/[0.04] rounded-2xl border border-slate-200 dark:border-white/10">
+                            <div className="flex items-center gap-3 p-3.5 bg-slate-50/70 dark:bg-white/[0.04] rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/10">
                                 <div className="flex-1">
-                                    <p className="text-sm font-bold text-slate-900 dark:text-white">Account Status</p>
+                                    <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Account Status</p>
                                     <p className="text-[10px] text-slate-400 font-medium">Suspended staff cannot log in</p>
                                 </div>
                                 <button
@@ -367,11 +360,11 @@ const RegistrarList = () => {
                                 </button>
                             </div>
                         )}
-                        <div className="pt-4 flex gap-4">
-                            <Button type="submit" className="flex-1" isLoading={formLoading}>
+                        <div className="pt-3 flex gap-3">
+                            <Button type="submit" className="flex-1 bg-[#2D2A4F] hover:bg-[#1E1C38] text-white rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm py-3 border-none" isLoading={formLoading}>
                                 {editingRegistrar ? 'Update Account' : 'Create Account'}
                             </Button>
-                            <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)} className="bg-transparent border-none">Cancel</Button>
+                            <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)} className="bg-transparent border-none text-xs font-bold text-slate-500">Cancel</Button>
                         </div>
                     </form>
                 )}
@@ -379,13 +372,13 @@ const RegistrarList = () => {
 
             {/* Password Display Modal (Reset) */}
             <Modal isOpen={showPasswordModal} onClose={() => setShowPasswordModal(false)} title="Password Reset" size="sm">
-                <div className="space-y-6 py-4">
-                    <div className="p-6 bg-indigo-50 dark:bg-indigo-950/30 rounded-3xl border-2 border-dashed border-indigo-200 dark:border-indigo-800 text-center">
-                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-3">One-Time Recovery Password</p>
-                        <h2 className="text-3xl font-black text-indigo-700 dark:text-indigo-300 font-mono tracking-widest">{tempPassword}</h2>
+                <div className="space-y-5 sm:space-y-6 py-2">
+                    <div className="p-5 sm:p-6 bg-indigo-50/60 dark:bg-indigo-950/30 rounded-2xl sm:rounded-3xl border border-indigo-200 dark:border-indigo-800 text-center">
+                        <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-2">One-Time Recovery Password</p>
+                        <h2 className="text-2xl sm:text-3xl font-black text-indigo-700 dark:text-indigo-300 font-mono tracking-widest">{tempPassword}</h2>
                     </div>
-                    <Button onClick={() => { navigator.clipboard.writeText(tempPassword); toast.success('Copied!'); }} className="w-full py-4">
-                        <Copy size={18} className="mr-2" /> Copy & Close
+                    <Button onClick={() => { navigator.clipboard.writeText(tempPassword); toast.success('Copied!'); setShowPasswordModal(false); }} className="w-full py-3 bg-[#2D2A4F] hover:bg-[#1E1C38] text-white rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm border-none">
+                        <Copy size={16} className="mr-2" /> Copy & Close
                     </Button>
                 </div>
             </Modal>

@@ -1,16 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Plus, Edit, Trash2, BookOpen, Building2, Layers, Filter, CheckCircle2, XCircle, ArrowUpDown, ChevronLeft, ChevronRight, PackageOpen, Award, RefreshCw } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, BookOpen, Building2, Layers, CheckCircle2, XCircle, ArrowUpDown, ChevronLeft, ChevronRight, PackageOpen, Award, RefreshCw } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Modal from '../../components/common/Modal';
-import Loader from '../../components/common/Loader';
 import StatCard from '../../components/common/StatCard';
 import CourseForm from './CourseForm';
 import { getCourses, createCourse, updateCourse, deleteCourse } from '../../api/courseApi';
 import client from '../../api/client';
 import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import useAuth from '../../hooks/useAuth';
 
 const CourseList = () => {
@@ -145,240 +144,235 @@ const CourseList = () => {
 
   const getTypeBadge = (type) => {
     const styles = {
-      THEORY: 'bg-blue-50 text-blue-600 border-blue-100',
-      LAB: 'bg-purple-50 text-purple-600 border-purple-100',
-      PROJECT: 'bg-amber-50 text-amber-600 border-amber-100',
-      RESEARCH: 'bg-emerald-50 text-emerald-600 border-emerald-100'
+      THEORY: 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
+      LAB: 'bg-purple-50 text-purple-600 border-purple-100 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20',
+      PROJECT: 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
+      RESEARCH: 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
     };
     return (
-      <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest border ${styles[type] || 'bg-gray-50 text-gray-600'}`}>
+        <span className={`px-2.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest border ${styles[type] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
         {type}
       </span>
     );
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Course Management</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Define university courses and their prerequisites.</p>
-        </div>
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <Button onClick={fetchCourses} variant="secondary" className="p-2.5">
-            <RefreshCw size={20} className={loading || refreshing ? 'animate-spin' : ''} />
+      <div className="w-full px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 pb-20 pt-4">
+        {/* Top Action Bar */}
+        <div className="flex justify-end items-center gap-2 sm:gap-3">
+          <Button onClick={fetchCourses} variant="secondary" className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/10">
+            <RefreshCw size={18} className={loading || refreshing ? 'animate-spin' : ''} />
           </Button>
-          <Button onClick={handleAddClick} className="flex items-center space-x-2 flex-1 md:flex-none justify-center">
-            <Plus size={20} />
+          <Button onClick={handleAddClick} className="bg-[#2D2A4F] hover:bg-[#1E1C38] text-white flex items-center gap-2 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm py-2.5 px-4 border-none">
+            <Plus size={16} />
             <span>Add Course</span>
           </Button>
         </div>
-      </div>
 
-      {/* Stats Dashboard */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={BookOpen} label="Total Courses" value={stats.total} color="primary" />
-        <StatCard icon={Award} label="Total Credits" value={stats.totalCredits} color="success" delay={0.1} />
-        <StatCard icon={Layers} label="Theory" value={stats.theory} color="info" delay={0.2} />
-        <StatCard icon={Building2} label="Labs / Projects" value={stats.lab} color="warning" delay={0.3} />
-      </div>
-
-      <Card className="!p-0 border-none shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col xl:flex-row gap-4">
-           <div className="flex-1">
-             <Input
-               placeholder="Search by title or course code..."
-               icon={Search}
-               value={search}
-               onChange={(e) => setSearch(e.target.value)}
-             />
-           </div>
-           <div className="flex flex-wrap gap-3">
-             <select
-               value={selectedDept}
-               onChange={(e) => setSelectedDept(e.target.value)}
-               className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-primary-500/20 dark:text-white min-w-[150px]"
-             >
-               <option value="">All Departments</option>
-               {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-             </select>
-
-             <select
-               value={selectedType}
-               onChange={(e) => setSelectedType(e.target.value)}
-               className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-primary-500/20 dark:text-white"
-             >
-               <option value="">All Types</option>
-               <option value="THEORY">Theory</option>
-               <option value="LAB">Lab</option>
-               <option value="PROJECT">Project</option>
-               <option value="RESEARCH">Research</option>
-             </select>
-
-             <select
-               value={selectedStatus}
-               onChange={(e) => setSelectedStatus(e.target.value)}
-               className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-primary-500/20 dark:text-white"
-             >
-               <option value="">All Status</option>
-               <option value="true">Active Only</option>
-               <option value="false">Inactive Only</option>
-             </select>
-           </div>
+        {/* Stats Dashboard */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <StatCard icon={BookOpen} label="Total Courses" value={stats.total} color="primary" />
+          <StatCard icon={Award} label="Total Credits" value={stats.totalCredits} color="success" delay={0.1} />
+          <StatCard icon={Layers} label="Theory" value={stats.theory} color="info" delay={0.2} />
+          <StatCard icon={Building2} label="Labs / Projects" value={stats.lab} color="warning" delay={0.3} />
         </div>
 
-        <div className="overflow-x-auto min-h-[400px] relative">
-          {refreshing && (
-                <div className="absolute inset-x-0 top-0 h-0.5 bg-primary-500/10 overflow-hidden z-20">
-                    <motion.div
-                        initial={{ x: '-100%' }}
-                        animate={{ x: '100%' }}
-                        transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                        className="h-full w-1/3 bg-primary-500"
-                    />
-                </div>
-            )}
-          <table className={`w-full text-left transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
-            <thead className="bg-gray-50/50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 uppercase text-[10px] font-black tracking-widest">
-              <tr>
-                <th className="px-6 py-5 cursor-pointer hover:text-primary-500 transition-colors" onClick={() => handleSort('title')}>
-                  <div className="flex items-center space-x-1">
-                    <span>Course Detail</span>
-                    <ArrowUpDown size={12} className={sort.key === 'title' ? 'text-primary-500' : 'opacity-30'} />
-                  </div>
-                </th>
-                <th className="px-6 py-5">Department</th>
-                <th className="px-6 py-5 text-center">Type</th>
-                <th className="px-6 py-5 text-center cursor-pointer hover:text-primary-500 transition-colors" onClick={() => handleSort('creditHours')}>
-                  <div className="flex items-center justify-center space-x-1">
-                    <span>Credits</span>
-                    <ArrowUpDown size={12} className={sort.key === 'creditHours' ? 'text-primary-500' : 'opacity-30'} />
-                  </div>
-                </th>
-                <th className="px-6 py-5 text-center">Status</th>
-                <th className="px-6 py-5 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {loading && courses.length === 0 ? (
-                Array.from({ length: pageSize }).map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                    <td className="px-6 py-4"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 mb-2"></div><div className="h-2 bg-gray-100 dark:bg-gray-800 rounded w-20"></div></td>
-                    <td className="px-6 py-4"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div></td>
-                    <td className="px-6 py-4"><div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-16 mx-auto"></div></td>
-                    <td className="px-6 py-4"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-8 mx-auto"></div></td>
-                    <td className="px-6 py-4"><div className="h-5 bg-gray-200 dark:bg-gray-700 rounded-full w-5 mx-auto"></div></td>
-                    <td className="px-6 py-4"></td>
-                  </tr>
-                ))
-              ) : courses.length > 0 ? courses.map((course) => (
-                <motion.tr key={course.id} layout className="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="flex items-start space-x-3">
-                       <div className="font-mono font-black text-[10px] text-primary-500 bg-primary-50 dark:bg-primary-900/30 px-2 py-1.5 rounded-lg shrink-0 border border-primary-100 dark:border-primary-900/50">
-                         {course.courseCode}
-                       </div>
-                       <div className="flex flex-col">
-                          <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">{course.title}</p>
-                          {course.prerequisiteCourseCode && (
-                            <div className="flex items-center mt-1 text-[10px] font-bold text-indigo-500 uppercase tracking-tighter">
-                               <Layers size={10} className="mr-1" /> Pre: {course.prerequisiteCourseCode}
-                            </div>
-                          )}
-                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center text-gray-500 dark:text-gray-400">
-                       <Building2 size={14} className="mr-2 opacity-50" />
-                       <span className="text-xs font-bold uppercase tracking-tight">{course.departmentName}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    {getTypeBadge(course.courseType)}
-                  </td>
-                  <td className="px-6 py-4 text-center font-black text-gray-900 dark:text-white text-sm">
-                    {course.creditHours.toFixed(1)}
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    {course.isActive ? (
-                      <div className="flex items-center justify-center text-green-500" title="Active">
-                        <CheckCircle2 size={18} />
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center text-gray-300 dark:text-gray-600" title="Inactive">
-                        <XCircle size={18} />
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end space-x-2">
-                      <button onClick={() => handleEditClick(course)} className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-all">
-                        <Edit size={16} />
-                      </button>
-                      {isAdmin && (
-                        <button onClick={() => handleDelete(course.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all">
-                          <Trash2 size={16} />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </motion.tr>
-              )) : (
-                <tr>
-                  <td colSpan="6" className="px-6 py-20 text-center">
-                    <div className="flex flex-col items-center justify-center text-gray-400">
-                      <PackageOpen size={48} strokeWidth={1} className="mb-4 opacity-50" />
-                      <p className="text-lg font-medium">No courses found</p>
-                      <p className="text-sm">Try adjusting your search or filters</p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <Card className="!p-0 overflow-hidden border border-slate-200/80 dark:border-white/10 rounded-2xl sm:rounded-3xl bg-white dark:bg-gray-800/80">
+          <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-white/[0.06] flex flex-col xl:flex-row gap-3 sm:gap-4">
+            <div className="flex-1">
+              <Input
+                  placeholder="Search by title or course code..."
+                  icon={Search}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              <select
+                  value={selectedDept}
+                  onChange={(e) => setSelectedDept(e.target.value)}
+                  className="px-3.5 py-2.5 sm:py-3 bg-slate-50/70 dark:bg-white/[0.06] border border-slate-200/80 dark:border-white/10 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium outline-none dark:text-white transition-all cursor-pointer min-w-[140px]"
+              >
+                <option value="">All Departments</option>
+                {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+              </select>
 
-        {/* Pagination */}
-        <div className="px-6 py-4 bg-gray-50/50 dark:bg-gray-800/20 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
-          <p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest">
-            Showing {courses.length} of {totalElements} Courses
-          </p>
-          <div className="flex items-center space-x-4">
-            <span className="text-[10px] text-gray-400 font-black uppercase tracking-tighter">Page {page + 1}</span>
-            <div className="flex space-x-2">
-              <button
-                disabled={page === 0 || loading}
-                onClick={() => setPage(p => p - 1)}
-                className="p-2 rounded-xl border border-gray-200 dark:border-gray-700 disabled:opacity-30 hover:bg-white dark:hover:bg-gray-800 transition-all text-gray-600 dark:text-gray-400"
+              <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="px-3.5 py-2.5 sm:py-3 bg-slate-50/70 dark:bg-white/[0.06] border border-slate-200/80 dark:border-white/10 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium outline-none dark:text-white transition-all cursor-pointer"
               >
-                <ChevronLeft size={16} />
-              </button>
-              <button
-                disabled={(page + 1) * pageSize >= totalElements || loading}
-                onClick={() => setPage(p => p + 1)}
-                className="p-2 rounded-xl border border-gray-200 dark:border-gray-700 disabled:opacity-30 hover:bg-white dark:hover:bg-gray-800 transition-all text-gray-600 dark:text-gray-400"
+                <option value="">All Types</option>
+                <option value="THEORY">Theory</option>
+                <option value="LAB">Lab</option>
+                <option value="PROJECT">Project</option>
+                <option value="RESEARCH">Research</option>
+              </select>
+
+              <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="px-3.5 py-2.5 sm:py-3 bg-slate-50/70 dark:bg-white/[0.06] border border-slate-200/80 dark:border-white/10 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium outline-none dark:text-white transition-all cursor-pointer"
               >
-                <ChevronRight size={16} />
-              </button>
+                <option value="">All Status</option>
+                <option value="true">Active Only</option>
+                <option value="false">Inactive Only</option>
+              </select>
             </div>
           </div>
-        </div>
-      </Card>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingCourse ? 'Edit Course' : 'Create New Course'}
-        size="lg"
-      >
-        <CourseForm
-          course={editingCourse}
-          onSubmit={handleFormSubmit}
-          isLoading={formLoading}
-        />
-      </Modal>
-    </div>
+          <div className="overflow-x-auto min-h-[400px] relative">
+            {refreshing && (
+                <div className="absolute inset-x-0 top-0 h-0.5 bg-emerald-500/10 overflow-hidden z-20">
+                  <motion.div
+                      initial={{ x: '-100%' }}
+                      animate={{ x: '100%' }}
+                      transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                      className="h-full w-1/3 bg-[#007A55]"
+                  />
+                </div>
+            )}
+            <table className={`w-full text-left transition-opacity duration-200 ${refreshing ? 'opacity-50' : 'opacity-100'}`}>
+              <thead className="bg-slate-50/80 dark:bg-white/[0.03] text-slate-500 dark:text-white/30 uppercase text-[10px] font-bold tracking-widest border-b border-slate-100 dark:border-white/[0.06]">
+              <tr>
+                <th className="px-4 sm:px-6 py-3.5 cursor-pointer hover:text-[#007A55] transition-colors whitespace-nowrap" onClick={() => handleSort('title')}>
+                  <div className="flex items-center space-x-1">
+                    <span>Course Detail</span>
+                    <ArrowUpDown size={12} className={sort.key === 'title' ? 'text-[#007A55]' : 'opacity-30'} />
+                  </div>
+                </th>
+                <th className="px-4 sm:px-6 py-3.5 whitespace-nowrap">Department</th>
+                <th className="px-4 sm:px-6 py-3.5 text-center whitespace-nowrap">Type</th>
+                <th className="px-4 sm:px-6 py-3.5 text-center cursor-pointer hover:text-[#007A55] transition-colors whitespace-nowrap" onClick={() => handleSort('creditHours')}>
+                  <div className="flex items-center justify-center space-x-1">
+                    <span>Credits</span>
+                    <ArrowUpDown size={12} className={sort.key === 'creditHours' ? 'text-[#007A55]' : 'opacity-30'} />
+                  </div>
+                </th>
+                <th className="px-4 sm:px-6 py-3.5 text-center whitespace-nowrap">Status</th>
+                <th className="px-4 sm:px-6 py-3.5 text-right whitespace-nowrap">Actions</th>
+              </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-white/[0.06]">
+              {loading && courses.length === 0 ? (
+                  Array.from({ length: pageSize }).map((_, i) => (
+                      <tr key={i} className="animate-pulse">
+                        <td className="px-4 sm:px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-white/10 rounded w-48 mb-2"></div><div className="h-2 bg-slate-100 dark:bg-white/5 rounded w-20"></div></td>
+                        <td className="px-4 sm:px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-white/10 rounded w-24"></div></td>
+                        <td className="px-4 sm:px-6 py-4"><div className="h-5 bg-slate-200 dark:bg-white/10 rounded w-16 mx-auto"></div></td>
+                        <td className="px-4 sm:px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-white/10 rounded w-8 mx-auto"></div></td>
+                        <td className="px-4 sm:px-6 py-4"><div className="h-5 bg-slate-200 dark:bg-white/10 rounded-full w-5 mx-auto"></div></td>
+                        <td className="px-4 sm:px-6 py-4"></td>
+                      </tr>
+                  ))
+              ) : courses.length > 0 ? courses.map((course) => (
+                  <motion.tr key={course.id} layout className="hover:bg-slate-50/60 dark:hover:bg-white/[0.04] transition-colors group">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-start space-x-3">
+                        <div className="font-mono font-black text-[10px] text-[#007A55] dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1.5 rounded-lg shrink-0 border border-emerald-100 dark:border-emerald-500/20">
+                          {course.courseCode}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight truncate">{course.title}</p>
+                          {course.prerequisiteCourseCode && (
+                              <div className="flex items-center mt-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter">
+                                <Layers size={10} className="mr-1 shrink-0" /> Pre: {course.prerequisiteCourseCode}
+                              </div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center text-slate-500 dark:text-white/70">
+                        <Building2 size={13} className="mr-1.5 opacity-60 shrink-0" />
+                        <span className="text-xs font-bold uppercase tracking-tight">{course.departmentName}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 text-center whitespace-nowrap">
+                      {getTypeBadge(course.courseType)}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 text-center font-black text-slate-900 dark:text-white text-xs sm:text-sm whitespace-nowrap">
+                      {course.creditHours.toFixed(1)}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 text-center whitespace-nowrap">
+                      {course.isActive ? (
+                          <div className="flex items-center justify-center text-emerald-500" title="Active">
+                            <CheckCircle2 size={17} />
+                          </div>
+                      ) : (
+                          <div className="flex items-center justify-center text-slate-300 dark:text-slate-600" title="Inactive">
+                            <XCircle size={17} />
+                          </div>
+                      )}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 text-right whitespace-nowrap">
+                      <div className="flex justify-end gap-1">
+                        <button onClick={() => handleEditClick(course)} className="p-1.5 sm:p-2 text-slate-400 hover:text-[#007A55] hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all border border-transparent hover:border-emerald-100 dark:hover:border-emerald-500/20" title="Edit Course">
+                          <Edit size={16} />
+                        </button>
+                        {isAdmin && (
+                            <button onClick={() => handleDelete(course.id)} className="p-1.5 sm:p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all border border-transparent hover:border-red-100 dark:hover:border-red-500/20" title="Delete Course">
+                              <Trash2 size={16} />
+                            </button>
+                        )}
+                      </div>
+                    </td>
+                  </motion.tr>
+              )) : (
+                  <tr>
+                    <td colSpan="6" className="px-6 py-16 sm:py-20 text-center">
+                      <div className="flex flex-col items-center justify-center text-slate-400 dark:text-white/20">
+                        <PackageOpen size={40} strokeWidth={1} className="mb-3 opacity-50" />
+                        <p className="text-base sm:text-lg font-bold text-slate-600 dark:text-white/40">No courses found</p>
+                        <p className="text-xs sm:text-sm text-slate-400 dark:text-white/30 mt-0.5">Try adjusting your search or filters</p>
+                      </div>
+                    </td>
+                  </tr>
+              )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/60 dark:bg-white/[0.02] border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between">
+            <p className="text-xs font-medium text-slate-500 dark:text-white/30">
+              Showing {courses.length} of {totalElements} Courses
+            </p>
+            <div className="flex items-center gap-3 sm:gap-4">
+              <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-white/30">Page {page + 1}</span>
+              <div className="flex gap-1.5 sm:gap-2">
+                <button
+                    disabled={page === 0 || loading}
+                    onClick={() => setPage(p => p - 1)}
+                    className="p-2 sm:p-2.5 rounded-xl border border-slate-200/80 dark:border-white/10 disabled:opacity-30 hover:bg-white dark:hover:bg-white/[0.06] transition-all text-slate-600 dark:text-white/50"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button
+                    disabled={(page + 1) * pageSize >= totalElements || loading}
+                    onClick={() => setPage(p => p + 1)}
+                    className="p-2 sm:p-2.5 rounded-xl border border-slate-200/80 dark:border-white/10 disabled:opacity-30 hover:bg-white dark:hover:bg-white/[0.06] transition-all text-slate-600 dark:text-white/50"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <Modal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            title={editingCourse ? 'Edit Course' : 'Create New Course'}
+            size="lg"
+        >
+          <CourseForm
+              course={editingCourse}
+              onSubmit={handleFormSubmit}
+              isLoading={formLoading}
+          />
+        </Modal>
+      </div>
   );
 };
 
