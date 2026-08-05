@@ -11,6 +11,8 @@ public class DepartmentResponse {
     private String name;
     private String code;
     private String deptNumber;
+    private String facultyDivision;
+    private java.util.UUID headFacultyId;
     private String headFacultyName;
     private long totalFaculty;
     private long totalStudents;

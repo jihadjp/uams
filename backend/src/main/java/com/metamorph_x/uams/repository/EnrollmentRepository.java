@@ -17,8 +17,13 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, UUID> {
     List<Enrollment> findByStudentId(UUID studentId);
     List<Enrollment> findByStudentIdAndOffering_Semester_Id(UUID studentId, UUID semesterId);
     List<Enrollment> findByOfferingId(UUID offeringId);
+    org.springframework.data.domain.Page<Enrollment> findByOfferingId(UUID offeringId, org.springframework.data.domain.Pageable pageable);
     long countByOfferingId(UUID offeringId);
-    long countByOfferingAndStatus(CourseOffering offering, EnrollmentStatus status);
+    long countByOfferingAndStatusNot(CourseOffering offering, EnrollmentStatus status);
+    boolean existsByOfferingAndStatus(CourseOffering offering, EnrollmentStatus status);
     boolean existsByStudentAndOffering_CourseAndStatus(Student student, Course course, EnrollmentStatus status);
     boolean existsByStudentIdAndOffering_CourseIdAndOffering_SemesterIdAndStatusNot(UUID studentId, UUID courseId, UUID semesterId, EnrollmentStatus status);
+
+    List<Enrollment> findByOfferingIdAndStatusNot(UUID offeringId, EnrollmentStatus status);
+    org.springframework.data.domain.Page<Enrollment> findByOfferingIdAndStatusNot(UUID offeringId, EnrollmentStatus status, org.springframework.data.domain.Pageable pageable);
 }

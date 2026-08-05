@@ -28,6 +28,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "exams")
@@ -40,6 +42,8 @@ import lombok.Setter;
 public class Exam {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "id", length = 36)
     private UUID id;
 
     @ManyToOne
@@ -49,6 +53,9 @@ public class Exam {
     @Enumerated(EnumType.STRING)
     @Column(name = "exam_type", nullable = false, length = 20)
     private ExamType examType;
+
+    @Column(length = 50)
+    private String title;
 
     @Column(name = "exam_date")
     private LocalDate examDate;

@@ -1,6 +1,8 @@
 package com.metamorph_x.uams.service.impl;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,9 +43,18 @@ public class CourseOfferingServiceImpl implements CourseOfferingService {
     private final SectionRepository sectionRepository;
 
     @Override
-    public Page<CourseOfferingResponse> getAllOfferings(Pageable pageable, UUID semesterId, UUID departmentId, String batch, String search) {
+    public Page<CourseOfferingResponse> getAllOfferings(Pageable pageable, UUID semesterId, UUID departmentId, UUID facultyId, String batch, String search, Boolean isResultsPublished) {
         String searchPattern = (search != null && !search.trim().isEmpty()) ? "%" + search.trim().toLowerCase() + "%" : null;
-        return courseOfferingRepository.findAllFiltered(semesterId, departmentId, batch, searchPattern, pageable).map(this::mapToResponse);
+        Page<CourseOfferingResponse> offerings = courseOfferingRepository.findAllFiltered(semesterId, departmentId, facultyId, batch, searchPattern, pageable).map(this::mapToResponse);
+        
+        if (isResultsPublished != null && isResultsPublished) {
+            List<CourseOfferingResponse> filtered = offerings.getContent().stream()
+                    .filter(CourseOfferingResponse::isResultsPublished)
+                    .collect(Collectors.toList());
+            return new org.springframework.data.domain.PageImpl<>(filtered, pageable, offerings.getTotalElements());
+        }
+        
+        return offerings;
     }
 
     @Override
@@ -56,6 +67,16 @@ public class CourseOfferingServiceImpl implements CourseOfferingService {
     @Override
     @Transactional
     public CourseOfferingResponse createOffering(CourseOfferingRequest request) {
+        if (courseRepository.count() == 0) {
+            throw new IllegalArgumentException("No courses found. Please create a Course before planning offerings.");
+        }
+        if (semesterRepository.count() == 0) {
+            throw new IllegalArgumentException("No semesters found. Please initialize a Semester before planning offerings.");
+        }
+        if (facultyRepository.count() == 0) {
+            throw new IllegalArgumentException("No faculty members found. Please add Faculty before assigning them to courses.");
+        }
+
         // Validate Duplicate Section
         if (courseOfferingRepository.existsByCourseIdAndSemesterIdAndBatchIdAndSectionId(
                 request.getCourseId(), request.getSemesterId(), request.getBatchId(), request.getSectionId())) {
@@ -125,6 +146,15 @@ public class CourseOfferingServiceImpl implements CourseOfferingService {
         courseOfferingRepository.deleteById(id);
     }
 
+    @Override
+    @Transactional
+    public void approveResults(UUID id) {
+        CourseOffering offering = courseOfferingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Offering not found"));
+        offering.setResultsApproved(true);
+        courseOfferingRepository.save(offering);
+    }
+
     private CourseOfferingResponse mapToResponse(CourseOffering offering) {
         return CourseOfferingResponse.builder()
                 .id(offering.getId())
@@ -138,13 +168,16 @@ public class CourseOfferingServiceImpl implements CourseOfferingService {
                 .facultyId(offering.getFaculty().getId())
                 .departmentId(offering.getCourse().getDepartment().getId())
                 .departmentName(offering.getCourse().getDepartment().getName())
-                .batchId(offering.getBatch().getId())
-                .targetBatch(offering.getBatch().getBatchNumber())
-                .sectionId(offering.getSection().getId())
-                .section(offering.getSection().getName())
+                .batchId(offering.getBatch() != null ? offering.getBatch().getId() : null)
+                .targetBatch(offering.getBatch() != null ? offering.getBatch().getBatchNumber() : "N/A")
+                .sectionId(offering.getSection() != null ? offering.getSection().getId() : null)
+                .section(offering.getSection() != null ? offering.getSection().getName() : "N/A")
                 .scheduleInfo(offering.getScheduleInfo())
                 .seatLimit(offering.getSeatLimit())
-                .enrolledCount(enrollmentRepository.countByOfferingAndStatus(offering, EnrollmentStatus.REGISTERED))
+                .enrolledCount(enrollmentRepository.countByOfferingAndStatusNot(offering, EnrollmentStatus.DROPPED))
+                .isResultsApproved(offering.isResultsApproved())
+                .isResultsPublished(enrollmentRepository.existsByOfferingAndStatus(offering, EnrollmentStatus.COMPLETED))
+                .courseType(offering.getCourse().getCourseType().name())
                 .build();
     }
 }

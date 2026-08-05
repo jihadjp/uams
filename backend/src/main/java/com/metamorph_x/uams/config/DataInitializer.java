@@ -13,6 +13,12 @@ import com.metamorph_x.uams.repository.FeeRepository;
 import com.metamorph_x.uams.model.Student;
 import com.metamorph_x.uams.model.Semester;
 import com.metamorph_x.uams.model.Fee;
+import com.metamorph_x.uams.model.Batch;
+import com.metamorph_x.uams.model.BatchSemesterFee;
+import com.metamorph_x.uams.repository.BatchRepository;
+import com.metamorph_x.uams.repository.BatchSemesterFeeRepository;
+import com.metamorph_x.uams.service.FeeService;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -29,6 +35,9 @@ public class DataInitializer implements CommandLineRunner {
     private final StudentRepository studentRepository;
     private final SemesterRepository semesterRepository;
     private final FeeRepository feeRepository;
+    private final BatchRepository batchRepository;
+    private final BatchSemesterFeeRepository batchSemesterFeeRepository;
+    private final FeeService feeService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -42,9 +51,28 @@ public class DataInitializer implements CommandLineRunner {
         createRoleUser("Academic Registrar", "registrar@uams.edu", "registrar123", UserRole.REGISTRAR);
 
         try {
+            seedBatchFees();
             seedSampleFees();
         } catch (Exception e) {
             log.warn("Could not seed sample fees due to data inconsistency: {}. You may need to reset your database.", e.getMessage());
+        }
+    }
+
+    private void seedBatchFees() {
+        List<Batch> batches = batchRepository.findAll();
+        List<Semester> semesters = semesterRepository.findAll();
+        
+        for (Batch batch : batches) {
+            for (Semester semester : semesters) {
+                if (batchSemesterFeeRepository.findByBatchIdAndSemesterId(batch.getId(), semester.getId()).isEmpty()) {
+                    BatchSemesterFee bsf = BatchSemesterFee.builder()
+                            .batch(batch)
+                            .semester(semester)
+                            .registrationFee(new BigDecimal("15000.00")) // Default 15k
+                            .build();
+                    batchSemesterFeeRepository.save(bsf);
+                }
+            }
         }
     }
 
@@ -62,20 +90,26 @@ public class DataInitializer implements CommandLineRunner {
 
         for (Student student : students) {
             for (Semester semester : semesters) {
-                if (!feeRepository.existsByStudentIdAndSemesterId(student.getId(), semester.getId())) {
-                    Fee fee = Fee.builder()
-                            .student(student)
-                            .semester(semester)
-                            .amountDue(new BigDecimal("75000.00"))
-                            .amountPaid(BigDecimal.ZERO)
-                            .dueDate(semester.getStartDate().plusDays(15))
-                            .status(com.metamorph_x.uams.model.enums.FeeStatus.DUE)
-                            .build();
-                    feeRepository.save(fee);
+                // Use the new sync logic instead of hardcoded building
+                try {
+                    feeService.syncSemesterFee(student.getId(), semester.getId());
+                    
+                    // Optionally simulate a payment of the registration fee so they can register
+                    feeRepository.findByStudent_IdAndSemester_Id(student.getId(), semester.getId()).stream()
+                        .findFirst()
+                        .ifPresent(fee -> {
+                            if (fee.getAmountPaid().compareTo(BigDecimal.ZERO) == 0) {
+                                fee.setAmountPaid(fee.getRegistrationFee());
+                                fee.setStatus(com.metamorph_x.uams.model.enums.FeeStatus.PARTIAL);
+                                feeRepository.save(fee);
+                            }
+                        });
+                } catch (Exception e) {
+                    log.error("Error seeding fee for student {}: {}", student.getStudentId(), e.getMessage());
                 }
             }
         }
-        log.info("Sample fee records seeded for testing.");
+        log.info("Sample fee records seeded for testing using dynamic calculation logic.");
     }
 
     private void createAdmin(String name, String email, String password) {

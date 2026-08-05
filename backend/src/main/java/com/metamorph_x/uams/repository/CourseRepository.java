@@ -13,6 +13,7 @@ import com.metamorph_x.uams.model.Course;
 public interface CourseRepository extends JpaRepository<Course, UUID> {
     Optional<Course> findByCourseCode(String courseCode);
     List<Course> findByDepartmentId(UUID departmentId);
+    long countByDepartmentId(UUID departmentId);
 
     @org.springframework.data.jpa.repository.Query("SELECT c FROM Course c WHERE " +
             "(:search IS NULL OR LOWER(c.title) LIKE :search OR LOWER(c.courseCode) LIKE :search) AND " +

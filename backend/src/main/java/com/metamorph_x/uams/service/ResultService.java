@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.metamorph_x.uams.dto.LiveResultResponse;
 import com.metamorph_x.uams.dto.ResultRequest;
 import com.metamorph_x.uams.dto.ResultResponse;
 
@@ -15,4 +16,10 @@ public interface ResultService {
     List<ResultResponse> calculateFinalResults(UUID offeringId);
     void publishFinalResults(UUID offeringId);
     List<ResultResponse> getTranscript(UUID studentId);
+    List<LiveResultResponse> getLiveResults(UUID studentId, UUID semesterId);
+    List<LiveResultResponse> getOfferingResults(UUID offeringId);
+    List<LiveResultResponse> getMarksMatrix(UUID offeringId);
+    void saveMarksMatrix(UUID offeringId, List<LiveResultResponse> matrix);
+    com.metamorph_x.uams.dto.AcademicResultResponse getAcademicResults(UUID studentId, UUID semesterId);
+    com.metamorph_x.uams.dto.StudentAcademicStandingResponse getStudentAcademicStanding(UUID studentId);
 }

@@ -25,8 +25,11 @@ public class CourseOfferingResponse {
     private String targetBatch; // String representation for UI compatibility
     private UUID sectionId;
     private String section;     // String representation for UI compatibility
-    
+
     private String scheduleInfo;
     private Integer seatLimit;
     private long enrolledCount;
+    private boolean isResultsApproved;
+    private boolean isResultsPublished;
+    private String courseType; // THEORY, LAB, etc.
 }

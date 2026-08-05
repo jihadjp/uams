@@ -14,6 +14,8 @@ public class EnrollmentResponse {
     private UUID id;
     private UUID offeringId;
     private String studentName;
+    private String studentId;
+    private String registrationNo;
     private String courseCode;
     private String courseTitle;
     private BigDecimal creditHours;

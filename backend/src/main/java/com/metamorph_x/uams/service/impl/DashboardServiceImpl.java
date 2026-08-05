@@ -181,7 +181,7 @@ public class DashboardServiceImpl implements DashboardService {
 
         // Real Fee Status - Refined to respect manual clearance
         String feeStatusLabel = student.isRegistrationCleared() ? "Paid" : "Due";
-        List<Fee> fees = feeRepository.findByStudentId(student.getId());
+        List<Fee> fees = feeRepository.findByStudent_Id(student.getId());
         if (!fees.isEmpty()) {
             boolean hasDue = fees.stream().anyMatch(f -> f.getStatus() != FeeStatus.PAID);
             if (!hasDue) feeStatusLabel = "Paid";
@@ -212,13 +212,15 @@ public class DashboardServiceImpl implements DashboardService {
                 .programName(student.getProgram() != null ? student.getProgram().getName() : "N/A")
                 .studentId(student.getStudentId())
                 .registrationNo(student.getRegistrationNo())
+                .batch(student.getBatch() != null ? student.getBatch().getBatchNumber() : "N/A")
+                .batchInitial(student.getBatch() != null ? student.getBatch().getBatchInitial() : "N/A")
                 .email(user.getEmail())
                 .dob(user.getDateOfBirth())
                 .mobile(user.getPhone())
                 .gender(user.getGender())
                 .bloodGroup(user.getBloodGroup())
                 .profileImage(user.getProfileImage())
-                .campus("DSC")
+                .campus("Main Campus")
                 .cgpa(student.getCgpa() != null ? student.getCgpa() : BigDecimal.ZERO)
                 .enrolledCourses(enrolledCount)
                 .attendancePercent(Math.round(attendancePercent * 10.0) / 10.0)

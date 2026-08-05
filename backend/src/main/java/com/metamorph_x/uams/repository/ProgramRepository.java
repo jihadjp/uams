@@ -15,6 +15,7 @@ import com.metamorph_x.uams.model.Program;
 @Repository
 public interface ProgramRepository extends JpaRepository<Program, UUID> {
     List<Program> findByDepartmentId(UUID departmentId);
+    long countByDepartmentId(UUID departmentId);
     List<Program> findByDegreeLevel(String degreeLevel);
 
     @Query("SELECT p FROM Program p WHERE " +

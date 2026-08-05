@@ -10,12 +10,16 @@ import com.metamorph_x.uams.dto.auth.LoginRequest;
 import com.metamorph_x.uams.dto.auth.LoginResponse;
 import com.metamorph_x.uams.dto.auth.RegisterRequest;
 import com.metamorph_x.uams.dto.auth.ChangePasswordRequest;
+import com.metamorph_x.uams.dto.auth.PasswordResetResponse;
 import com.metamorph_x.uams.service.AuthService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,5 +37,11 @@ public class AuthController {
     public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return authService.changePassword(email, request);
+    }
+
+    @PostMapping("/reset-password/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REGISTRAR')")
+    public ResponseEntity<PasswordResetResponse> resetPassword(@PathVariable UUID userId) {
+        return ResponseEntity.ok(authService.resetUserPassword(userId));
     }
 }

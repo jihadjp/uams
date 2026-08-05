@@ -15,6 +15,7 @@ import com.metamorph_x.uams.model.Faculty;
 public interface FacultyRepository extends JpaRepository<Faculty, UUID> {
     Optional<Faculty> findByEmployeeId(String employeeId);
     List<Faculty> findByDepartmentId(UUID departmentId);
+    long countByDepartmentId(UUID departmentId);
     Page<Faculty> findByDepartmentId(UUID departmentId, Pageable pageable);
     Optional<Faculty> findByUserEmail(String email);
     Optional<Faculty> findByUser_Id(UUID userId);

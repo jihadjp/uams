@@ -22,6 +22,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "batches")
@@ -34,10 +36,15 @@ import lombok.Setter;
 public class Batch {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "id", length = 36)
     private UUID id;
 
     @Column(name = "batch_number", nullable = false, length = 20)
     private String batchNumber;
+
+    @Column(name = "batch_initial", nullable = false, length = 10)
+    private String batchInitial;
 
     @ManyToOne
     @JoinColumn(name = "program_id", nullable = false)

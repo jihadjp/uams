@@ -29,8 +29,14 @@ public class FeeController {
     private final FeeService feeService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'REGISTRAR')")
-    public ResponseEntity<Page<FeeResponse>> getAll(Pageable pageable) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'REGISTRAR', 'FACULTY')")
+    public ResponseEntity<Object> getAll(
+            Pageable pageable,
+            @RequestParam(required = false) UUID studentId
+    ) {
+        if (studentId != null) {
+            return ResponseEntity.ok(feeService.getFeesByStudent(studentId));
+        }
         return ResponseEntity.ok(feeService.getAllFees(pageable));
     }
 
@@ -41,7 +47,7 @@ public class FeeController {
     }
 
     @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN', 'REGISTRAR')")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN', 'REGISTRAR', 'FACULTY', 'ADVISOR')")
     public ResponseEntity<List<FeeResponse>> getByStudent(@PathVariable UUID studentId) {
         return ResponseEntity.ok(feeService.getFeesByStudent(studentId));
     }

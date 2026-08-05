@@ -40,6 +40,10 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional
     public CourseResponse createCourse(CourseRequest request) {
+        if (departmentRepository.count() == 0) {
+            throw new IllegalArgumentException("No departments found. Please create a Department before defining courses.");
+        }
+
         Department department = departmentRepository.findById(request.getDepartmentId())
                 .orElseThrow(() -> new RuntimeException("Department not found"));
 
@@ -99,6 +103,7 @@ public class CourseServiceImpl implements CourseService {
     private CourseResponse mapToResponse(Course course) {
         return CourseResponse.builder()
                 .id(course.getId())
+                .departmentId(course.getDepartment().getId())
                 .departmentName(course.getDepartment().getName())
                 .courseCode(course.getCourseCode())
                 .title(course.getTitle())

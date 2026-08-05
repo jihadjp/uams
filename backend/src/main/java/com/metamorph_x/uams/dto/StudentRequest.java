@@ -12,6 +12,7 @@ public class StudentRequest {
     private UUID programId;
     private UUID advisorId;
     private UUID batchId;
+    private UUID sectionId;
     private String guardianName;
     private String guardianPhone;
     private com.metamorph_x.uams.model.enums.GuardianRelation guardianRelation;

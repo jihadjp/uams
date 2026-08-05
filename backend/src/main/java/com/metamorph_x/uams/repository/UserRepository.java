@@ -1,5 +1,7 @@
 package com.metamorph_x.uams.repository;
 
+import com.metamorph_x.uams.model.enums.UserRole;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,4 +14,5 @@ import com.metamorph_x.uams.model.User;
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
+    List<User> findByRole(UserRole role);
 }

@@ -58,6 +58,10 @@ public class FacultyServiceImpl implements FacultyService {
     @Override
     @Transactional
     public FacultyResponse createFaculty(FacultyRequest request) {
+        if (departmentRepository.count() == 0) {
+            throw new IllegalArgumentException("No departments found. Please create a Department before adding faculty.");
+        }
+        
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
@@ -67,6 +71,7 @@ public class FacultyServiceImpl implements FacultyService {
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
+                .phone(request.getPhone())
                 .passwordHash(passwordEncoder.encode(tempPassword))
                 .role(UserRole.FACULTY)
                 .isActive(true)
@@ -92,6 +97,8 @@ public class FacultyServiceImpl implements FacultyService {
                         .department(department)
                         .employeeId(generatedId)
                         .designation(request.getDesignation())
+                        .academicStatus(request.getAcademicStatus() != null ? request.getAcademicStatus() : "ACTIVE")
+                        .administrativePosition(request.getAdministrativePosition())
                         .joinedAt(LocalDate.now())
                         .build();
 
@@ -116,7 +123,10 @@ public class FacultyServiceImpl implements FacultyService {
                 .orElseThrow(() -> new RuntimeException("Faculty not found"));
 
         if (request.getName() != null) faculty.getUser().setName(request.getName());
+        if (request.getPhone() != null) faculty.getUser().setPhone(request.getPhone());
         if (request.getDesignation() != null) faculty.setDesignation(request.getDesignation());
+        if (request.getAcademicStatus() != null) faculty.setAcademicStatus(request.getAcademicStatus());
+        if (request.getAdministrativePosition() != null) faculty.setAdministrativePosition(request.getAdministrativePosition());
         
         if (request.getDepartmentId() != null) {
             Department department = departmentRepository.findById(request.getDepartmentId())
@@ -146,11 +156,15 @@ public class FacultyServiceImpl implements FacultyService {
 
         return FacultyResponse.builder()
                 .id(faculty.getId())
+                .userId(faculty.getUser().getId())
                 .name(faculty.getUser().getName())
                 .email(faculty.getUser().getEmail())
                 .employeeId(faculty.getEmployeeId())
+                .departmentId(faculty.getDepartment().getId())
                 .departmentName(faculty.getDepartment().getName())
                 .designation(faculty.getDesignation())
+                .academicStatus(faculty.getAcademicStatus())
+                .administrativePosition(faculty.getAdministrativePosition())
                 .phone(faculty.getUser().getPhone())
                 .joinedAt(faculty.getJoinedAt())
                 .profileImage(faculty.getUser().getProfileImage())

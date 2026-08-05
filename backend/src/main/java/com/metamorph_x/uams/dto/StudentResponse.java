@@ -13,6 +13,7 @@ import lombok.Data;
 @Builder
 public class StudentResponse {
     private UUID id;
+    private UUID userId;
     private String name;
     private String email;
     private String studentId;
@@ -21,12 +22,19 @@ public class StudentResponse {
     private String programName;
     private UUID advisorId;
     private String advisorName;
+    private String advisorEmail;
+    private String advisorPhone;
+    private String advisorProfileImage;
+    private String advisorDesignation;
     private String guardianName;
     private String guardianPhone;
     private com.metamorph_x.uams.model.enums.GuardianRelation guardianRelation;
     private String guardianOtherRelation;
     private UUID batchId;
     private String batch;
+    private String batchNumber;
+    private UUID sectionId;
+    private String sectionName;
     private Integer currentSemester;
     private BigDecimal cgpa;
     

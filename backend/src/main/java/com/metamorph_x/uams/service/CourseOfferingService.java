@@ -8,9 +8,10 @@ import com.metamorph_x.uams.dto.CourseOfferingRequest;
 import com.metamorph_x.uams.dto.CourseOfferingResponse;
 
 public interface CourseOfferingService {
-    Page<CourseOfferingResponse> getAllOfferings(Pageable pageable, UUID semesterId, UUID departmentId, String batch, String search);
+    Page<CourseOfferingResponse> getAllOfferings(Pageable pageable, UUID semesterId, UUID departmentId, UUID facultyId, String batch, String search, Boolean isResultsPublished);
     CourseOfferingResponse getOfferingById(UUID id);
     CourseOfferingResponse createOffering(CourseOfferingRequest request);
     CourseOfferingResponse updateOffering(UUID id, CourseOfferingRequest request);
     void deleteOffering(UUID id);
+    void approveResults(UUID id);
 }

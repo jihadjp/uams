@@ -10,6 +10,7 @@ import com.metamorph_x.uams.dto.EnrollmentResponse;
 
 public interface EnrollmentService {
     Page<EnrollmentResponse> getAllEnrollments(Pageable pageable);
+    Page<EnrollmentResponse> getEnrollmentsByOffering(UUID offeringId, Pageable pageable);
     List<EnrollmentResponse> getMyEnrollments(UUID studentId);
     List<EnrollmentResponse> getMyEnrollments(UUID studentId, UUID semesterId);
     EnrollmentResponse registerCourse(EnrollmentRequest request);

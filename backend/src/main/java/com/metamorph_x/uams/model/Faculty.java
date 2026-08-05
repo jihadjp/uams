@@ -22,6 +22,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "faculty")
@@ -34,6 +36,8 @@ import lombok.Setter;
 public class Faculty {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "id", length = 36)
     private UUID id;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -49,6 +53,13 @@ public class Faculty {
 
     @Column(nullable = false, length = 50)
     private String designation;
+
+    @Column(name = "academic_status", nullable = false, length = 50)
+    @Builder.Default
+    private String academicStatus = "ACTIVE";
+
+    @Column(name = "administrative_position", length = 100)
+    private String administrativePosition;
 
     @Column(name = "joined_at")
     private LocalDate joinedAt;

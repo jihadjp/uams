@@ -8,5 +8,6 @@ public class DepartmentRequest {
     private String name;
     private String code;
     private String deptNumber;
+    private String facultyDivision;
     private UUID headFacultyId;
 }

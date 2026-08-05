@@ -13,6 +13,8 @@ public class FeeResponse {
     private UUID id;
     private String studentName;
     private String semesterName;
+    private BigDecimal registrationFee;
+    private BigDecimal creditFee;
     private BigDecimal amountDue;
     private BigDecimal amountPaid;
     private FeeStatus status;

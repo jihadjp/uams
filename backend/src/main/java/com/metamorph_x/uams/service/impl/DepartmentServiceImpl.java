@@ -13,6 +13,9 @@ import com.metamorph_x.uams.model.Faculty;
 import com.metamorph_x.uams.repository.DepartmentRepository;
 import com.metamorph_x.uams.repository.FacultyRepository;
 import com.metamorph_x.uams.repository.StudentRepository;
+import com.metamorph_x.uams.repository.ProgramRepository;
+import com.metamorph_x.uams.repository.CourseRepository;
+import com.metamorph_x.uams.repository.NoticeRepository;
 import com.metamorph_x.uams.service.DepartmentService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final FacultyRepository facultyRepository;
     private final StudentRepository studentRepository;
+    private final ProgramRepository programRepository;
+    private final CourseRepository courseRepository;
+    private final NoticeRepository noticeRepository;
 
     @Override
     public Page<DepartmentResponse> getAllDepartments(Pageable pageable, String search) {
@@ -45,6 +51,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .name(request.getName())
                 .code(request.getCode())
                 .deptNumber(request.getDeptNumber())
+                .facultyDivision(request.getFacultyDivision())
                 .build();
 
         if (request.getHeadFacultyId() != null) {
@@ -65,6 +72,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         department.setName(request.getName());
         department.setCode(request.getCode());
         department.setDeptNumber(request.getDeptNumber());
+        department.setFacultyDivision(request.getFacultyDivision());
 
         if (request.getHeadFacultyId() != null) {
             Faculty head = facultyRepository.findById(request.getHeadFacultyId())
@@ -78,6 +86,30 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @Transactional
     public void deleteDepartment(UUID id) {
+        if (!departmentRepository.existsById(id)) {
+            throw new RuntimeException("Department not found");
+        }
+
+        if (facultyRepository.countByDepartmentId(id) > 0) {
+            throw new IllegalArgumentException("Cannot delete department: It has assigned faculty members.");
+        }
+
+        if (programRepository.countByDepartmentId(id) > 0) {
+            throw new IllegalArgumentException("Cannot delete department: It has active academic programs.");
+        }
+
+        if (courseRepository.countByDepartmentId(id) > 0) {
+            throw new IllegalArgumentException("Cannot delete department: It has registered courses.");
+        }
+
+        if (studentRepository.countByProgram_Department_Id(id) > 0) {
+            throw new IllegalArgumentException("Cannot delete department: It has enrolled students.");
+        }
+
+        if (noticeRepository.countByDepartmentId(id) > 0) {
+            throw new IllegalArgumentException("Cannot delete department: It has associated notices.");
+        }
+
         departmentRepository.deleteById(id);
     }
 
@@ -87,6 +119,8 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .name(department.getName())
                 .code(department.getCode())
                 .deptNumber(department.getDeptNumber())
+                .facultyDivision(department.getFacultyDivision())
+                .headFacultyId(department.getHeadFaculty() != null ? department.getHeadFaculty().getId() : null)
                 .headFacultyName(department.getHeadFaculty() != null ? department.getHeadFaculty().getUser().getName() : "Not Assigned")
                 .totalFaculty(department.getFaculties() != null ? department.getFaculties().size() : 0)
                 .totalStudents(studentRepository.countByProgram_Department_Id(department.getId()))

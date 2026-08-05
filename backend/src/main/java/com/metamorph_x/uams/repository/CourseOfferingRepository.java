@@ -34,6 +34,7 @@ public interface CourseOfferingRepository extends JpaRepository<CourseOffering, 
     @Query("SELECT o FROM CourseOffering o WHERE " +
             "(:semesterId IS NULL OR o.semester.id = :semesterId) AND " +
             "(:departmentId IS NULL OR o.course.department.id = :departmentId) AND " +
+            "(:facultyId IS NULL OR o.faculty.id = :facultyId) AND " +
             "(:batch IS NULL OR o.batch.batchNumber = :batch) AND " +
             "(:search IS NULL OR LOWER(o.course.title) LIKE :search OR " +
             "LOWER(o.course.courseCode) LIKE :search OR " +
@@ -41,6 +42,7 @@ public interface CourseOfferingRepository extends JpaRepository<CourseOffering, 
     Page<CourseOffering> findAllFiltered(
             @Param("semesterId") UUID semesterId,
             @Param("departmentId") UUID departmentId,
+            @Param("facultyId") UUID facultyId,
             @Param("batch") String batch,
             @Param("search") String search,
             Pageable pageable

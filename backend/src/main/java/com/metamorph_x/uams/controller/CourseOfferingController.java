@@ -33,10 +33,12 @@ public class CourseOfferingController {
             Pageable pageable,
             @RequestParam(required = false) UUID semesterId,
             @RequestParam(required = false) UUID departmentId,
+            @RequestParam(required = false) UUID facultyId,
             @RequestParam(required = false) String batch,
-            @RequestParam(required = false) String search
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Boolean isResultsPublished
     ) {
-        return ResponseEntity.ok(courseOfferingService.getAllOfferings(pageable, semesterId, departmentId, batch, search));
+        return ResponseEntity.ok(courseOfferingService.getAllOfferings(pageable, semesterId, departmentId, facultyId, batch, search, isResultsPublished));
     }
 
     @GetMapping("/{id}")
@@ -61,5 +63,12 @@ public class CourseOfferingController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         courseOfferingService.deleteOffering(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/approve-results")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REGISTRAR')")
+    public ResponseEntity<Void> approveResults(@PathVariable UUID id) {
+        courseOfferingService.approveResults(id);
+        return ResponseEntity.ok().build();
     }
 }

@@ -14,4 +14,8 @@ public interface FeeService {
     FeeResponse createFee(FeeRequest request);
     FeeResponse payFee(UUID feeId, BigDecimal amount);
     List<FeeResponse> getFeesByStudent(UUID studentId);
+    
+    void syncSemesterFee(UUID studentId, UUID semesterId);
+    boolean isRegistrationPaid(UUID studentId, UUID semesterId);
+    boolean isFullFeePaid(UUID studentId, UUID semesterId);
 }

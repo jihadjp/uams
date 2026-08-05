@@ -10,9 +10,10 @@ import com.metamorph_x.uams.dto.SectionResponse;
 public interface BatchService {
     List<BatchResponse> getAllBatches();
     List<BatchResponse> getBatchesByProgram(UUID programId);
+    List<BatchResponse> getBatchesByDepartment(UUID departmentId);
     BatchResponse createBatch(BatchRequest request);
     void deleteBatch(UUID id);
-    
+
     SectionResponse addSection(SectionRequest request);
     void deleteSection(UUID id);
     List<SectionResponse> getSectionsByBatch(UUID batchId);

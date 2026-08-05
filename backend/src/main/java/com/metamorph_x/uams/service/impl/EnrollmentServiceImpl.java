@@ -25,6 +25,7 @@ import com.metamorph_x.uams.repository.FacultyRepository;
 import com.metamorph_x.uams.repository.StudentRepository;
 import com.metamorph_x.uams.repository.UserRepository;
 import com.metamorph_x.uams.service.EnrollmentService;
+import com.metamorph_x.uams.service.FeeService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,10 +38,16 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final CourseOfferingRepository offeringRepository;
     private final FacultyRepository facultyRepository;
     private final UserRepository userRepository;
+    private final FeeService feeService;
 
     @Override
     public Page<EnrollmentResponse> getAllEnrollments(Pageable pageable) {
         return enrollmentRepository.findAll(pageable).map(this::mapToResponse);
+    }
+
+    @Override
+    public Page<EnrollmentResponse> getEnrollmentsByOffering(UUID offeringId, Pageable pageable) {
+        return enrollmentRepository.findByOfferingIdAndStatusNot(offeringId, EnrollmentStatus.DROPPED, pageable).map(this::mapToResponse);
     }
 
     @Override
@@ -87,6 +94,11 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         CourseOffering offering = offeringRepository.findById(request.getOfferingId())
                 .orElseThrow(() -> new RuntimeException("Course offering not found"));
 
+        // 0.1 Registration Fee Check
+        if (!feeService.isRegistrationPaid(student.getId(), offering.getSemester().getId())) {
+            throw new RuntimeException("Registration blocked: Semester registration fee not paid.");
+        }
+
         // 1. Deadline Check
         LocalDate now = LocalDate.now();
         if (now.isAfter(offering.getSemester().getRegistrationDeadline())) {
@@ -102,7 +114,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         }
 
         // 3. Seat Limit Check
-        long enrolledCount = enrollmentRepository.countByOfferingAndStatus(offering, EnrollmentStatus.REGISTERED);
+        long enrolledCount = enrollmentRepository.countByOfferingAndStatusNot(offering, EnrollmentStatus.DROPPED);
         if (enrolledCount >= offering.getSeatLimit()) {
             throw new RuntimeException("This section is full");
         }
@@ -135,7 +147,10 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .enrollmentType(request.getEnrollmentType() != null ? request.getEnrollmentType() : com.metamorph_x.uams.model.enums.EnrollmentType.REGULAR)
                 .build();
 
-        return mapToResponse(enrollmentRepository.save(enrollment));
+        Enrollment saved = enrollmentRepository.save(enrollment);
+        feeService.syncSemesterFee(student.getId(), offering.getSemester().getId());
+
+        return mapToResponse(saved);
     }
 
     @Override
@@ -161,6 +176,17 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new RuntimeException("Enrollment not found"));
 
+        // Deadline Check
+        LocalDate now = LocalDate.now();
+        LocalDate deadline = enrollment.getOffering().getSemester().getAddDropDeadline();
+        if (deadline == null) {
+            deadline = enrollment.getOffering().getSemester().getRegistrationDeadline();
+        }
+
+        if (now.isAfter(deadline)) {
+            throw new RuntimeException("Add/Drop deadline has passed for this semester");
+        }
+
         // Security Check: If faculty, must be the student's advisor
         if (currentUser.getRole() == com.metamorph_x.uams.model.enums.UserRole.FACULTY) {
             Faculty faculty = facultyRepository.findByUserEmail(email)
@@ -172,7 +198,10 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         }
         
         enrollment.setStatus(EnrollmentStatus.DROPPED);
-        return mapToResponse(enrollmentRepository.save(enrollment));
+        Enrollment saved = enrollmentRepository.save(enrollment);
+        feeService.syncSemesterFee(enrollment.getStudent().getId(), enrollment.getOffering().getSemester().getId());
+
+        return mapToResponse(saved);
     }
 
     @Override
@@ -186,6 +215,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .id(enrollment.getId())
                 .offeringId(enrollment.getOffering().getId())
                 .studentName(enrollment.getStudent().getUser().getName())
+                .studentId(enrollment.getStudent().getStudentId())
+                .registrationNo(enrollment.getStudent().getRegistrationNo())
                 .courseCode(enrollment.getOffering().getCourse().getCourseCode())
                 .courseTitle(enrollment.getOffering().getCourse().getTitle())
                 .creditHours(enrollment.getOffering().getCourse().getCreditHours())

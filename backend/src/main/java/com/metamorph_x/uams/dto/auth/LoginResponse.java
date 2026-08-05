@@ -18,5 +18,6 @@ public class LoginResponse {
     private UserRole role;
     private UUID userId;
     private String name;
+    private String profileImage;
     private boolean mustChangePassword;
 }

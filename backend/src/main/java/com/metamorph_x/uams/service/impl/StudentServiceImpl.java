@@ -19,12 +19,14 @@ import com.metamorph_x.uams.model.Batch;
 import com.metamorph_x.uams.model.Faculty;
 import com.metamorph_x.uams.model.Guardian;
 import com.metamorph_x.uams.model.Program;
+import com.metamorph_x.uams.model.Section;
 import com.metamorph_x.uams.model.Student;
 import com.metamorph_x.uams.model.User;
 import com.metamorph_x.uams.model.enums.UserRole;
 import com.metamorph_x.uams.repository.BatchRepository;
 import com.metamorph_x.uams.repository.FacultyRepository;
 import com.metamorph_x.uams.repository.ProgramRepository;
+import com.metamorph_x.uams.repository.SectionRepository;
 import com.metamorph_x.uams.repository.StudentRepository;
 import com.metamorph_x.uams.repository.UserRepository;
 import com.metamorph_x.uams.service.PasswordGeneratorService;
@@ -41,6 +43,7 @@ public class StudentServiceImpl implements StudentService {
     private final FacultyRepository facultyRepository;
     private final UserRepository userRepository;
     private final BatchRepository batchRepository;
+    private final SectionRepository sectionRepository;
     private final PasswordEncoder passwordEncoder;
     private final StudentIdGeneratorServiceImpl idGeneratorService;
     private final PasswordGeneratorService passwordGeneratorService;
@@ -70,6 +73,13 @@ public class StudentServiceImpl implements StudentService {
     @Override
     @Transactional
     public StudentResponse createStudent(StudentRequest request) {
+        if (programRepository.count() == 0) {
+            throw new IllegalArgumentException("No programs found. Please create a Program before registering a student.");
+        }
+        if (batchRepository.count() == 0) {
+            throw new IllegalArgumentException("No batches found. Please create a Batch before registering a student.");
+        }
+
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
@@ -104,7 +114,7 @@ public class StudentServiceImpl implements StudentService {
                     .orElseThrow(() -> new RuntimeException("Faculty advisor not found"));
         }
 
-        Map<String, String> ids = idGeneratorService.generateStudentIds(batch.getBatchNumber(), program.getDepartment().getId());
+        Map<String, String> ids = idGeneratorService.generateStudentIds(batch.getBatchInitial(), program.getDepartment().getId());
 
         Guardian guardian = null;
         if (request.getGuardianName() != null && !request.getGuardianName().isEmpty()) {
@@ -213,6 +223,23 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     @Transactional
+    public StudentResponse updateSection(UUID id, UUID sectionId) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+        
+        Section section = sectionRepository.findById(sectionId)
+                .orElseThrow(() -> new RuntimeException("Section not found"));
+        
+        if (!section.getBatch().getId().equals(student.getBatch().getId())) {
+            throw new IllegalArgumentException("Section does not belong to student's batch");
+        }
+        
+        student.setSection(section);
+        return mapToResponse(studentRepository.save(student));
+    }
+
+    @Override
+    @Transactional
     public void deleteStudent(UUID id) {
         studentRepository.deleteById(id);
     }
@@ -233,7 +260,7 @@ public class StudentServiceImpl implements StudentService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Batch not found for this program. Please contact admin."));
 
-        Map<String, String> ids = idGeneratorService.generateStudentIds(batchStr, program.getDepartment().getId());
+        Map<String, String> ids = idGeneratorService.generateStudentIds(batch.getBatchInitial(), program.getDepartment().getId());
 
         Student student = Student.builder()
                 .user(user)
@@ -249,8 +276,14 @@ public class StudentServiceImpl implements StudentService {
     }
 
     private StudentResponse mapToResponse(Student student) {
+        String batchStr = "N/A";
+        if (student.getBatch() != null) {
+            batchStr = student.getBatch().getBatchNumber() + " (" + student.getBatch().getBatchInitial() + ")";
+        }
+
         return StudentResponse.builder()
                 .id(student.getId())
+                .userId(student.getUser().getId())
                 .name(student.getUser().getName())
                 .email(student.getUser().getEmail())
                 .studentId(student.getStudentId())
@@ -259,8 +292,15 @@ public class StudentServiceImpl implements StudentService {
                 .programName(student.getProgram() != null ? student.getProgram().getName() : "N/A")
                 .advisorId(student.getAdvisor() != null ? student.getAdvisor().getId() : null)
                 .advisorName(student.getAdvisor() != null ? student.getAdvisor().getUser().getName() : "NOT ASSIGNED")
+                .advisorEmail(student.getAdvisor() != null ? student.getAdvisor().getUser().getEmail() : null)
+                .advisorPhone(student.getAdvisor() != null ? student.getAdvisor().getUser().getPhone() : null)
+                .advisorProfileImage(student.getAdvisor() != null ? student.getAdvisor().getUser().getProfileImage() : null)
+                .advisorDesignation(student.getAdvisor() != null ? student.getAdvisor().getDesignation() : null)
                 .batchId(student.getBatch() != null ? student.getBatch().getId() : null)
-                .batch(student.getBatch() != null ? student.getBatch().getBatchNumber() : "N/A")
+                .batch(batchStr)
+                .batchNumber(student.getBatch() != null ? student.getBatch().getBatchNumber() : null)
+                .sectionId(student.getSection() != null ? student.getSection().getId() : null)
+                .sectionName(student.getSection() != null ? student.getSection().getName() : "NOT ASSIGNED")
                 .currentSemester(student.getCurrentSemester())
                 .cgpa(student.getCgpa())
                 .isRegistrationCleared(student.isRegistrationCleared())

@@ -26,6 +26,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "fees", uniqueConstraints = {
@@ -40,6 +42,8 @@ import lombok.Setter;
 public class Fee {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "id", length = 36)
     private UUID id;
 
     @ManyToOne
@@ -49,6 +53,14 @@ public class Fee {
     @ManyToOne
     @JoinColumn(name = "semester_id", nullable = false)
     private Semester semester;
+
+    @Column(name = "registration_fee", nullable = false, precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal registrationFee = BigDecimal.ZERO;
+
+    @Column(name = "credit_fee", nullable = false, precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal creditFee = BigDecimal.ZERO;
 
     @Column(name = "amount_due", nullable = false, precision = 10, scale = 2)
     private BigDecimal amountDue;

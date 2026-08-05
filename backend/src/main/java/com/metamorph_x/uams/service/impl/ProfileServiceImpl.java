@@ -73,9 +73,12 @@ public class ProfileServiceImpl implements ProfileService {
                 
                 // Advisor Details (Mentor)
                 if (s.getAdvisor() != null && s.getAdvisor().getUser() != null) {
+                    studentData.put("advisorId", s.getAdvisor().getId());
                     studentData.put("advisorName", s.getAdvisor().getUser().getName());
                     studentData.put("advisorEmail", s.getAdvisor().getUser().getEmail());
                     studentData.put("advisorPhone", s.getAdvisor().getUser().getPhone());
+                    studentData.put("advisorProfileImage", s.getAdvisor().getUser().getProfileImage());
+                    studentData.put("advisorDesignation", s.getAdvisor().getDesignation());
                 }
 
                 if (s.getProgram() != null) {

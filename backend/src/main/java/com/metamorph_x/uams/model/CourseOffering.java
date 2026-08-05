@@ -23,6 +23,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "course_offerings")
@@ -35,6 +37,8 @@ import lombok.Setter;
 public class CourseOffering {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "id", length = 36)
     private UUID id;
 
     @ManyToOne
@@ -64,6 +68,9 @@ public class CourseOffering {
 
     @Column(name = "seat_limit", nullable = false)
     private Integer seatLimit = 40;
+
+    @Column(name = "is_results_approved", nullable = false)
+    private boolean isResultsApproved = false;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

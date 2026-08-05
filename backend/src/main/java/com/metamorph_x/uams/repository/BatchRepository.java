@@ -7,5 +7,6 @@ import com.metamorph_x.uams.model.Batch;
 
 public interface BatchRepository extends JpaRepository<Batch, UUID> {
     List<Batch> findByProgramId(UUID programId);
+    List<Batch> findByProgram_DepartmentId(UUID departmentId);
     boolean existsByBatchNumberAndProgramId(String batchNumber, UUID programId);
 }

@@ -9,11 +9,15 @@ import lombok.Data;
 @Builder
 public class FacultyResponse {
     private UUID id;
+    private UUID userId;
     private String name;
     private String email;
     private String employeeId;
+    private UUID departmentId;
     private String departmentName;
     private String designation;
+    private String academicStatus;
+    private String administrativePosition;
     private String phone;
     private LocalDate joinedAt;
     private String temporaryPassword;

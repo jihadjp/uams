@@ -10,6 +10,7 @@ import lombok.Data;
 public class ExamRequest {
     private UUID offeringId;
     private ExamType examType;
+    private String title;
     private LocalDate examDate;
     private BigDecimal totalMarks;
     private BigDecimal weightPercent;

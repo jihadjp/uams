@@ -10,6 +10,7 @@ import lombok.Data;
 @Builder
 public class AttendanceResponse {
     private UUID id;
+    private UUID enrollmentId;
     private String studentName;
     private LocalDate classDate;
     private AttendanceStatus status;

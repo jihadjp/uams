@@ -14,6 +14,7 @@ public class ExamResponse {
     private String courseTitle;
     private String section;
     private ExamType examType;
+    private String title;
     private LocalDate examDate;
     private BigDecimal totalMarks;
     private BigDecimal weightPercent;

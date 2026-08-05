@@ -23,7 +23,13 @@ public class EnrollmentController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'REGISTRAR', 'FACULTY')")
-    public ResponseEntity<Page<EnrollmentResponse>> getAll(Pageable pageable) {
+    public ResponseEntity<Page<EnrollmentResponse>> getAll(
+            Pageable pageable,
+            @RequestParam(required = false) UUID offeringId
+    ) {
+        if (offeringId != null) {
+            return ResponseEntity.ok(enrollmentService.getEnrollmentsByOffering(offeringId, pageable));
+        }
         return ResponseEntity.ok(enrollmentService.getAllEnrollments(pageable));
     }
 

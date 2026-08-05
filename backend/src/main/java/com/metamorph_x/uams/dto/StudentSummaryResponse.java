@@ -21,6 +21,8 @@ public class StudentSummaryResponse {
     private String programName;
     private String studentId;    // The long 16-digit ID
     private String registrationNo;  // The formatted ID (e.g., 242-15-319)
+    private String batch;
+    private String batchInitial;
     private String email;
     private LocalDate dob;
     private String mobile;

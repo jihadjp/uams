@@ -11,5 +11,7 @@ public class FacultyRequest {
     private UUID departmentId;
     private String employeeId;
     private String designation;
+    private String academicStatus;
+    private String administrativePosition;
     private String phone;
 }

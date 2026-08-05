@@ -12,6 +12,7 @@ import com.metamorph_x.uams.model.Result;
 @Repository
 public interface ResultRepository extends JpaRepository<Result, UUID> {
     List<Result> findByEnrollmentId(UUID enrollmentId);
+    Optional<Result> findByEnrollmentIdAndIsFinalResult(UUID enrollmentId, boolean isFinalResult);
     List<Result> findByExamId(UUID examId);
     List<Result> findByEnrollment_Student_IdAndIsFinalResult(UUID studentId, boolean isFinalResult);
     Optional<Result> findByEnrollmentIdAndExamId(UUID enrollmentId, UUID examId);

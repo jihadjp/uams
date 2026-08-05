@@ -41,8 +41,19 @@ public class BatchServiceImpl implements BatchService {
     }
 
     @Override
+    public List<BatchResponse> getBatchesByDepartment(UUID departmentId) {
+        return batchRepository.findByProgram_DepartmentId(departmentId).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public BatchResponse createBatch(BatchRequest request) {
+        if (programRepository.count() == 0) {
+            throw new IllegalArgumentException("No programs found. Please create a Program before defining batches.");
+        }
+
         if (batchRepository.existsByBatchNumberAndProgramId(request.getBatchNumber(), request.getProgramId())) {
             throw new IllegalArgumentException("Batch already exists for this program");
         }
@@ -50,8 +61,18 @@ public class BatchServiceImpl implements BatchService {
         Program program = programRepository.findById(request.getProgramId())
                 .orElseThrow(() -> new ResourceNotFoundException("Program not found"));
 
+        // Logic: 2024 Spring -> 241, Summer -> 242, Fall -> 243
+        int yearCode = request.getAdmissionYear() % 100;
+        int termCode = switch (request.getTerm()) {
+            case SPRING -> 1;
+            case SUMMER -> 2;
+            case FALL -> 3;
+        };
+        String batchInitial = String.valueOf(yearCode * 10 + termCode);
+
         Batch batch = Batch.builder()
                 .batchNumber(request.getBatchNumber())
+                .batchInitial(batchInitial)
                 .program(program)
                 .build();
 
@@ -97,9 +118,10 @@ public class BatchServiceImpl implements BatchService {
         return BatchResponse.builder()
                 .id(batch.getId())
                 .batchNumber(batch.getBatchNumber())
-                .programId(batch.getProgram().getId())
-                .programName(batch.getProgram().getName())
-                .sections(batch.getSections().stream().map(this::mapToSectionResponse).collect(Collectors.toList()))
+                .batchInitial(batch.getBatchInitial())
+                .programId(batch.getProgram() != null ? batch.getProgram().getId() : null)
+                .programName(batch.getProgram() != null ? batch.getProgram().getName() : "N/A")
+                .sections(batch.getSections() != null ? batch.getSections().stream().map(this::mapToSectionResponse).collect(Collectors.toList()) : new java.util.ArrayList<>())
                 .build();
     }
 

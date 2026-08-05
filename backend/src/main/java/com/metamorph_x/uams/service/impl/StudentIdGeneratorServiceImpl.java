@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.metamorph_x.uams.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,22 +26,23 @@ public class StudentIdGeneratorServiceImpl {
     private String campusCode;
 
     @Transactional
-    public Map<String, String> generateStudentIds(String batch, UUID departmentId) {
+    public Map<String, String> generateStudentIds(String batchInitial, UUID departmentId) {
         Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(() -> new RuntimeException("Department not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
         String deptCode = department.getDeptNumber();
-        String prefix = batch + "-" + deptCode + "-";
+        String prefix = batchInitial + "-" + deptCode + "-";
         
         long count = studentRepository.countByRegistrationNoStartingWith(prefix);
         String serial = String.format("%03d", count + 1);
         
         String registrationNo = prefix + serial;
         
-        // 16-digit ID: 0 + Batch(4) + Dept(2) + Campus(3) + Serial(6)
-        String batchPadded = String.format("%04d", Integer.parseInt(batch));
+        // 16-digit ID: 0 + BatchInitial(3) + Dept(2) + Campus(3) + Serial(7)
+        // Adjusting padding for 3-digit batch initial
+        String batchPadded = String.format("%03d", Integer.parseInt(batchInitial));
         String deptPadded = String.format("%02d", Integer.parseInt(deptCode));
-        String serialPadded = String.format("%06d", count + 1);
+        String serialPadded = String.format("%07d", count + 1);
         
         String studentId = "0" + batchPadded + deptPadded + campusCode + serialPadded;
         

@@ -10,6 +10,7 @@ import lombok.Data;
 public class BatchResponse {
     private UUID id;
     private String batchNumber;
+    private String batchInitial;
     private UUID programId;
     private String programName;
     private List<SectionResponse> sections;

@@ -80,6 +80,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     private AttendanceResponse mapToResponse(Attendance attendance) {
         return AttendanceResponse.builder()
                 .id(attendance.getId())
+                .enrollmentId(attendance.getEnrollment().getId())
                 .studentName(attendance.getEnrollment().getStudent().getUser().getName())
                 .classDate(attendance.getClassDate())
                 .status(attendance.getStatus())

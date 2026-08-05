@@ -13,6 +13,7 @@ import com.metamorph_x.uams.dto.auth.LoginRequest;
 import com.metamorph_x.uams.dto.auth.LoginResponse;
 import com.metamorph_x.uams.dto.auth.RegisterRequest;
 import com.metamorph_x.uams.dto.auth.ChangePasswordRequest;
+import com.metamorph_x.uams.dto.auth.PasswordResetResponse;
 import com.metamorph_x.uams.exception.DuplicateResourceException;
 import com.metamorph_x.uams.exception.ResourceNotFoundException;
 import com.metamorph_x.uams.model.User;
@@ -20,8 +21,11 @@ import com.metamorph_x.uams.model.enums.UserRole;
 import com.metamorph_x.uams.repository.UserRepository;
 import com.metamorph_x.uams.security.JwtUtil;
 import com.metamorph_x.uams.service.AuthService;
+import com.metamorph_x.uams.service.PasswordGeneratorService;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final PasswordGeneratorService passwordGeneratorService;
 
     @Override
     public ResponseEntity<LoginResponse> login(LoginRequest request) {
@@ -51,6 +56,7 @@ public class AuthServiceImpl implements AuthService {
                 .role(user.getRole())
                 .userId(user.getId())
                 .name(user.getName())
+                .profileImage(user.getProfileImage())
                 .mustChangePassword(user.isMustChangePassword())
                 .build());
     }
@@ -94,5 +100,21 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         return ResponseEntity.ok("User registered successfully. Please login to complete your profile.");
+    }
+
+    @Override
+    @Transactional
+    public PasswordResetResponse resetUserPassword(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        String tempPassword = passwordGeneratorService.generateRandomPassword(10);
+        user.setPasswordHash(passwordEncoder.encode(tempPassword));
+        user.setMustChangePassword(true);
+        userRepository.save(user);
+
+        return PasswordResetResponse.builder()
+                .temporaryPassword(tempPassword)
+                .build();
     }
 }

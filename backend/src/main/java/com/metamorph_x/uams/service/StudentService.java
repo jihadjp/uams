@@ -16,5 +16,6 @@ public interface StudentService {
     StudentResponse completeProfile(UUID userId, UUID programId, String batch);
     StudentResponse updateRegistrationClearance(UUID id, boolean isCleared);
     StudentResponse updateLaptopStatus(UUID id, boolean hasReceived);
+    StudentResponse updateSection(UUID id, UUID sectionId);
     void deleteStudent(UUID id);
 }

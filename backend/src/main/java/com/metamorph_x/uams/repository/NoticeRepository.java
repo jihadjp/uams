@@ -13,6 +13,7 @@ import com.metamorph_x.uams.model.enums.NoticeTargetRole;
 public interface NoticeRepository extends JpaRepository<Notice, UUID> {
     List<Notice> findByTargetRole(NoticeTargetRole targetRole);
     List<Notice> findByDepartmentId(UUID departmentId);
+    long countByDepartmentId(UUID departmentId);
 
     List<Notice> findByTargetRoleInOrderByCreatedAtDesc(java.util.Collection<com.metamorph_x.uams.model.enums.NoticeTargetRole> targetRoles);
 
