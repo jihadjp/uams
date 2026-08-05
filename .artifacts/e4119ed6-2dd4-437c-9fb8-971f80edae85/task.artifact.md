@@ -1,12 +1,10 @@
-# Tasks - Convocation Eligibility Enforcement
-
-- [x] **Backend Implementation**
-    - [x] Update `StudentAcademicStandingResponse` DTO to include `requiredCredits`
-    - [x] Update `ResultServiceImpl` to populate `requiredCredits` from student's program
-- [x] **Frontend Implementation**
-    - [x] Update `ConvocationApplication.jsx` to fetch and store `requiredCredits`
-    - [x] Implement eligibility check logic (CGPA >= 2.50 and Credits >= Required)
-    - [x] Add "Not Eligible" UI state with descriptive messaging
+- [x] **FeeController Updates**
+    - [x] Add `FACULTY` role to `getAll` endpoint (which handles `studentId` param)
+    - [x] Add `FACULTY` role to `getByStudent` endpoint
+- [x] **Global Exception Handler Updates**
+    - [x] Add `@ExceptionHandler` for `AccessDeniedException`
+- [x] **SecurityConfig Updates**
+    - [x] Add `.accessDeniedHandler` to the security filter chain
 - [x] **Verification**
-    - [x] Verify that ineligible students are blocked with the correct message
-    - [x] Verify that eligible students can still apply
+    - [x] Verify Faculty can now access student fee data
+    - [x] Verify 403 status for unauthorized access

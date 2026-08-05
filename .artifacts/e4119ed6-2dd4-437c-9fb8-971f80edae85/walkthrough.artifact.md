@@ -1,30 +1,25 @@
-# Walkthrough - Convocation Eligibility Enforcement
+# Walkthrough - Resolved Fee Access and Security Exception Handling
 
-I have implemented the academic eligibility logic for convocation applications. The system now automatically checks if a student meets the university's graduation criteria before allowing them to apply.
+I have updated the backend security configuration and error handling to ensure Faculty members (Advisors) can view student fee information and that all security violations are reported with the correct HTTP status.
 
 ## Changes Made
 
-### 1. Backend: Enhanced Academic Standing
-- **DTO Update**: Added `requiredCredits` to the [StudentAcademicStandingResponse](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/dto/StudentAcademicStandingResponse.java) DTO.
-- **Service Logic**: Updated [ResultServiceImpl](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/ResultServiceImpl.java) to fetch the total credits required for a student's specific degree program. This allows the system to accurately determine if all credits have been completed.
+### 1. Fee Access for Faculty
+- **Permission Grant**: Updated [FeeController](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/controller/FeeController.java) to allow the `FACULTY` role to access:
+    - `GET /api/fees` (with `studentId` query parameter).
+    - `GET /api/fees/student/{studentId}` (direct path).
+- **Impact**: This resolves the "Access Denied" error previously encountered by Advisors when viewing a student's registration status.
 
-### 2. Frontend: Automated Eligibility Check
-- **Eligibility Logic**: Updated [ConvocationApplication.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/ConvocationApplication.jsx) to enforce two strict rules:
-    1.  **Minimum CGPA**: The student's CGPA must be **2.50 or higher**.
-    2.  **Credit Completion**: The student must have completed **100% of the credits** required for their program.
-- **Ineligibility UI**: If a student does not meet these criteria, the application form is replaced with a clear **"Application Blocked"** screen.
-    - It displays the specific reasons why they are not eligible (e.g., current CGPA vs. required CGPA).
-    - It shows the total credits completed vs. the total credits required.
-- **Maintenance**: Students can still view their application history or edit an existing pending application even if their current standing fluctuates.
+### 2. Improved Security Exception Handling
+- **Graceful Error Reporting**: Updated [GlobalExceptionHandler](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/exception/GlobalExceptionHandler.java) to specifically handle `AccessDeniedException`.
+- **Status Change**: Security violations will now return a **403 Forbidden** status with a descriptive JSON message instead of a generic **500 Internal Server Error**.
+- **Global Filter Security**: Added an `accessDeniedHandler` to [SecurityConfig](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/security/SecurityConfig.java) to handle unauthorized access attempts at the filter chain level.
 
 ## Verification Results
 
-### Logic Enforcement:
-- **Low CGPA**: Verified that a student with a CGPA of 2.49 is blocked from applying and sees a "Minimum CGPA 2.50 required" message.
-- **Incomplete Credits**: Verified that a student who has completed 130/140 credits is blocked and told they must complete all 140 credits.
-- **Full Eligibility**: Verified that students meeting both criteria can access the application form without any restrictions.
+### Backend Security Test:
+1.  **Faculty Access**: Verified that users with the `FACULTY` role can now successfully retrieve student fee data (HTTP 200).
+2.  **Error Status**: Verified that attempting to access a restricted resource now returns a **403 Forbidden** status with the message: *"Access Denied: You do not have permission to access this resource."*
 
-## Criteria Summary
-> [!IMPORTANT]
-> - **Required CGPA**: ≥ 2.50
-> - **Required Credits**: 100% Completion (matches Program's total credits).
+### UI Impact:
+- The Advisor Registration page should now load the student's fee summary without any red error notifications.

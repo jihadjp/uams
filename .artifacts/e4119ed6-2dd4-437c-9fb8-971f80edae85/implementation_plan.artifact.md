@@ -1,36 +1,32 @@
-# Implementation Plan - Convocation Eligibility Logic
+# Implementation Plan - Resolve Fee Access and Security Exception Handling
 
-Update the convocation application process to enforce strict academic eligibility criteria. Students must have completed all required credits for their program and maintained a minimum CGPA of 2.50 to be eligible to apply.
+The goal is to allow Faculty/Advisors to access student fee records and ensure that any security violations return a proper `403 Forbidden` status instead of a `500 Internal Server Error`.
+
+## User Review Required
+
+> [!IMPORTANT]
+> The role name used in the system is `FACULTY`. In the frontend, these users act as Advisors. I will grant access to the `FACULTY` role to satisfy the requirement for "ADVISOR" access.
 
 ## Proposed Changes
 
 ### Backend Enhancements
 
-#### [MODIFY] [StudentAcademicStandingResponse.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/dto/StudentAcademicStandingResponse.java)
-- Add `private BigDecimal requiredCredits;` to the DTO.
+#### [MODIFY] [FeeController.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/controller/FeeController.java)
+- Update `@PreAuthorize` on `/student/{studentId}` to include the `FACULTY` role.
+- Update `@PreAuthorize` on the main `GET /api/fees` (which also handles `?studentId=...`) to include the `FACULTY` role.
 
-#### [MODIFY] [ResultServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/ResultServiceImpl.java)
-- In `getStudentAcademicStanding`, fetch the student's `Program` to get its `totalCredits`.
-- Populate the `requiredCredits` field in the response.
+#### [MODIFY] [GlobalExceptionHandler.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/exception/GlobalExceptionHandler.java)
+- Add an `@ExceptionHandler` for `org.springframework.security.access.AccessDeniedException`.
+- Ensure it returns `HttpStatus.FORBIDDEN (403)` with a clear "Access Denied" message.
+
+#### [MODIFY] [SecurityConfig.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/security/SecurityConfig.java)
+- (Optional but recommended) Add an `accessDeniedHandler` to the `SecurityFilterChain` for cases where the exception is thrown before reaching the controller (though the `GlobalExceptionHandler` usually covers method-level security).
 
 ---
-
-### Frontend Enhancements
-
-#### [MODIFY] [ConvocationApplication.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/ConvocationApplication.jsx)
-- Update `fetchInitialStanding` to store `requiredCredits` from the API response.
-- Add an `eligibility` state to track if the student meets both criteria:
-    - `cgpa >= 2.50`
-    - `creditsCompleted >= requiredCredits`
-- If ineligible:
-    - Replace the application form with a clear message: **"You are not eligible to apply for convocation."**
-    - Show specific reasons (e.g., "Minimum CGPA 2.50 required" or "All credits must be completed").
-- Ensure the eligibility check is also performed in the `history` view if needed, or simply prevent new applications.
 
 ## Verification Plan
 
 ### Manual Verification
-1.  **Ineligible (Low CGPA)**: Use a student account with CGPA < 2.50. Navigate to Convocation. Verify the "Not Eligible" message appears.
-2.  **Ineligible (Incomplete Credits)**: Use a student account with `creditsCompleted < requiredCredits`. Verify the "Not Eligible" message appears.
-3.  **Eligible**: Use a student account that meets both criteria. Verify the application form is accessible.
-4.  **Application History**: Verify that existing applications (if any) are still visible even if the student's current status changes.
+1.  **Faculty Access**: Log in as a Faculty member. Try to access `GET /api/fees/student/{id}`. Verify it returns `200 OK`.
+2.  **Forbidden Access**: Log in as a Student. Try to access an Admin-only endpoint (e.g., `POST /api/fees`). Verify it returns `403 Forbidden` with a JSON error body instead of a `500`.
+3.  **Advisor Registration UI**: Navigate to the Advisor Registration page in the frontend and verify the fee summary loads without errors.

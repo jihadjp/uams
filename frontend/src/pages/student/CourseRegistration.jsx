@@ -19,6 +19,7 @@ import {
 } from '../../api/enrollmentApi';
 import { getActiveSemester, getSemesters } from '../../api/semesterApi';
 import { getMyProfile } from '../../api/profileApi';
+import { getMyFees } from '../../api/feeApi';
 import client from '../../api/client';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
@@ -66,7 +67,7 @@ const CourseRegistration = () => {
             if (sId) {
                 const [myRes, feeRes] = await Promise.all([
                     getMyEnrollments(sId, semester?.id),
-                    client.get(`/fees`, { params: { studentId: sId } })
+                    getMyFees(sId)
                 ]);
 
                 if (semester) {

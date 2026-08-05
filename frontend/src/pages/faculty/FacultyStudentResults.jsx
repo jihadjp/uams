@@ -88,14 +88,14 @@ const FacultyStudentResults = () => {
   }, [selectedOfferingId]);
 
   const handleSort = (key) => {
-    setSortSortConfig(prev => ({
+    setSortConfig(prev => ({
       key,
       direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
     }));
   };
 
   const filteredResults = results.filter(r =>
-    r.studentName.toLowerCase().includes(search.toLowerCase())
+    (r.studentName || "").toLowerCase().includes(search.toLowerCase())
   ).sort((a, b) => {
     const valA = a[sortConfig.key];
     const valB = b[sortConfig.key];
@@ -186,9 +186,9 @@ const FacultyStudentResults = () => {
                   <td className="px-6 py-5">
                     <div className="flex items-center space-x-3">
                        <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 font-black text-[10px]">
-                          {r.studentName.charAt(0)}
+                          {r.studentName?.charAt(0) || '?'}
                        </div>
-                       <span className="font-bold text-gray-700 dark:text-gray-200">{r.studentName}</span>
+                       <span className="font-bold text-gray-700 dark:text-gray-200">{r.studentName || 'Unknown Student'}</span>
                     </div>
                   </td>
                   <td className="px-6 py-5 text-center font-black text-indigo-600 dark:text-indigo-400">{r.attendancePercentage}%</td>

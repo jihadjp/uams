@@ -6,7 +6,6 @@ import {
   GraduationCap,
   BookOpen,
   TrendingUp,
-  UserSquare2,
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -53,66 +52,60 @@ const AdviseeList = () => {
     return (
         <div className="h-[60vh] flex flex-col items-center justify-center gap-3">
           <Loader size="lg" />
-          <p className="text-sm font-medium text-slate-400 dark:text-white/30 animate-pulse">Loading advisees...</p>
+          <p className="text-xs sm:text-sm font-bold text-slate-400 animate-pulse uppercase tracking-[0.2em]">
+            Loading advisees...
+          </p>
         </div>
     );
 
   return (
-      <div className="space-y-8 pb-12 max-w-7xl mx-auto">
-        {/* Header - Royal Bengal style */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-[#007A55] to-[#00956A] text-white shadow-lg shadow-emerald-700/20 border border-emerald-600/10">
-              <Users size={24} />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">My Advisees</h1>
-              <p className="text-sm font-medium text-slate-500 dark:text-white/40 mt-0.5">
-                Student mentorship & academic advising — Royal Bengal University
-              </p>
-            </div>
-          </div>
-
-          <div className="relative group w-full md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-white/30 group-focus-within:text-[#007A55] transition-colors" size={18} />
+      <div className="w-full px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 pb-20 pt-4">
+        {/* Top Action Bar (Search Bar) */}
+        <div className="flex justify-end">
+          <div className="relative group w-full sm:w-80">
+            <Search
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-white/30 group-focus-within:text-[#007A55] transition-colors"
+                size={17}
+            />
             <input
                 type="text"
                 placeholder="Search by name or ID..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white dark:bg-[#0B1225] border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:border-[#007A55] focus:ring-4 focus:ring-[#007A55]/10 transition-all text-sm font-medium shadow-sm dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/30"
+                className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#0B1225] border border-slate-200/80 dark:border-white/10 rounded-xl sm:rounded-2xl shadow-sm outline-none focus:border-[#007A55] focus:ring-4 focus:ring-[#007A55]/10 transition-all text-xs sm:text-sm font-medium dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/30"
             />
           </div>
         </div>
 
         {/* Stats bar */}
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-white/30 px-1">
-          <div className="h-px flex-1 bg-slate-100 dark:bg-white/[0.06]" />
+        <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-white/30 px-1">
+          <div className="h-px flex-1 bg-slate-200/60 dark:bg-white/[0.06]" />
           <span>{filteredAdvisees.length} students assigned</span>
-          <div className="h-px flex-1 bg-slate-100 dark:bg-white/[0.06]" />
+          <div className="h-px flex-1 bg-slate-200/60 dark:bg-white/[0.06]" />
         </div>
 
         {/* Grid - Clean single image card */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredAdvisees.map((student, idx) => (
               <motion.div
                   key={student.id}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ delay: idx * 0.03, ease: [0.22, 1, 0.36, 1] }}
               >
-                <Card className="group relative overflow-hidden h-full flex flex-col !p-0 border-slate-200 dark:border-white/10 hover:border-[#007A55]/30 dark:hover:border-emerald-500/20 hover:shadow-xl hover:shadow-emerald-900/5 dark:hover:shadow-black/20 transition-all duration-300">
+                <Card className="group relative overflow-hidden h-full flex flex-col !p-0 border border-slate-200/80 dark:border-white/10 shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl sm:rounded-3xl bg-white dark:bg-gray-800/80">
                   {/* Top hover accent */}
                   <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#007A55] via-emerald-400 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                  <div className="p-6 flex-1">
-                    {/* Only real image - watermark removed */}
-                    <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 rounded-2xl overflow-hidden shrink-0 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-center">
+                  <div className="p-5 sm:p-6 flex-1">
+                    {/* Profile Image & Basic Info */}
+                    <div className="flex items-start gap-3.5 sm:gap-4">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl overflow-hidden shrink-0 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-center shadow-sm">
                         {student.profileImage ? (
                             <img
                                 src={
-                                  student.profileImage.startsWith('http') || student.profileImage.startsWith('/api')
+                                  student.profileImage.startsWith('http') ||
+                                  student.profileImage.startsWith('/api')
                                       ? student.profileImage
                                       : `/api/uploads/${student.profileImage}`
                                 }
@@ -120,49 +113,66 @@ const AdviseeList = () => {
                                 className="w-full h-full object-cover"
                             />
                         ) : (
-                            <GraduationCap size={26} className="text-[#007A55] dark:text-emerald-300" />
+                            <GraduationCap
+                                size={24}
+                                className="text-[#007A55] dark:text-emerald-300"
+                            />
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-black tracking-tight text-slate-900 dark:text-white truncate text-[15px] leading-tight">
+                        <h3 className="font-black tracking-tight text-slate-900 dark:text-white truncate text-sm sm:text-[15px] leading-tight">
                           {student.name}
                         </h3>
-                        <p className="text-[11px] font-black uppercase tracking-widest text-[#007A55] dark:text-emerald-300 mt-1">
+                        <p className="text-[10px] sm:text-[11px] font-black font-mono uppercase tracking-widest text-[#007A55] dark:text-emerald-400 mt-1">
                           {student.registrationNo}
                         </p>
-                        <div className="mt-2 inline-flex items-center px-2 py-1 rounded-full bg-slate-50 dark:bg-white/[0.06] border border-slate-100 dark:border-white/[0.06] text-[10px] font-bold text-slate-500 dark:text-white/40 truncate max-w-full">
-                          <BookOpen size={12} className="mr-1 text-[#007A55] shrink-0" />
-                          <span className="truncate">{student.programName || '—'}</span>
+                        <div className="mt-2 inline-flex items-center px-2.5 py-1 rounded-full bg-slate-50 dark:bg-white/[0.06] border border-slate-100 dark:border-white/[0.06] text-[10px] font-bold text-slate-500 dark:text-white/50 truncate max-w-full">
+                          <BookOpen
+                              size={12}
+                              className="mr-1 text-[#007A55] shrink-0"
+                          />
+                          <span className="truncate">
+                        {student.programName || '—'}
+                      </span>
                         </div>
                       </div>
                     </div>
 
                     {/* Academic info */}
-                    <div className="grid grid-cols-2 gap-3 mt-5">
-                      <div className="p-3 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06]">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-white/30">CGPA</p>
-                        <p className="mt-1 text-sm font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
-                          <TrendingUp size={14} className="text-emerald-500" />
+                    <div className="grid grid-cols-2 gap-2.5 sm:gap-3 mt-4 sm:mt-5">
+                      <div className="p-2.5 sm:p-3 rounded-xl bg-slate-50/70 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06]">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-white/30">
+                          CGPA
+                        </p>
+                        <p className="mt-1 text-xs sm:text-sm font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
+                          <TrendingUp size={13} className="text-emerald-500 shrink-0" />
                           {student.cgpa || '0.00'}
                         </p>
                       </div>
-                      <div className="p-3 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06]">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-white/30">Semester</p>
-                        <p className="mt-1 text-sm font-black tracking-tight text-slate-900 dark:text-white">
+                      <div className="p-2.5 sm:p-3 rounded-xl bg-slate-50/70 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06]">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-white/30">
+                          Semester
+                        </p>
+                        <p className="mt-1 text-xs sm:text-sm font-black tracking-tight text-slate-900 dark:text-white">
                           {student.currentSemester || '—'}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-4 pt-0 mt-auto">
+                  <div className="p-4 sm:p-5 pt-0 mt-auto">
                     <Button
-                        className="w-full group/btn"
-                        onClick={() => navigate(`/faculty/advisor-registration/${student.id}`)}
+                        className="w-full bg-[#2D2A4F] hover:bg-[#1E1C38] text-white rounded-xl sm:rounded-2xl font-bold text-xs py-2.5 transition-all shadow-sm group/btn border-none"
+                        onClick={() =>
+                            navigate(`/faculty/advisor-registration/${student.id}`)
+                        }
                     >
-                      Manage Registration
-                      <ChevronRight size={16} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />
+                      <span>Manage Registration</span>
+                      <ChevronRight
+                          size={15}
+                          className="ml-1 group-hover/btn:translate-x-1 transition-transform"
+                      />
                     </Button>
                   </div>
                 </Card>
@@ -170,12 +180,14 @@ const AdviseeList = () => {
           ))}
 
           {filteredAdvisees.length === 0 && (
-              <div className="col-span-full py-24 text-center">
-                <div className="w-20 h-20 rounded-[22px] bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] flex items-center justify-center mx-auto mb-5 text-slate-300 dark:text-white/10">
+              <div className="col-span-full py-16 sm:py-20 text-center bg-slate-50/50 dark:bg-white/[0.02] border border-dashed border-slate-200/80 dark:border-white/10 rounded-2xl sm:rounded-3xl shadow-sm">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white dark:bg-[#0B1225] border border-slate-100 dark:border-white/[0.06] flex items-center justify-center mx-auto mb-4 text-slate-300 dark:text-white/10 shadow-sm">
                   <Users size={32} />
                 </div>
-                <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white">No Advisees Found</h3>
-                <p className="text-sm font-medium text-slate-500 dark:text-white/40 mt-1.5 max-w-sm mx-auto">
+                <h3 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">
+                  No Advisees Found
+                </h3>
+                <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-white/40 mt-1 max-w-sm mx-auto">
                   You don&apos;t have any students assigned to your guidance yet, or nothing matches &quot;{search}&quot;.
                 </p>
               </div>
