@@ -4,20 +4,18 @@ import {
     Mail,
     Phone,
     ShieldCheck,
-    Camera,
     Save,
     GraduationCap,
     Hash,
     Calendar,
     Users,
     ChevronDown,
-    ImageIcon,
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Loader from '../../components/common/Loader';
-import ProfileHeader  from '../../pages/common/ProfileHeaderCard';
+import ProfileHeader from '../../pages/common/ProfileHeaderCard';
 import useAuth from '../../hooks/useAuth';
 import { useAuthStore } from '../../store/authStore';
 import { getMyProfile, updateProfile, uploadProfileImage } from '../../api/profileApi';
@@ -112,7 +110,7 @@ const Profile = () => {
         return (
             <div className="h-[60vh] flex flex-col items-center justify-center space-y-4">
                 <Loader size="lg" />
-                <p className="text-sm text-slate-400 dark:text-white/30 font-medium animate-pulse">Loading profile data...</p>
+                <p className="text-xs sm:text-sm text-slate-400 dark:text-white/30 font-medium animate-pulse">Loading profile data...</p>
             </div>
         );
     }
@@ -121,11 +119,11 @@ const Profile = () => {
         return (
             <div className="h-[60vh] flex flex-col items-center justify-center space-y-6 text-center px-4">
                 <div className="p-4 bg-red-50 dark:bg-red-500/10 rounded-full border border-red-100 dark:border-red-500/20">
-                    <User size={48} className="text-red-500" />
+                    <User size={40} className="text-red-500" />
                 </div>
                 <div className="space-y-2">
-                    <h3 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">Profile Load Error</h3>
-                    <p className="text-slate-500 dark:text-white/40 max-w-xs text-sm">{error || 'Unable to retrieve profile information at this time.'}</p>
+                    <h3 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">Profile Load Error</h3>
+                    <p className="text-slate-500 dark:text-white/40 max-w-xs text-xs sm:text-sm">{error || 'Unable to retrieve profile information at this time.'}</p>
                 </div>
                 <Button onClick={fetchProfile} variant="secondary" className="px-8">
                     Retry Loading
@@ -142,7 +140,7 @@ const Profile = () => {
         : `https://ui-avatars.com/api/?name=${encodeURIComponent(profileData.user.name)}&background=007A55&color=fff&size=200`;
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8 pb-20 px-2 sm:px-4">
+        <div className="w-full px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 pb-20 pt-4">
             {/* Profile Header */}
             <ProfileHeader
                 profileData={profileData}
@@ -153,7 +151,7 @@ const Profile = () => {
             />
 
             <div className="space-y-6 sm:space-y-8">
-                <Card title="Personal Information" icon={User}>
+                <Card title="Personal Information" icon={User} className="rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-sm !p-5 sm:!p-6">
                     <form onSubmit={handleUpdateProfile} className="space-y-4 sm:space-y-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <Input
@@ -189,12 +187,12 @@ const Profile = () => {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <div>
-                                <label className="mb-2 block text-xs font-bold text-slate-700 dark:text-white/60 ml-1">Gender</label>
+                                <label className="mb-1.5 block text-xs font-bold text-slate-700 dark:text-white/60 ml-1">Gender</label>
                                 <div className="relative">
                                     <select
                                         value={profileData.user.gender || ''}
                                         onChange={(e) => setProfileData({ ...profileData, user: { ...profileData.user, gender: e.target.value } })}
-                                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:border-[#007A55] focus:ring-4 focus:ring-[#007A55]/10 text-sm font-medium text-slate-900 dark:text-white appearance-none pr-10 transition-all"
+                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.06] border border-slate-200/80 dark:border-white/10 rounded-xl sm:rounded-2xl outline-none focus:border-[#007A55] focus:ring-4 focus:ring-[#007A55]/10 text-xs sm:text-sm font-medium text-slate-900 dark:text-white appearance-none pr-10 transition-all"
                                     >
                                         <option value="">Select Gender</option>
                                         <option value="Male">Male</option>
@@ -205,12 +203,12 @@ const Profile = () => {
                                 </div>
                             </div>
                             <div>
-                                <label className="mb-2 block text-xs font-bold text-slate-700 dark:text-white/60 ml-1">Blood Group</label>
+                                <label className="mb-1.5 block text-xs font-bold text-slate-700 dark:text-white/60 ml-1">Blood Group</label>
                                 <div className="relative">
                                     <select
                                         value={profileData.user.bloodGroup || ''}
                                         onChange={(e) => setProfileData({ ...profileData, user: { ...profileData.user, bloodGroup: e.target.value } })}
-                                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:border-[#007A55] focus:ring-4 focus:ring-[#007A55]/10 text-sm font-medium text-slate-900 dark:text-white appearance-none pr-10 transition-all"
+                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.06] border border-slate-200/80 dark:border-white/10 rounded-xl sm:rounded-2xl outline-none focus:border-[#007A55] focus:ring-4 focus:ring-[#007A55]/10 text-xs sm:text-sm font-medium text-slate-900 dark:text-white appearance-none pr-10 transition-all"
                                     >
                                         <option value="">Select Blood Group</option>
                                         {['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].map((bg) => (
@@ -246,7 +244,7 @@ const Profile = () => {
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                     <div>
-                                        <label className="mb-2 block text-xs font-bold text-slate-700 dark:text-white/60 ml-1">Guardian Relation</label>
+                                        <label className="mb-1.5 block text-xs font-bold text-slate-700 dark:text-white/60 ml-1">Guardian Relation</label>
                                         <div className="relative">
                                             <select
                                                 value={profileData.student?.guardianRelation || ''}
@@ -256,7 +254,7 @@ const Profile = () => {
                                                         student: { ...profileData.student, guardianRelation: e.target.value },
                                                     })
                                                 }
-                                                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:border-[#007A55] focus:ring-4 focus:ring-[#007A55]/10 text-sm font-medium text-slate-900 dark:text-white appearance-none pr-10 transition-all"
+                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.06] border border-slate-200/80 dark:border-white/10 rounded-xl sm:rounded-2xl outline-none focus:border-[#007A55] focus:ring-4 focus:ring-[#007A55]/10 text-xs sm:text-sm font-medium text-slate-900 dark:text-white appearance-none pr-10 transition-all"
                                             >
                                                 <option value="">Select Relation</option>
                                                 <option value="FATHER">Father</option>
@@ -286,65 +284,65 @@ const Profile = () => {
                         )}
 
                         <div className="flex justify-end pt-2">
-                            <Button type="submit" isLoading={saving} className="w-full sm:w-auto px-8">
+                            <Button type="submit" isLoading={saving} className="w-full sm:w-auto px-8 bg-[#2D2A4F] hover:bg-[#1E1C38] border-none font-bold text-xs sm:text-sm">
                                 <Save size={18} className="mr-2 shrink-0" /> Save Changes
                             </Button>
                         </div>
                     </form>
                 </Card>
 
-                <Card title="Academic Profile" icon={GraduationCap}>
+                <Card title="Academic Profile" icon={GraduationCap} className="rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-sm !p-5 sm:!p-6">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                         {isStudent && (
                             <>
-                                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] space-y-1">
+                                <div className="p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] space-y-1">
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-white/30">Student ID</p>
-                                    <p className="font-mono font-bold text-slate-900 dark:text-white text-sm sm:text-base">
+                                    <p className="font-mono font-bold text-slate-900 dark:text-white text-xs sm:text-base">
                                         {profileData.student?.studentId || 'PENDING'}
                                     </p>
                                 </div>
-                                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] space-y-1">
+                                <div className="p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] space-y-1">
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-white/30">Registration No</p>
-                                    <p className="font-mono font-bold text-slate-900 dark:text-white text-sm sm:text-base">
+                                    <p className="font-mono font-bold text-slate-900 dark:text-white text-xs sm:text-base">
                                         {profileData.student?.registrationNo || 'PENDING'}
                                     </p>
                                 </div>
-                                <div className="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 space-y-1">
+                                <div className="p-3.5 rounded-xl sm:rounded-2xl bg-emerald-50/60 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 space-y-1">
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700/60 dark:text-emerald-300/60">Current Semester</p>
-                                    <p className="font-black text-[#007A55] dark:text-emerald-300 text-sm sm:text-base">{profileData.student?.currentSemester || 1}</p>
+                                    <p className="font-black text-[#007A55] dark:text-emerald-300 text-xs sm:text-base">{profileData.student?.currentSemester || 1}</p>
                                 </div>
                             </>
                         )}
                         {isFaculty && (
                             <>
-                                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] space-y-1">
+                                <div className="p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] space-y-1">
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Employee ID</p>
-                                    <p className="font-mono font-bold text-slate-900 dark:text-white">{profileData.faculty?.employeeId}</p>
+                                    <p className="font-mono font-bold text-slate-900 dark:text-white text-xs sm:text-base">{profileData.faculty?.employeeId}</p>
                                 </div>
-                                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] space-y-1">
+                                <div className="p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] space-y-1">
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Department</p>
-                                    <p className="font-bold text-slate-900 dark:text-white">{profileData.faculty?.departmentName}</p>
+                                    <p className="font-bold text-slate-900 dark:text-white text-xs sm:text-base">{profileData.faculty?.departmentName}</p>
                                 </div>
-                                <div className="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 space-y-1">
+                                <div className="p-3.5 rounded-xl sm:rounded-2xl bg-emerald-50/60 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 space-y-1">
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700/60">Designation</p>
-                                    <p className="font-bold text-[#007A55] dark:text-emerald-300">{profileData.faculty?.designation}</p>
+                                    <p className="font-bold text-[#007A55] dark:text-emerald-300 text-xs sm:text-base">{profileData.faculty?.designation}</p>
                                 </div>
                             </>
                         )}
                         {isAdmin && (
-                            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] space-y-1">
+                            <div className="p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] space-y-1">
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Access Level</p>
-                                <p className="font-black text-[#007A55] uppercase tracking-wider">Admin</p>
+                                <p className="font-black text-[#007A55] uppercase tracking-wider text-xs sm:text-base">Admin</p>
                             </div>
                         )}
                         {isRegistrar && (
-                            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] space-y-1">
+                            <div className="p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/[0.06] space-y-1">
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Access Level</p>
-                                <p className="font-black text-[#007A55] uppercase tracking-wider">Registrar</p>
+                                <p className="font-black text-[#007A55] uppercase tracking-wider text-xs sm:text-base">Registrar</p>
                             </div>
                         )}
                     </div>
-                    <div className="mt-6 p-4 bg-blue-50/80 dark:bg-blue-500/10 rounded-2xl flex items-start gap-3 text-xs text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-500/20">
+                    <div className="mt-5 sm:mt-6 p-4 bg-blue-50/60 dark:bg-blue-500/10 rounded-xl sm:rounded-2xl flex items-start gap-3 text-xs text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-500/20">
                         <Hash size={16} className="shrink-0 mt-0.5" />
                         <p className="leading-relaxed font-medium">Academic information can only be updated by the Registrar or IT Department.</p>
                     </div>

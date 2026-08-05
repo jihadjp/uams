@@ -68,9 +68,17 @@ const Login = () => {
       toast.success(`Welcome back, ${data.name}!`);
       navigate('/');
     } catch (requestError) {
-      const message =
-          requestError.response?.data?.message ||
-          'The University ID/email address or password is incorrect.';
+      let message = requestError.response?.data?.message;
+
+      if (requestError.response?.status === 401) {
+        message = identifier.includes('@')
+            ? 'Invalid email or password'
+            : 'Invalid id or password';
+      }
+
+      if (!message) {
+        message = 'The University ID/email address or password is incorrect.';
+      }
 
       setError(message);
       toast.error(message, { id: 'login-error' });

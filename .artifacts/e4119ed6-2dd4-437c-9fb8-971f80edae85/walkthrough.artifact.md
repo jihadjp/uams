@@ -1,24 +1,30 @@
-# Walkthrough - Fix Student Live Results Display
+# Walkthrough - Convocation Eligibility Enforcement
 
-I have resolved the issues affecting the display of course results in the student's Live Results page.
+I have implemented the academic eligibility logic for convocation applications. The system now automatically checks if a student meets the university's graduation criteria before allowing them to apply.
 
 ## Changes Made
 
-### 1. Backend: Data Integrity & Null Safety
-- **Filtering Dropped Courses**: Updated [ResultServiceImpl](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/ResultServiceImpl.java) to explicitly filter out `DROPPED` enrollments from both Live and Academic result views. This ensures that only active courses are visible to students and faculty.
-- **Defensive Mapping**: Added robust null checks in the `mapToLiveResult` method. If any related data (like a course title, section name, or teacher name) is missing in the database, the system will now display "N/A" instead of failing with a server error.
+### 1. Backend: Enhanced Academic Standing
+- **DTO Update**: Added `requiredCredits` to the [StudentAcademicStandingResponse](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/dto/StudentAcademicStandingResponse.java) DTO.
+- **Service Logic**: Updated [ResultServiceImpl](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/ResultServiceImpl.java) to fetch the total credits required for a student's specific degree program. This allows the system to accurately determine if all credits have been completed.
 
-### 2. Frontend: UX Enhancements
-- **Automatic Loading**: Updated [LiveResults.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/LiveResults.jsx) to automatically fetch and display results for the **Active Semester** (Registration or Ongoing) as soon as the page opens. Students no longer have to manually click "Search" to see their current progress.
-- **Improved Empty States**: Added clearer messaging and icons for cases where no results are found for a selected semester, distinguishing between "Search required" and "No data found".
+### 2. Frontend: Automated Eligibility Check
+- **Eligibility Logic**: Updated [ConvocationApplication.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/ConvocationApplication.jsx) to enforce two strict rules:
+    1.  **Minimum CGPA**: The student's CGPA must be **2.50 or higher**.
+    2.  **Credit Completion**: The student must have completed **100% of the credits** required for their program.
+- **Ineligibility UI**: If a student does not meet these criteria, the application form is replaced with a clear **"Application Blocked"** screen.
+    - It displays the specific reasons why they are not eligible (e.g., current CGPA vs. required CGPA).
+    - It shows the total credits completed vs. the total credits required.
+- **Maintenance**: Students can still view their application history or edit an existing pending application even if their current standing fluctuates.
 
 ## Verification Results
 
-### Automated Loading:
-- When a student navigates to the Live Results page, the system now identifies the active semester and triggers a data fetch immediately.
+### Logic Enforcement:
+- **Low CGPA**: Verified that a student with a CGPA of 2.49 is blocked from applying and sees a "Minimum CGPA 2.50 required" message.
+- **Incomplete Credits**: Verified that a student who has completed 130/140 credits is blocked and told they must complete all 140 credits.
+- **Full Eligibility**: Verified that students meeting both criteria can access the application form without any restrictions.
 
-### Data Filtering:
-- Verified that courses marked as `DROPPED` are no longer included in the results list, preventing confusion for students who have changed their schedules.
-
-### Error Resilience:
-- Verified that the page remains functional even if some database records have missing faculty assignments or incomplete course details.
+## Criteria Summary
+> [!IMPORTANT]
+> - **Required CGPA**: ≥ 2.50
+> - **Required Credits**: 100% Completion (matches Program's total credits).

@@ -1,10 +1,12 @@
-# Tasks - Fix Student Live Results Display
+# Tasks - Convocation Eligibility Enforcement
 
 - [x] **Backend Implementation**
-    - [x] Filter `DROPPED` enrollments in `ResultServiceImpl.getLiveResults`
-    - [x] Add null safety to `ResultServiceImpl.mapToLiveResult`
+    - [x] Update `StudentAcademicStandingResponse` DTO to include `requiredCredits`
+    - [x] Update `ResultServiceImpl` to populate `requiredCredits` from student's program
 - [x] **Frontend Implementation**
-    - [x] Update `LiveResults.jsx` to auto-fetch results for the active semester
-    - [x] Improve semester selection logic in `LiveResults.jsx`
+    - [x] Update `ConvocationApplication.jsx` to fetch and store `requiredCredits`
+    - [x] Implement eligibility check logic (CGPA >= 2.50 and Credits >= Required)
+    - [x] Add "Not Eligible" UI state with descriptive messaging
 - [x] **Verification**
-    - [x] Verify that live results display correctly for students
+    - [x] Verify that ineligible students are blocked with the correct message
+    - [x] Verify that eligible students can still apply

@@ -168,53 +168,46 @@ const benefits = [
 
 const Facilities = () => {
   return (
-    <div className="space-y-8 pb-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-gray-900 dark:text-white">Student Benefits & Services</h1>
-          <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Exclusive University Partnerships</p>
+      <div className="w-full px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 pb-20 pt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {benefits.map((benefit, idx) => (
+              <motion.a
+                  key={benefit.title}
+                  href={benefit.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.03 }}
+                  whileHover={{ y: -3 }}
+                  className="block h-full"
+              >
+                <Card className="h-full border border-slate-200/80 dark:border-white/10 bg-white dark:bg-gray-800/80 shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden cursor-pointer rounded-2xl sm:rounded-3xl !p-5 sm:!p-6 relative">
+                  <div className="flex flex-col items-center text-center">
+                    <div
+                        className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4 transition-transform duration-300 group-hover:scale-105 shadow-sm shrink-0"
+                        style={{ backgroundColor: `${benefit.color}15`, color: benefit.color }}
+                    >
+                      <benefit.icon size={24} className="sm:w-8 sm:h-8" />
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1 group-hover:text-primary-600 dark:group-hover:text-emerald-400 transition-colors">
+                      {benefit.title}
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                      {benefit.description}
+                    </p>
+                  </div>
+
+                  {/* Decorative corner accent */}
+                  <div
+                      className="absolute -top-6 -right-6 w-12 h-12 rotate-45 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none"
+                      style={{ backgroundColor: benefit.color }}
+                  />
+                </Card>
+              </motion.a>
+          ))}
         </div>
       </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {benefits.map((benefit, idx) => (
-          <motion.a
-            key={benefit.title}
-            href={benefit.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.05 }}
-            whileHover={{ y: -5 }}
-            className="block h-full"
-          >
-            <Card className="h-full hover:shadow-xl transition-all duration-300 border-none bg-white dark:bg-gray-800 group overflow-hidden cursor-pointer">
-               <div className="flex flex-col items-center text-center p-2">
-                  <div
-                    className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 shadow-sm"
-                    style={{ backgroundColor: `${benefit.color}15`, color: benefit.color }}
-                  >
-                    <benefit.icon size={32} />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 group-hover:text-primary-600 transition-colors">
-                    {benefit.title}
-                  </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                    {benefit.description}
-                  </p>
-               </div>
-
-               {/* Decorative corner accent */}
-               <div
-                 className="absolute -top-6 -right-6 w-12 h-12 rotate-45 opacity-10 group-hover:opacity-20 transition-opacity"
-                 style={{ backgroundColor: benefit.color }}
-               />
-            </Card>
-          </motion.a>
-        ))}
-      </div>
-    </div>
   );
 };
 

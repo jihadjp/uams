@@ -235,7 +235,7 @@ const Results = () => {
                                     </table>
                                 </div>
                                 <div className="p-3 bg-gray-50 dark:bg-gray-800 text-center border-t border-gray-100 dark:border-gray-700">
-                                    <p className="text-[8px] sm:text-[9px] font-bold text-gray-400 italic uppercase">Effective from Summer Semester 2007</p>
+                                    <p className="text-[8px] sm:text-[9px] font-bold text-gray-400 italic uppercase">Effective from Spring Semester 2026</p>
                                 </div>
                             </div>
                         </Card>
