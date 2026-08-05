@@ -1,10 +1,12 @@
-- [x] **FeeController Updates**
-    - [x] Add `FACULTY` role to `getAll` endpoint (which handles `studentId` param)
-    - [x] Add `FACULTY` role to `getByStudent` endpoint
-- [x] **Global Exception Handler Updates**
-    - [x] Add `@ExceptionHandler` for `AccessDeniedException`
-- [x] **SecurityConfig Updates**
-    - [x] Add `.accessDeniedHandler` to the security filter chain
-- [x] **Verification**
-    - [x] Verify Faculty can now access student fee data
-    - [x] Verify 403 status for unauthorized access
+- [x] **Backend Implementation**
+    - [x] Update `ResultService` interface with matrix methods
+    - [x] Implement `ensureStandardExams` logic in `ResultServiceImpl`
+    - [x] Implement `getMarksMatrix` in `ResultServiceImpl`
+    - [x] Implement `saveMarksMatrix` in `ResultServiceImpl`
+    - [x] Add matrix endpoints to `ResultController`
+- [x] **Frontend Implementation**
+    - [x] Redesign `ExamManagement.jsx` into a spreadsheet-style entry page
+    - [x] Add "Save" functionality to sync the entire marks matrix
+- [ ] **Verification**
+    - [ ] Verify that marks can be entered and saved for all standard categories
+    - [ ] Verify that students can see these marks in their Live Results

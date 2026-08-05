@@ -278,6 +278,14 @@ const LiveResults = () => {
                                                 {r.midtermImprovement ?? 0}
                                               </td>
                                             </tr>
+                                            <tr>
+                                              <th className="px-4 sm:px-5 py-3 w-1/2 text-[13px] font-bold text-[#007A55] dark:text-emerald-400">
+                                                Final Exam
+                                              </th>
+                                              <td className="px-4 sm:px-5 py-3 text-[13px] font-bold text-[#007A55] dark:text-emerald-400">
+                                                {r.finalExam ?? 0}
+                                              </td>
+                                            </tr>
                                             </tbody>
                                           </table>
                                         </div>

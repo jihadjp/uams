@@ -2,56 +2,64 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ChevronLeft,
-  Plus,
-  Trash2,
-  FileText,
-  CheckCircle2,
-  AlertCircle,
+  Save,
+  User,
+  History,
+  Info,
   Calendar,
   Layers,
-  Award
+  Award,
+  Search,
+  BookOpen,
+  ArrowUpDown,
+  Hash,
+  Filter
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
-import Modal from '../../components/common/Modal';
 import Loader from '../../components/common/Loader';
-import Input from '../../components/common/Input';
-import { getExams, createExam, deleteExam } from '../../api/examApi';
+import { getMarksMatrix, saveMarksMatrix } from '../../api/resultApi';
 import { getCourseOfferingById } from '../../api/courseOfferingApi';
-import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+
+const MARK_LIMITS = {
+  THEORY: {
+    quiz1: 15,
+    presentation: 8,
+    attendanceMarks: 7,
+    assignment: 5,
+    midterm: 25,
+    finalExam: 40
+  },
+  LAB: {
+    attendanceMarks: 10,
+    projectShow: 25,
+    labReport: 25,
+    labEvaluation: 40
+  }
+};
 
 const ExamManagement = () => {
   const { offeringId } = useParams();
   const navigate = useNavigate();
   const [offering, setOffering] = useState(null);
-  const [exams, setExams] = useState([]);
+  const [matrix, setMatrix] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formLoading, setFormLoading] = useState(false);
-
-  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm({
-    defaultValues: {
-      examType: 'QUIZ',
-      totalMarks: 20,
-      weightPercent: 10,
-      examDate: new Date().toISOString().split('T')[0]
-    }
-  });
+  const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState('');
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [offeringRes, examsRes] = await Promise.all([
+      const [offeringRes, matrixRes] = await Promise.all([
         getCourseOfferingById(offeringId),
-        getExams(offeringId)
+        getMarksMatrix(offeringId)
       ]);
       setOffering(offeringRes.data);
-      setExams(examsRes.data);
+      setMatrix(matrixRes.data);
     } catch (err) {
-      toast.error('Failed to load exam data');
+      toast.error('Failed to load marks matrix');
     } finally {
       setLoading(false);
     }
@@ -61,178 +69,234 @@ const ExamManagement = () => {
     fetchData();
   }, [fetchData]);
 
-  const onSubmit = async (data) => {
-    setFormLoading(true);
+  const handleMarkChange = (enrollmentId, field, value) => {
+    if (value < 0) return;
+
+    const limits = MARK_LIMITS[offering?.courseType];
+    if (limits && limits[field] && value > limits[field]) {
+        toast.error(`Max allowed for this field: ${limits[field]}`);
+        return;
+    }
+
+    setMatrix(prev => prev.map(row =>
+      row.enrollmentId === enrollmentId ? { ...row, [field]: value } : row
+    ));
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
     try {
-      await createExam({ ...data, offeringId });
-      toast.success('Exam created successfully');
-      setIsModalOpen(false);
-      reset();
+      await saveMarksMatrix(offeringId, matrix);
+      toast.success('Marks saved successfully');
       fetchData();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create exam');
+      toast.error('Failed to save marks');
     } finally {
-      setFormLoading(false);
+      setSaving(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this exam? All student marks will be lost.')) return;
-    try {
-      await deleteExam(id);
-      toast.success('Exam deleted');
-      fetchData();
-    } catch (err) {
-      toast.error('Failed to delete exam');
-    }
-  };
-
-  const totalWeight = exams.reduce((sum, e) => sum + e.weightPercent, 0);
+  const filteredMatrix = matrix.filter(r =>
+    (r.studentName || "").toLowerCase().includes(search.toLowerCase()) ||
+    (r.studentId || "").toLowerCase().includes(search.toLowerCase())
+  );
 
   if (loading) return <div className="h-[60vh] flex items-center justify-center"><Loader size="lg" /></div>;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-20">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2">
         <div className="flex items-center space-x-4">
            <button
              onClick={() => navigate('/faculty/results')}
-             className="p-2.5 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:text-primary-600 transition-all"
+             className="p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:text-indigo-600 transition-all group"
            >
-             <ChevronLeft size={20} />
+             <ChevronLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" />
            </button>
            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
-                {offering?.courseTitle} <span className="text-primary-500">({offering?.section})</span>
+              <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                Marks Management
               </h1>
-              <p className="text-gray-400 text-xs mt-1 font-medium tracking-wide uppercase">Results & Exam Management</p>
+              <p className="text-slate-500 dark:text-white/40 text-xs font-black uppercase tracking-widest mt-1">
+                {offering?.courseCode} - {offering?.courseTitle} <span className="text-indigo-600 dark:text-indigo-400 opacity-60">|</span> Sec {offering?.section}
+              </p>
            </div>
         </div>
 
         <div className="flex items-center space-x-3">
-           <Button variant="secondary" onClick={() => navigate(`/faculty/publish-results/${offeringId}`)}>
-              Final Grading
+           <Button variant="secondary" className="rounded-xl px-6" onClick={() => navigate(`/faculty/attendance/${offeringId}`)}>
+              Attendance
            </Button>
-           <Button onClick={() => setIsModalOpen(true)} className="flex items-center space-x-2">
-              <Plus size={18} />
-              <span>Add Exam</span>
+           <Button
+             onClick={handleSave}
+             isLoading={saving}
+             className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 rounded-xl px-8"
+           >
+              <Save size={18} />
+              <span>Save Changes</span>
            </Button>
         </div>
       </div>
 
-      {/* Summary Banner */}
-      <Card className={`border-none ${totalWeight === 100 ? 'bg-green-600' : 'bg-primary-600'} text-white relative overflow-hidden`}>
-         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-         <div className="flex flex-col md:flex-row justify-between items-center relative z-10">
-            <div className="flex items-center space-x-4">
-               <div className="p-3 bg-white/20 rounded-2xl">
-                  <Award size={32} />
-               </div>
-               <div>
-                  <h3 className="text-xl font-bold">Grade Weight Distribution</h3>
-                  <p className="text-primary-100 text-sm">Configure how exams contribute to the final result.</p>
-               </div>
-            </div>
-            <div className="text-center md:text-right mt-4 md:mt-0">
-               <p className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-1">Total Weight Assigned</p>
-               <div className="flex items-end justify-center md:justify-end space-x-2">
-                  <span className="text-5xl font-black leading-none">{totalWeight}%</span>
-                  <span className="text-xl font-bold text-white/40 mb-1">/ 100%</span>
-               </div>
+      {/* Info & Search */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-end px-2">
+         <div className="lg:col-span-2">
+            <div className="flex items-center gap-2 p-4 bg-indigo-50 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
+               <Info size={18} className="text-indigo-600 shrink-0" />
+               <p className="text-[11px] font-bold text-indigo-900/70 dark:text-indigo-400/80 leading-relaxed uppercase tracking-wider">
+                 Enter marks directly in the cells below. Click "Save Changes" to sync with the database and notify students.
+               </p>
             </div>
          </div>
-      </Card>
-
-      {/* Exam List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
-         <AnimatePresence mode="popLayout">
-           {exams.map((exam, idx) => (
-             <motion.div
-               key={exam.id}
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ delay: idx * 0.1 }}
-             >
-                <Card className="h-full group hover:border-primary-300 transition-all">
-                   <div className="flex justify-between items-start mb-6">
-                      <div className="p-2.5 bg-gray-50 dark:bg-gray-700/50 text-gray-500 rounded-xl font-mono text-[10px] font-black uppercase tracking-tighter">
-                         {exam.examType}
-                      </div>
-                      <button
-                        onClick={() => handleDelete(exam.id)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
-                      >
-                         <Trash2 size={16} />
-                      </button>
-                   </div>
-
-                   <div className="flex items-center space-x-2 text-primary-600 mb-1">
-                      <Layers size={14} />
-                      <span className="text-xs font-black uppercase tracking-widest">{exam.weightPercent}% Weight</span>
-                   </div>
-                   <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Total Marks: {exam.totalMarks}</h4>
-
-                   <div className="flex items-center text-gray-400 text-xs font-medium mb-6">
-                      <Calendar size={12} className="mr-1.5" />
-                      {new Date(exam.examDate).toLocaleDateString()}
-                   </div>
-
-                   <Button
-                     className="w-full flex items-center justify-center space-x-2"
-                     onClick={() => navigate(`/faculty/marks/${exam.id}`)}
-                   >
-                      <FileText size={16} />
-                      <span>Enter Marks</span>
-                   </Button>
-                </Card>
-             </motion.div>
-           ))}
-         </AnimatePresence>
+         <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+            <input
+              type="text"
+              placeholder="Search Student..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-sm"
+            />
+         </div>
       </div>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Add New Assessment"
-      >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1">Exam Type</label>
-                <select
-                  {...register('examType')}
-                  className="block w-full px-4 py-3 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 appearance-none"
-                >
-                  <option value="QUIZ">Quiz</option>
-                  <option value="MIDTERM">Midterm</option>
-                  <option value="FINAL">Final Exam</option>
-                  <option value="ASSIGNMENT">Assignment</option>
-                  <option value="LAB">Lab / Practical</option>
-                </select>
-              </div>
-              <Input label="Date" type="date" {...register('examDate', { required: 'Required' })} icon={Calendar} error={errors.examDate?.message} />
-           </div>
+      {/* Marks Matrix Table */}
+      <Card className="!p-0 overflow-hidden border border-slate-100 dark:border-white/5 shadow-2xl shadow-indigo-900/5 rounded-[2.5rem]">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[1000px]">
+            <thead className="bg-slate-50/50 dark:bg-white/[0.02] text-slate-400 dark:text-gray-400 uppercase text-[10px] font-black tracking-widest border-b border-slate-100 dark:border-white/5">
+              <tr>
+                <th className="px-8 py-6 w-16 text-center">SL</th>
+                <th className="px-4 py-6">Student Information</th>
+                {offering?.courseType === 'THEORY' ? (
+                  <>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Quiz (15)</th>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Presentation (8)</th>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Attendance (7)</th>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Assignment (5)</th>
+                    <th className="px-4 py-6 text-center bg-indigo-50/30 dark:bg-indigo-500/5">Midterm (25)</th>
+                    <th className="px-4 py-6 text-center bg-emerald-50/30 dark:bg-emerald-500/5">Final (40)</th>
+                  </>
+                ) : (
+                  <>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Attendance (10)</th>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Project Show (25)</th>
+                    <th className="px-4 py-6 text-center bg-amber-50/30 dark:bg-amber-500/5">Lab Report (25)</th>
+                    <th className="px-4 py-6 text-center bg-emerald-50/30 dark:bg-emerald-500/5">Final Evaluation (40)</th>
+                  </>
+                )}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50 dark:divide-white/5">
+              {filteredMatrix.map((row, idx) => (
+                <tr key={row.enrollmentId} className="group hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-all">
+                  <td className="px-8 py-5 text-center text-xs font-black text-slate-300 dark:text-white/20">{idx + 1}</td>
+                  <td className="px-4 py-5">
+                    <div className="flex items-center space-x-3">
+                       <div className="w-10 h-10 rounded-2xl bg-white dark:bg-gray-800 shadow-sm border border-slate-100 dark:border-white/5 flex items-center justify-center text-indigo-600 font-black">
+                          {row.studentName?.charAt(0)}
+                       </div>
+                       <div>
+                          <p className="text-sm font-black text-slate-900 dark:text-white leading-none uppercase">{row.studentName}</p>
+                          <p className="text-[10px] font-bold text-slate-400 dark:text-white/20 mt-1.5 uppercase tracking-tighter">{row.studentId}</p>
+                       </div>
+                    </div>
+                  </td>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Total Marks" type="number" {...register('totalMarks', { required: 'Required', min: 1 })} icon={Award} error={errors.totalMarks?.message} />
-              <Input label="Weight (%)" type="number" {...register('weightPercent', { required: 'Required', min: 1, max: 100 })} icon={Layers} error={errors.weightPercent?.message} />
-           </div>
-
-           {totalWeight + parseInt(watch('weightPercent') || 0) > 100 && (
-             <div className="p-4 bg-yellow-50 text-yellow-700 rounded-2xl flex items-start space-x-3 text-sm">
-                <AlertCircle size={20} className="shrink-0" />
-                <p>Warning: Total weight will exceed 100%. Please adjust the weight distribution.</p>
-             </div>
-           )}
-
-           <div className="flex justify-end pt-4">
-              <Button type="submit" isLoading={formLoading} className="w-full md:w-auto px-10">
-                 Create Assessment
-              </Button>
-           </div>
-        </form>
-      </Modal>
+                  {offering?.courseType === 'THEORY' ? (
+                    <>
+                      <td className="px-4 py-5 text-center">
+                        <input
+                          type="number"
+                          value={row.quiz1 || ''}
+                          onChange={(e) => handleMarkChange(row.enrollmentId, 'quiz1', e.target.value)}
+                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-5 text-center">
+                        <input
+                          type="number"
+                          value={row.presentation || ''}
+                          onChange={(e) => handleMarkChange(row.enrollmentId, 'presentation', e.target.value)}
+                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-5 text-center">
+                        <input
+                          type="number"
+                          value={row.attendanceMarks || ''}
+                          onChange={(e) => handleMarkChange(row.enrollmentId, 'attendanceMarks', e.target.value)}
+                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-5 text-center">
+                        <input
+                          type="number"
+                          value={row.assignment || ''}
+                          onChange={(e) => handleMarkChange(row.enrollmentId, 'assignment', e.target.value)}
+                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-5 text-center">
+                        <input
+                          type="number"
+                          value={row.midterm || ''}
+                          onChange={(e) => handleMarkChange(row.enrollmentId, 'midterm', e.target.value)}
+                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-5 text-center">
+                        <input
+                          type="number"
+                          value={row.finalExam || ''}
+                          onChange={(e) => handleMarkChange(row.enrollmentId, 'finalExam', e.target.value)}
+                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                        />
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="px-4 py-5 text-center">
+                        <input
+                          type="number"
+                          value={row.attendanceMarks || ''}
+                          onChange={(e) => handleMarkChange(row.enrollmentId, 'attendanceMarks', e.target.value)}
+                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-5 text-center">
+                        <input
+                          type="number"
+                          value={row.projectShow || ''}
+                          onChange={(e) => handleMarkChange(row.enrollmentId, 'projectShow', e.target.value)}
+                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-5 text-center">
+                        <input
+                          type="number"
+                          value={row.labReport || ''}
+                          onChange={(e) => handleMarkChange(row.enrollmentId, 'labReport', e.target.value)}
+                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-5 text-center">
+                        <input
+                          type="number"
+                          value={row.labEvaluation || ''}
+                          onChange={(e) => handleMarkChange(row.enrollmentId, 'labEvaluation', e.target.value)}
+                          className="w-20 px-3 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl text-center font-black text-sm outline-none"
+                        />
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   );
 };

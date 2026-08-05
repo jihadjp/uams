@@ -1,25 +1,33 @@
-# Walkthrough - Resolved Fee Access and Security Exception Handling
+# Walkthrough - Simplified Faculty Marks Entry System
 
-I have updated the backend security configuration and error handling to ensure Faculty members (Advisors) can view student fee information and that all security violations are reported with the correct HTTP status.
+I have completely redesigned the faculty grading process to be faster, more intuitive, and automated. Faculty members no longer need to manually create assessment categories; the system now provides a ready-to-use marks matrix for every course.
 
 ## Changes Made
 
-### 1. Fee Access for Faculty
-- **Permission Grant**: Updated [FeeController](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/controller/FeeController.java) to allow the `FACULTY` role to access:
-    - `GET /api/fees` (with `studentId` query parameter).
-    - `GET /api/fees/student/{studentId}` (direct path).
-- **Impact**: This resolves the "Access Denied" error previously encountered by Advisors when viewing a student's registration status.
+### 1. Backend: Automated Assessment Framework
+- **Auto-Initialization**: Implemented `ensureStandardExams` in [ResultServiceImpl](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/ResultServiceImpl.java). When a faculty member opens a course's marks page, the system automatically creates standard exam slots if they don't exist:
+    - **Quizzes**: Quiz 1, 2, and 3 (Total: 20 marks each).
+    - **Midterm**: One slot (Total: 30 marks).
+    - **Final Exam**: One slot (Total: 50 marks).
+- **Matrix API**: Added new endpoints to [ResultController](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/controller/ResultController.java) to fetch and save a complete "Marks Matrix" in a single request.
 
-### 2. Improved Security Exception Handling
-- **Graceful Error Reporting**: Updated [GlobalExceptionHandler](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/exception/GlobalExceptionHandler.java) to specifically handle `AccessDeniedException`.
-- **Status Change**: Security violations will now return a **403 Forbidden** status with a descriptive JSON message instead of a generic **500 Internal Server Error**.
-- **Global Filter Security**: Added an `accessDeniedHandler` to [SecurityConfig](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/security/SecurityConfig.java) to handle unauthorized access attempts at the filter chain level.
+### 2. Frontend: Spreadsheet-Style Marks Entry
+- **Matrix UI**: Overhauled [ExamManagement.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/faculty/ExamManagement.jsx) to show a clean, spreadsheet-style table.
+    - **Batch Entry**: Faculty can now type marks directly into input cells for all students at once.
+    - **One-Click Save**: A single "Save Changes" button syncs all updated marks to the database.
+- **Enhanced Student View**: Updated [LiveResults.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/LiveResults.jsx) to display these standard categories (including the Final Exam) consistently for students.
 
 ## Verification Results
 
-### Backend Security Test:
-1.  **Faculty Access**: Verified that users with the `FACULTY` role can now successfully retrieve student fee data (HTTP 200).
-2.  **Error Status**: Verified that attempting to access a restricted resource now returns a **403 Forbidden** status with the message: *"Access Denied: You do not have permission to access this resource."*
+### Faculty Experience:
+1.  Navigate to **Academic Management > Results** and select a course.
+2.  The **Marks Management** page now opens directly with a list of students and editable columns for Q1, Q2, Q3, Mid, and Final.
+3.  Entering a value and clicking **Save Changes** persists the data immediately.
 
-### UI Impact:
-- The Advisor Registration page should now load the student's fee summary without any red error notifications.
+### Student Experience:
+1.  Students viewing their **Live Results** will now see the specific marks entered by the teacher in their respective slots (e.g., seeing exactly what they got in Quiz 1 or the Final).
+
+## System Logic Summary
+> [!TIP]
+> - **Quiz Weights**: Each quiz contributes to the continuous assessment.
+> - **Final Marks**: Total marks are fixed (20 for Quizzes, 30 for Mid, 50 for Final) as per standard university policy.

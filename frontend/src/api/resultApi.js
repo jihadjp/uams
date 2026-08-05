@@ -6,3 +6,5 @@ export const getOfferingResults = (offeringId) => client.get(`/results/offering/
 export const getAcademicResults = (semesterId) => client.get(`/results/academic?semesterId=${semesterId}`);
 export const getStudentStanding = () => client.get('/results/standing');
 export const approveOfferingResults = (offeringId) => client.put(`/course-offerings/${offeringId}/approve-results`);
+export const getMarksMatrix = (offeringId) => client.get(`/results/offering/${offeringId}/matrix`);
+export const saveMarksMatrix = (offeringId, matrix) => client.post(`/results/offering/${offeringId}/matrix`, matrix);

@@ -1,32 +1,51 @@
-# Implementation Plan - Resolve Fee Access and Security Exception Handling
+# Implementation Plan - Simplified Faculty Marks Entry System
 
-The goal is to allow Faculty/Advisors to access student fee records and ensure that any security violations return a proper `403 Forbidden` status instead of a `500 Internal Server Error`.
-
-## User Review Required
-
-> [!IMPORTANT]
-> The role name used in the system is `FACULTY`. In the frontend, these users act as Advisors. I will grant access to the `FACULTY` role to satisfy the requirement for "ADVISOR" access.
+Redesign the grading system to remove the manual creation of assessments by faculty. The system will automatically provide fixed slots for standard assessments (Quizzes, Midterm, Final) and allow direct marks entry in a matrix view.
 
 ## Proposed Changes
 
 ### Backend Enhancements
 
-#### [MODIFY] [FeeController.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/controller/FeeController.java)
-- Update `@PreAuthorize` on `/student/{studentId}` to include the `FACULTY` role.
-- Update `@PreAuthorize` on the main `GET /api/fees` (which also handles `?studentId=...`) to include the `FACULTY` role.
+#### [MODIFY] [ResultService.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/ResultService.java)
+- Add `List<LiveResultResponse> getMarksMatrix(UUID offeringId);` to fetch a matrix of students and their marks across all standard exams.
+- Add `void saveMarksMatrix(UUID offeringId, List<LiveResultResponse> matrix);` to save all marks at once.
 
-#### [MODIFY] [GlobalExceptionHandler.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/exception/GlobalExceptionHandler.java)
-- Add an `@ExceptionHandler` for `org.springframework.security.access.AccessDeniedException`.
-- Ensure it returns `HttpStatus.FORBIDDEN (403)` with a clear "Access Denied" message.
+#### [MODIFY] [ResultServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/ResultServiceImpl.java)
+- Implement `ensureStandardExams(UUID offeringId)`:
+    - Checks if standard exams (Quiz 1-3, Midterm, Final, Attendance) exist for the offering.
+    - If not, auto-creates them with default weights (Quiz: 5% each, Midterm: 30%, Final: 50%, Attendance: 5%).
+- Implement `getMarksMatrix`:
+    - Calls `ensureStandardExams`.
+    - Returns a list of `LiveResultResponse` objects containing marks for each slot.
+- Implement `saveMarksMatrix`:
+    - Iterates through the matrix and saves `Result` records for each enrollment and corresponding exam slot.
 
-#### [MODIFY] [SecurityConfig.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/security/SecurityConfig.java)
-- (Optional but recommended) Add an `accessDeniedHandler` to the `SecurityFilterChain` for cases where the exception is thrown before reaching the controller (though the `GlobalExceptionHandler` usually covers method-level security).
+#### [MODIFY] [ResultController.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/controller/ResultController.java)
+- Add `GET /offering/{offeringId}/matrix` endpoint.
+- Add `POST /offering/{offeringId}/matrix` endpoint.
 
 ---
+
+### Frontend Enhancements
+
+#### [MODIFY] [ExamManagement.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/faculty/ExamManagement.jsx)
+- Completely redesign the UI to be a **Direct Marks Entry** page.
+- Remove the "Add Exam" button and individual assessment cards.
+- Show a spreadsheet-style table:
+    - **Rows**: List of enrolled students.
+    - **Columns**: Student Name, Quiz 1, Quiz 2, Quiz 3, Midterm, Final.
+    - **Inputs**: Editable numeric fields for marks.
+- Add a "Save Changes" button at the bottom that sends the entire matrix to the backend.
+- Keep a link to the Attendance page for the "Attendance" slot.
+
+#### [MODIFY] [LiveResults.jsx](file:///E:/Project/DBMS/uams/frontend/src/pages/student/LiveResults.jsx)
+- Ensure students see these slots consistently.
 
 ## Verification Plan
 
 ### Manual Verification
-1.  **Faculty Access**: Log in as a Faculty member. Try to access `GET /api/fees/student/{id}`. Verify it returns `200 OK`.
-2.  **Forbidden Access**: Log in as a Student. Try to access an Admin-only endpoint (e.g., `POST /api/fees`). Verify it returns `403 Forbidden` with a JSON error body instead of a `500`.
-3.  **Advisor Registration UI**: Navigate to the Advisor Registration page in the frontend and verify the fee summary loads without errors.
+1.  **Faculty Access**: Log in as a Faculty member. Select a course.
+2.  **Auto-Initialization**: Verify that standard columns (Q1, Q2, Q3, Mid, Final) appear automatically without clicking "Add Exam".
+3.  **Marks Entry**: Enter marks for several students across different columns. Click "Save".
+4.  **Persistence**: Refresh the page and verify the marks are still there.
+5.  **Student View**: Log in as a student enrolled in that course. Verify that the marks are visible in the "Live Results" page.

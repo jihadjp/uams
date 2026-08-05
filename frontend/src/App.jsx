@@ -44,6 +44,7 @@ import BatchFeeManagement from './pages/admin/BatchFeeManagement';
 import DocumentManagement from './pages/admin/DocumentManagement';
 import ConvocationManagement from './pages/admin/ConvocationManagement';
 import RegistrarList from './pages/admin/RegistrarList';
+import ResultApproval from './pages/admin/ResultApproval';
 
 // Common Pages
 import Profile from './pages/common/Profile';
@@ -134,6 +135,7 @@ function App() {
             <Route path="document-requests" element={<DocumentManagement />} />
             <Route path="convocation" element={<ConvocationManagement />} />
             <Route path="financial-aid" element={<FinancialAidManagement />} />
+            <Route path="result-approval" element={<ResultApproval />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
           </Route>

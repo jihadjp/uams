@@ -169,18 +169,15 @@ const FacultyStudentResults = () => {
                       <ArrowUpDown size={12} className={sortConfig.key === 'studentName' ? 'text-primary-500' : 'opacity-30'} />
                    </div>
                 </th>
-                <th className="px-6 py-5 text-center">Attendance</th>
-                <th className="px-6 py-5 text-center">Quiz 1</th>
-                <th className="px-6 py-5 text-center">Quiz 2</th>
-                <th className="px-6 py-5 text-center">Quiz 3</th>
-                <th className="px-6 py-5 text-center border-x border-gray-100 dark:border-gray-700 bg-indigo-50/30 dark:bg-indigo-900/10">Quiz Avg</th>
+                <th className="px-6 py-5 text-center">Attendance %</th>
+                <th className="px-6 py-5 text-center">Theory/Lab Marks</th>
                 <th className="px-6 py-5 text-center">Midterm</th>
-                <th className="px-6 py-5 text-center">Mid Imp</th>
+                <th className="px-6 py-5 text-center">Final</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
               {resultsLoading ? (
-                <tr><td colSpan="8" className="py-24 text-center"><Loader /></td></tr>
+                <tr><td colSpan="5" className="py-24 text-center"><Loader /></td></tr>
               ) : filteredResults.length > 0 ? filteredResults.map((r) => (
                 <tr key={r.enrollmentId} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all">
                   <td className="px-6 py-5">
@@ -192,12 +189,14 @@ const FacultyStudentResults = () => {
                     </div>
                   </td>
                   <td className="px-6 py-5 text-center font-black text-indigo-600 dark:text-indigo-400">{r.attendancePercentage}%</td>
-                  <td className="px-6 py-5 text-center font-bold text-gray-600 dark:text-gray-400">{r.quiz1 || '0.00'}</td>
-                  <td className="px-6 py-5 text-center font-bold text-gray-600 dark:text-gray-400">{r.quiz2 || '0.00'}</td>
-                  <td className="px-6 py-5 text-center font-bold text-gray-600 dark:text-gray-400">{r.quiz3 || '0.00'}</td>
-                  <td className="px-6 py-5 text-center font-black text-[#2D2A4F] dark:text-white bg-indigo-50/10 dark:bg-indigo-900/5 border-x border-gray-100 dark:border-gray-700">{r.quizAverage || '0.00'}</td>
+                  <td className="px-6 py-5 text-center">
+                     <div className="flex flex-col items-center gap-1">
+                        <span className="text-[10px] text-gray-400">Q: {r.quiz1 || 0} | P: {r.presentation || 0}</span>
+                        <span className="text-[10px] text-gray-400">A: {r.assignment || 0} | Att: {r.attendanceMarks || 0}</span>
+                     </div>
+                  </td>
                   <td className="px-6 py-5 text-center font-bold text-gray-600 dark:text-gray-400">{r.midterm || '0.00'}</td>
-                  <td className="px-6 py-5 text-center font-bold text-amber-600 dark:text-amber-400">{r.midtermImprovement || '0.00'}</td>
+                  <td className="px-6 py-5 text-center font-black text-[#2D2A4F] dark:text-white bg-indigo-50/10 dark:bg-indigo-900/5 border-x border-gray-100 dark:border-gray-700">{r.finalExam || '0.00'}</td>
                 </tr>
               )) : (
                 <tr>
