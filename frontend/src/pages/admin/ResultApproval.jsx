@@ -56,11 +56,10 @@ const ResultApproval = () => {
     try {
       const res = await getCourseOfferings({
         semesterId: selectedSemester,
-        isResultsPublished: true // Backend should support this filter based on prompt
+        isResultsPublished: true
       });
       const allOfferings = res.data?.content || res.data || [];
-      // Even if backend doesn't filter, we filter here just in case
-      setOfferings(allOfferings.filter(o => o.resultsPublished));
+      setOfferings(allOfferings);
     } catch (err) {
       toast.error('Failed to fetch offerings for approval');
     } finally {
@@ -297,38 +296,67 @@ const ResultApproval = () => {
 
              <div className="border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm">
                 <div className="overflow-x-auto max-h-[60vh]">
-                  <table className="w-full text-left border-collapse">
+                  <table className="w-full text-left border-collapse min-w-[1200px]">
                     <thead className="sticky top-0 bg-slate-50 dark:bg-[#0F172A] border-b border-slate-200 dark:border-white/10 z-10">
                       <tr>
-                        <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Student ID</th>
-                        <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Name</th>
-                        {matrixModal.data.columns?.map(col => (
-                           <th key={col.id} className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">
-                              {col.title}
-                              <span className="block text-[8px] opacity-60">({col.maxMarks})</span>
-                           </th>
-                        ))}
-                        <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white text-center bg-slate-100 dark:bg-white/5 font-bold">Total</th>
-                        <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white text-center bg-slate-100 dark:bg-white/5 font-bold">Grade</th>
+                        <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Student Info</th>
+                        {matrixModal.offering?.courseType === 'THEORY' ? (
+                          <>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Att (7)</th>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Q1 (15)</th>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Q2 (15)</th>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Q3 (15)</th>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center bg-indigo-50/50 dark:bg-indigo-900/10">Avg (15)</th>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Pres (8)</th>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Assig (5)</th>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Mid (25)</th>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Final (40)</th>
+                          </>
+                        ) : (
+                          <>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Att (10)</th>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Project (25)</th>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Report (25)</th>
+                            <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Final (40)</th>
+                          </>
+                        )}
+                        <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white text-center bg-emerald-50 dark:bg-emerald-900/10 font-bold">Total</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-white/[0.05]">
-                      {matrixModal.data.rows?.map((row, idx) => (
+                      {Array.isArray(matrixModal.data) && matrixModal.data.map((row, idx) => (
                         <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
-                          <td className="px-4 py-3 text-xs font-mono font-bold text-slate-500">{row.studentId}</td>
-                          <td className="px-4 py-3 text-xs font-bold text-slate-900 dark:text-white whitespace-nowrap">{row.studentName}</td>
-                          {matrixModal.data.columns?.map(col => (
-                            <td key={col.id} className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">
-                               {row.marks[col.id] ?? '-'}
-                            </td>
-                          ))}
-                          <td className="px-4 py-3 text-xs font-black text-slate-900 dark:text-white text-center bg-slate-50 dark:bg-white/[0.02]">
-                             {row.totalMarks}
+                          <td className="px-4 py-3 whitespace-nowrap">
+                             <p className="text-xs font-bold text-slate-900 dark:text-white">{row.studentName}</p>
+                             <p className="text-[10px] font-mono text-slate-400 uppercase">{row.studentId}</p>
                           </td>
-                          <td className="px-4 py-3 text-center bg-slate-50 dark:bg-white/[0.02]">
-                             <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded font-black text-[10px]">
-                                {row.grade}
-                             </span>
+                          {matrixModal.offering?.courseType === 'THEORY' ? (
+                            <>
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">{row.attendanceMarks || 0}</td>
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">{row.quiz1 || 0}</td>
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">{row.quiz2 || 0}</td>
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">{row.quiz3 || 0}</td>
+                              <td className="px-4 py-3 text-xs font-black text-indigo-600 dark:text-indigo-400 text-center bg-indigo-50/20 dark:bg-indigo-900/5">
+                                {(row.quizAverage || 0).toFixed(2)}
+                              </td>
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">{row.presentation || 0}</td>
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">{row.assignment || 0}</td>
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">{row.midterm || 0}</td>
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">{row.finalExam || 0}</td>
+                            </>
+                          ) : (
+                            <>
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">{row.attendanceMarks || 0}</td>
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">{row.projectShow || 0}</td>
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">{row.labReport || 0}</td>
+                              <td className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 text-center">{row.labEvaluation || 0}</td>
+                            </>
+                          )}
+                          <td className="px-4 py-3 text-xs font-black text-emerald-600 dark:text-emerald-400 text-center bg-emerald-50/30 dark:bg-emerald-900/5">
+                             {matrixModal.offering?.courseType === 'THEORY'
+                               ? ((row.quizAverage || 0) + (row.attendanceMarks || 0) + (row.presentation || 0) + (row.assignment || 0) + (row.midterm || 0) + (row.finalExam || 0)).toFixed(2)
+                               : ((row.attendanceMarks || 0) + (row.projectShow || 0) + (row.labReport || 0) + (row.labEvaluation || 0)).toFixed(2)
+                             }
                           </td>
                         </tr>
                       ))}

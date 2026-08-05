@@ -102,7 +102,7 @@ const ResultsEntry = () => {
 
                       <div className="grid grid-cols-2 gap-4 mt-8">
                         <button
-                          onClick={() => navigate(`/faculty/exams/${course.id}`)}
+                          onClick={() => navigate(`/faculty/results/exams/${course.id}`)}
                           className="flex items-center justify-center space-x-3 p-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-indigo-600 hover:text-white text-gray-700 dark:text-gray-300 rounded-2xl transition-all group/btn border border-gray-100 dark:border-gray-700 shadow-sm"
                         >
                           <div className="p-2 bg-white dark:bg-gray-700 rounded-xl group-hover/btn:bg-white/20 transition-colors">
@@ -115,7 +115,7 @@ const ResultsEntry = () => {
                         </button>
 
                         <button
-                          onClick={() => navigate(`/faculty/publish-results/${course.id}`)}
+                          onClick={() => navigate(`/faculty/results/publish/${course.id}`)}
                           className="flex items-center justify-center space-x-3 p-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-emerald-600 hover:text-white text-gray-700 dark:text-gray-300 rounded-2xl transition-all group/btn border border-gray-100 dark:border-gray-700 shadow-sm"
                         >
                           <div className="p-2 bg-white dark:bg-gray-700 rounded-xl group-hover/btn:bg-white/20 transition-colors">

@@ -185,7 +185,7 @@ const FacultyDashboard = () => {
                             <Button
                                 variant="secondary"
                                 size="sm"
-                                onClick={() => navigate(`/faculty/exams/${course.id}`)}
+                                onClick={() => navigate(`/faculty/results/exams/${course.id}`)}
                                 className="flex-1 text-[10px] font-black uppercase tracking-widest rounded-xl py-2.5 sm:py-3 border border-slate-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:bg-[#2D2A4F] hover:text-white transition-all shadow-none"
                             >
                               Exams

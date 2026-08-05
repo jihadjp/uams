@@ -109,7 +109,7 @@ const MyCourses = () => {
                             variant="secondary"
                             size="sm"
                             className="w-full flex items-center justify-center space-x-1.5 bg-gray-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 hover:bg-gray-100 text-gray-800 dark:text-gray-200 rounded-xl sm:rounded-2xl font-bold text-xs py-2.5 shadow-none"
-                            onClick={() => navigate(`/faculty/exams/${course.id}`)}
+                            onClick={() => navigate(`/faculty/results/exams/${course.id}`)}
                         >
                           <FileText size={15} />
                           <span>Results</span>

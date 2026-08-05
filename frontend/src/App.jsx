@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
 import Login from './pages/auth/Login';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ChangePassword from './pages/auth/ChangePassword';
@@ -149,10 +148,9 @@ function App() {
             <Route path="my-courses" element={<MyCourses />} />
             <Route path="attendance" element={<MyCourses />} />
             <Route path="attendance/:offeringId" element={<AttendanceMarking />} />
-            <Route path="exams/:offeringId" element={<ExamManagement />} />
-            <Route path="marks/:examId" element={<MarksEntry />} />
             <Route path="results" element={<ResultsEntry />} />
-            <Route path="publish-results/:offeringId" element={<PublishResults />} />
+            <Route path="results/exams/:offeringId" element={<ExamManagement />} />
+            <Route path="results/publish/:offeringId" element={<PublishResults />} />
             <Route path="advisees" element={<AdviseeList />} />
             <Route path="advisor-registration/:studentId" element={<AdvisorRegistration />} />
             <Route path="student-results" element={<FacultyStudentResults />} />
