@@ -180,28 +180,6 @@ const CourseRegistration = () => {
 
     return (
         <div className="w-full px-4 sm:px-6 lg:px-8 space-y-8 pb-20 pt-4">
-            {/* Fee Status Summary */}
-            {feeStatus && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <Card className="!p-4 bg-indigo-50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-900/20">
-                        <p className="text-[10px] font-black uppercase text-indigo-400 tracking-widest mb-1">Registration Fee</p>
-                        <p className="text-lg font-black text-[#2D2A4F] dark:text-indigo-200">{feeStatus.registrationFee?.toLocaleString()} BDT</p>
-                    </Card>
-                    <Card className="!p-4 bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/20">
-                        <p className="text-[10px] font-black uppercase text-blue-400 tracking-widest mb-1">Enrolled Credit Fees</p>
-                        <p className="text-lg font-black text-[#2D2A4F] dark:text-blue-200">{feeStatus.creditFee?.toLocaleString()} BDT</p>
-                    </Card>
-                    <Card className="!p-4 bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/20">
-                        <p className="text-[10px] font-black uppercase text-emerald-400 tracking-widest mb-1">Total Paid</p>
-                        <p className="text-lg font-black text-emerald-600 dark:text-emerald-400">{feeStatus.amountPaid?.toLocaleString()} BDT</p>
-                    </Card>
-                    <Card className="!p-4 bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/20">
-                        <p className="text-[10px] font-black uppercase text-amber-400 tracking-widest mb-1">Total Outstanding</p>
-                        <p className="text-lg font-black text-amber-600 dark:text-amber-400">{(feeStatus.amountDue - feeStatus.amountPaid)?.toLocaleString()} BDT</p>
-                    </Card>
-                </div>
-            )}
-
             {/* Registration Locked - Fee Unpaid */}
             {studentProfile?.isRegistrationCleared && !isRegistrationFeePaid && (
                 <motion.div

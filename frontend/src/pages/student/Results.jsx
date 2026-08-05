@@ -192,16 +192,25 @@ const Results = () => {
                                     </table>
                                 </div>
 
-                                {data.courses.some(c => c.evaluationPending) && (
-                                    <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 rounded-2xl flex items-start gap-3 sm:gap-4">
-                                        <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={18} />
-                                        <p className="text-xs font-bold text-amber-700 dark:text-amber-400 leading-relaxed">
-                                            N.B. : You have pending teaching evaluations for some courses.
-                                            Grade and Grade Point are hidden until evaluations are completed.
-                                            Please complete <span className="underline cursor-pointer font-black hover:text-amber-800 dark:hover:text-amber-300 transition-colors" onClick={() => navigate(getRoleBasedEvaluationPath())}>Teaching Evaluation</span> to unlock your results.
-                                        </p>
-                                    </div>
-                                )}
+                                <div className="mt-4 px-2 space-y-4">
+                                    <p className="text-[11px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 leading-relaxed italic">
+                                        <span className="text-red-500 dark:text-red-400 font-black tracking-tighter">N.B. : If you see Teaching Evaluation Pending in any course.  Please complete  </span>
+                                       <span
+                                            className="text-indigo-600 dark:text-indigo-400 font-black underline cursor-pointer hover:text-indigo-800 dark:hover:text-indigo-300 transition-all decoration-2 underline-offset-4"
+                                            onClick={() => navigate('/student/evaluation')}
+                                        >Teaching Evaluation</span>.
+                                    </p>
+
+                                    {data.courses.some(c => c.evaluationPending) && (
+                                        <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 rounded-2xl flex items-start gap-3 sm:gap-4 shadow-sm">
+                                            <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={18} />
+                                            <p className="text-xs font-bold text-amber-700 dark:text-amber-400 leading-relaxed">
+                                                You have pending teaching evaluations for some courses.
+                                                Grade and Grade Point are hidden until evaluations are completed.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </Card>
                     </div>
