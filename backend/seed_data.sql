@@ -1,0 +1,701 @@
+-- ============================================================
+-- UAMS Seed Data Script
+-- 20 entries per table
+-- ============================================================
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- 1. USERS (Generating 60 users with distinct created_at/updated_at)
+INSERT INTO users (id, name, email, password_hash, role, phone, date_of_birth, gender, blood_group, is_verified, is_active, must_change_password, created_at, updated_at) VALUES
+('u-admin-001', 'System Admin', 'admin@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.z.z.z.z.z.z.z.z.z.z.z.z.z.z.', 'ADMIN', '01711111111', '1980-01-01', 'Male', 'O+', TRUE, TRUE, FALSE, '2020-01-01 08:00:00', '2020-01-01 08:00:00'),
+('u-admin-002', 'Ahmed Khan', 'ahmed.admin@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'ADMIN', '01711111112', '1982-05-15', 'Male', 'A+', TRUE, TRUE, FALSE, '2020-02-15 09:30:00', '2020-02-15 09:30:00'),
+('u-admin-003', 'Sarah Jenkins', 'sarah.j@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'ADMIN', '01711111113', '1985-08-22', 'Female', 'B+', TRUE, TRUE, FALSE, '2020-03-10 10:15:00', '2020-03-10 10:15:00'),
+('u-admin-004', 'Robert Miller', 'robert.m@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'ADMIN', '01711111114', '1978-03-10', 'Male', 'AB+', TRUE, TRUE, FALSE, '2020-04-05 11:00:00', '2020-04-05 11:00:00'),
+('u-admin-005', 'Lisa Wang', 'lisa.w@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'ADMIN', '01711111115', '1983-11-30', 'Female', 'O-', TRUE, TRUE, FALSE, '2020-05-12 14:45:00', '2020-05-12 14:45:00'),
+('u-admin-006', 'David Brown', 'david.b@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'ADMIN', '01711111116', '1981-06-14', 'Male', 'A-', TRUE, TRUE, FALSE, '2020-06-20 09:00:00', '2020-06-20 09:00:00'),
+('u-admin-007', 'Emily Davis', 'emily.d@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'ADMIN', '01711111117', '1986-09-05', 'Female', 'B-', TRUE, TRUE, FALSE, '2020-07-15 10:30:00', '2020-07-15 10:30:00'),
+('u-admin-008', 'Michael Wilson', 'michael.w@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'ADMIN', '01711111118', '1979-12-25', 'Male', 'AB-', TRUE, TRUE, FALSE, '2020-08-10 12:00:00', '2020-08-10 12:00:00'),
+('u-admin-009', 'Karen Garcia', 'karen.g@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'ADMIN', '01711111119', '1984-02-18', 'Female', 'O+', TRUE, TRUE, FALSE, '2020-09-05 15:30:00', '2020-09-05 15:30:00'),
+('u-admin-010', 'James Lee', 'james.l@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'ADMIN', '01711111120', '1987-07-07', 'Male', 'A+', TRUE, TRUE, FALSE, '2020-10-12 16:45:00', '2020-10-12 16:45:00'),
+
+('u-reg-001', 'Registrar One', 'registrar1@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'REGISTRAR', '01811111111', '1975-04-20', 'Female', 'B+', TRUE, TRUE, FALSE, '2020-01-05 08:30:00', '2020-01-05 08:30:00'),
+('u-reg-002', 'Registrar Two', 'registrar2@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'REGISTRAR', '01811111112', '1977-10-12', 'Male', 'O-', TRUE, TRUE, FALSE, '2020-02-10 10:00:00', '2020-02-10 10:00:00'),
+('u-reg-003', 'John Doe', 'john.r@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'REGISTRAR', '01811111113', '1980-01-15', 'Male', 'A+', TRUE, TRUE, FALSE, '2020-03-05 11:30:00', '2020-03-05 11:30:00'),
+('u-reg-004', 'Mary Smith', 'mary.r@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'REGISTRAR', '01811111114', '1982-03-22', 'Female', 'B+', TRUE, TRUE, FALSE, '2020-04-12 14:00:00', '2020-04-12 14:00:00'),
+('u-reg-005', 'Paul White', 'paul.r@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'REGISTRAR', '01811111115', '1978-05-30', 'Male', 'O+', TRUE, TRUE, FALSE, '2020-05-15 16:30:00', '2020-05-15 16:30:00'),
+('u-reg-006', 'Jane Black', 'jane.r@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'REGISTRAR', '01811111116', '1981-07-14', 'Female', 'A-', TRUE, TRUE, FALSE, '2020-06-25 09:15:00', '2020-06-25 09:15:00'),
+('u-reg-007', 'Chris Green', 'chris.r@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'REGISTRAR', '01811111117', '1983-09-05', 'Male', 'B-', TRUE, TRUE, FALSE, '2020-07-20 10:45:00', '2020-07-20 10:45:00'),
+('u-reg-008', 'Nancy Blue', 'nancy.r@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'REGISTRAR', '01811111118', '1979-11-25', 'Female', 'AB+', TRUE, TRUE, FALSE, '2020-08-15 12:30:00', '2020-08-15 12:30:00'),
+('u-reg-009', 'Mark Gray', 'mark.r@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'REGISTRAR', '01811111119', '1984-01-18', 'Male', 'O-', TRUE, TRUE, FALSE, '2020-09-10 15:00:00', '2020-09-10 15:00:00'),
+('u-reg-010', 'Lucy Gold', 'lucy.r@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'REGISTRAR', '01811111120', '1987-06-07', 'Female', 'A+', TRUE, TRUE, FALSE, '2020-10-20 17:15:00', '2020-10-20 17:15:00'),
+
+('u-fac-001', 'Dr. Alan Turing', 'turing@cs.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111101', '1912-06-23', 'Male', 'O+', TRUE, TRUE, FALSE, '2009-12-01 08:00:00', '2009-12-01 08:00:00'),
+('u-fac-002', 'Dr. Grace Hopper', 'hopper@cs.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111102', '1906-12-09', 'Female', 'A+', TRUE, TRUE, FALSE, '2012-04-10 09:30:00', '2012-04-10 09:30:00'),
+('u-fac-003', 'Dr. Richard Feynman', 'feynman@phy.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111103', '1918-05-11', 'Male', 'B+', TRUE, TRUE, FALSE, '2011-07-15 10:45:00', '2011-07-15 10:45:00'),
+('u-fac-004', 'Dr. Marie Curie', 'curie@chem.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111104', '1867-11-07', 'Female', 'O-', TRUE, TRUE, FALSE, '2009-02-01 11:00:00', '2009-02-01 11:00:00'),
+('u-fac-005', 'Dr. Albert Einstein', 'einstein@phy.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111105', '1879-03-14', 'Male', 'A-', TRUE, TRUE, FALSE, '2013-10-15 14:15:00', '2013-10-15 14:15:00'),
+('u-fac-006', 'Dr. Ada Lovelace', 'lovelace@math.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111106', '1815-12-10', 'Female', 'B-', TRUE, TRUE, FALSE, '2015-05-10 16:30:00', '2015-05-10 16:30:00'),
+('u-fac-007', 'Dr. Nikola Tesla', 'tesla@ee.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111107', '1856-07-10', 'Male', 'AB+', TRUE, TRUE, FALSE, '2014-08-01 09:00:00', '2014-08-01 09:00:00'),
+('u-fac-008', 'Dr. Katherine Johnson', 'johnson@mat.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111108', '1918-08-26', 'Female', 'O+', TRUE, TRUE, FALSE, '2018-11-20 10:45:00', '2018-11-20 10:45:00'),
+('u-fac-009', 'Dr. Stephen Hawking', 'hawking@phy.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111109', '1942-01-08', 'Male', 'A+', TRUE, TRUE, FALSE, '2010-01-15 12:00:00', '2010-01-15 12:00:00'),
+('u-fac-010', 'Dr. Rosalind Franklin', 'franklin@bio.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111110', '1920-07-25', 'Female', 'B+', TRUE, TRUE, FALSE, '2016-06-01 15:30:00', '2016-06-01 15:30:00'),
+('u-fac-011', 'Dr. Isaac Newton', 'newton@phy.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111111', '1643-01-04', 'Male', 'AB-', TRUE, TRUE, FALSE, '2008-03-10 08:15:00', '2008-03-10 08:15:00'),
+('u-fac-012', 'Dr. Dorothy Hodgkin', 'hodgkin@che.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111112', '1910-05-12', 'Female', 'O-', TRUE, TRUE, FALSE, '2017-09-01 10:00:00', '2017-09-01 10:00:00'),
+('u-fac-013', 'Dr. Charles Darwin', 'darwin@bio.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111113', '1809-02-12', 'Male', 'A-', TRUE, TRUE, FALSE, '2004-12-15 11:45:00', '2004-12-15 11:45:00'),
+('u-fac-014', 'Dr. Barbara McClintock', 'mcclintock@gen.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111114', '1902-06-16', 'Female', 'B-', TRUE, TRUE, FALSE, '2012-02-10 14:30:00', '2012-02-10 14:30:00'),
+('u-fac-015', 'Dr. Max Planck', 'planck@phy.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111115', '1858-04-23', 'Male', 'O+', TRUE, TRUE, FALSE, '2011-04-15 16:00:00', '2011-04-15 16:00:00'),
+('u-fac-016', 'Dr. Rachel Carson', 'carson@env.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111116', '1907-05-27', 'Female', 'A+', TRUE, TRUE, FALSE, '2019-06-01 09:15:00', '2019-06-01 09:15:00'),
+('u-fac-017', 'Dr. Erwin Schrodinger', 'schrodinger@phy.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111117', '1887-08-12', 'Male', 'B+', TRUE, TRUE, FALSE, '2014-08-15 10:45:00', '2014-08-15 10:45:00'),
+('u-fac-018', 'Dr. Jane Goodall', 'goodall@bio.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111118', '1934-04-03', 'Female', 'AB+', TRUE, TRUE, FALSE, '2013-10-20 12:30:00', '2013-10-20 12:30:00'),
+('u-fac-019', 'Dr. Carl Sagan', 'sagan@ast.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111119', '1934-11-09', 'Male', 'O-', TRUE, TRUE, FALSE, '2014-12-10 15:00:00', '2014-12-10 15:00:00'),
+('u-fac-020', 'Dr. Margaret Hamilton', 'hamilton@swe.uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'FACULTY', '01911111120', '1936-08-17', 'Female', 'A-', TRUE, TRUE, FALSE, '2020-05-15 17:15:00', '2020-05-15 17:15:00'),
+
+('u-stu-001', 'Alice Johnson', 'alice@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111101', '2004-05-15', 'Female', 'A+', TRUE, TRUE, FALSE, '2020-01-01 10:00:00', '2020-01-01 10:00:00'),
+('u-stu-002', 'Bob Smith', 'bob@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111102', '2003-08-22', 'Male', 'B+', TRUE, TRUE, FALSE, '2020-01-01 11:00:00', '2020-01-01 11:00:00'),
+('u-stu-003', 'Charlie Brown', 'charlie@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111103', '2005-01-10', 'Male', 'O+', TRUE, TRUE, FALSE, '2021-06-01 10:00:00', '2021-06-01 10:00:00'),
+('u-stu-004', 'Diana Ross', 'diana@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111104', '2004-11-30', 'Female', 'AB+', TRUE, TRUE, FALSE, '2022-01-01 10:00:00', '2022-01-01 10:00:00'),
+('u-stu-005', 'Ethan Hunt', 'ethan@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111105', '2003-03-12', 'Male', 'A-', TRUE, TRUE, FALSE, '2023-01-01 10:00:00', '2023-01-01 10:00:00'),
+('u-stu-006', 'Fiona Apple', 'fiona@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111106', '2004-07-14', 'Female', 'B-', TRUE, TRUE, FALSE, '2023-01-01 11:00:00', '2023-01-01 11:00:00'),
+('u-stu-007', 'George Miller', 'george@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111107', '2005-09-05', 'Male', 'O-', TRUE, TRUE, FALSE, '2021-06-01 11:00:00', '2021-06-01 11:00:00'),
+('u-stu-008', 'Hannah Abbott', 'hannah@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111108', '2004-12-25', 'Female', 'AB-', TRUE, TRUE, FALSE, '2022-01-01 11:00:00', '2022-01-01 11:00:00'),
+('u-stu-009', 'Ian Wright', 'ian@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111109', '2003-02-18', 'Male', 'O+', TRUE, TRUE, FALSE, '2024-01-01 10:00:00', '2024-01-01 10:00:00'),
+('u-stu-010', 'Jenny Slate', 'jenny@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111110', '2005-07-07', 'Female', 'A+', TRUE, TRUE, FALSE, '2024-01-01 11:00:00', '2024-01-01 11:00:00'),
+('u-stu-011', 'Kevin Hart', 'kevin@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111111', '2004-04-20', 'Male', 'B+', TRUE, TRUE, FALSE, '2021-06-01 12:00:00', '2021-06-01 12:00:00'),
+('u-stu-012', 'Laura Palmer', 'laura@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111112', '2003-10-12', 'Female', 'O-', TRUE, TRUE, FALSE, '2022-01-01 12:00:00', '2022-01-01 12:00:00'),
+('u-stu-013', 'Mike Tyson', 'mike@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111113', '2005-01-15', 'Male', 'A+', TRUE, TRUE, FALSE, '2023-01-01 12:00:00', '2023-01-01 12:00:00'),
+('u-stu-014', 'Nina Simone', 'nina@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111114', '2004-03-22', 'Female', 'B+', TRUE, TRUE, FALSE, '2023-01-01 13:00:00', '2023-01-01 13:00:00'),
+('u-stu-015', 'Oscar Isaac', 'oscar@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111115', '2003-05-30', 'Male', 'O+', TRUE, TRUE, FALSE, '2021-06-01 13:00:00', '2021-06-01 13:00:00'),
+('u-stu-016', 'Phoebe Waller', 'phoebe@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111116', '2005-07-14', 'Female', 'A-', TRUE, TRUE, FALSE, '2022-01-01 13:00:00', '2022-01-01 13:00:00'),
+('u-stu-017', 'Quentin Tarantino', 'quentin@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111117', '2004-09-05', 'Male', 'B-', TRUE, TRUE, FALSE, '2024-01-01 12:00:00', '2024-01-01 12:00:00'),
+('u-stu-018', 'Riley Reid', 'riley@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111118', '2003-11-25', 'Female', 'AB+', TRUE, TRUE, FALSE, '2024-01-01 13:00:00', '2024-01-01 13:00:00'),
+('u-stu-019', 'Steve Jobs', 'steve@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111119', '2005-01-18', 'Male', 'O-', TRUE, TRUE, FALSE, '2021-06-01 14:00:00', '2021-06-01 14:00:00'),
+('u-stu-020', 'Tina Fey', 'tina@uams.edu', '$2b$12$KZe8x/F6z8Y6H6q7K6z8e.', 'STUDENT', '01611111120', '2004-06-07', 'Female', 'A+', TRUE, TRUE, FALSE, '2022-01-01 14:00:00', '2022-01-01 14:00:00');
+
+-- 2. DEPARTMENTS (20)
+INSERT INTO departments (id, name, code, dept_number, faculty_division, created_at) VALUES
+('dept-cse-001', 'Computer Science and Engineering', 'CSE', '101', 'Science & Engineering', '2000-01-01 00:00:00'),
+('dept-eee-001', 'Electrical and Electronic Engineering', 'EEE', '102', 'Science & Engineering', '2000-01-01 00:00:00'),
+('dept-ce-001', 'Civil Engineering', 'CE', '103', 'Science & Engineering', '2000-01-01 00:00:00'),
+('dept-me-001', 'Mechanical Engineering', 'ME', '104', 'Science & Engineering', '2000-01-01 00:00:00'),
+('dept-te-001', 'Textile Engineering', 'TE', '105', 'Science & Engineering', '2000-01-01 00:00:00'),
+('dept-swe-001', 'Software Engineering', 'SWE', '106', 'Science & Engineering', '2000-01-01 00:00:00'),
+('dept-phy-001', 'Physics', 'PHY', '201', 'Arts & Sciences', '2000-01-01 00:00:00'),
+('dept-chem-001', 'Chemistry', 'CHEM', '202', 'Arts & Sciences', '2000-01-01 00:00:00'),
+('dept-math-001', 'Mathematics', 'MATH', '203', 'Arts & Sciences', '2000-01-01 00:00:00'),
+('dept-bio-001', 'Biology', 'BIO', '204', 'Arts & Sciences', '2000-01-01 00:00:00'),
+('dept-eng-001', 'English', 'ENG', '301', 'Humanities', '2000-01-01 00:00:00'),
+('dept-eco-001', 'Economics', 'ECO', '302', 'Business & Economics', '2000-01-01 00:00:00'),
+('dept-bba-001', 'Business Administration', 'BBA', '303', 'Business & Economics', '2000-01-01 00:00:00'),
+('dept-law-001', 'Law', 'LAW', '401', 'Law & Justice', '2000-01-01 00:00:00'),
+('dept-env-001', 'Environmental Science', 'ENV', '205', 'Arts & Sciences', '2000-01-01 00:00:00'),
+('dept-ast-001', 'Astronomy', 'AST', '206', 'Arts & Sciences', '2000-01-01 00:00:00'),
+('dept-gen-001', 'Genetics', 'GEN', '207', 'Arts & Sciences', '2000-01-01 00:00:00'),
+('dept-psy-001', 'Psychology', 'PSY', '304', 'Humanities', '2000-01-01 00:00:00'),
+('dept-soc-001', 'Sociology', 'SOC', '305', 'Humanities', '2000-01-01 00:00:00'),
+('dept-arc-001', 'Architecture', 'ARC', '107', 'Science & Engineering', '2000-01-01 00:00:00');
+
+-- 3. FACULTY (20)
+INSERT INTO faculty (id, user_id, department_id, employee_id, designation, joined_at, created_at) VALUES
+('fac-001', 'u-fac-001', 'dept-cse-001', 'EMP-1001', 'Professor', '2010-01-01', '2009-12-05 08:00:00'),
+('fac-002', 'u-fac-002', 'dept-cse-001', 'EMP-1002', 'Associate Professor', '2012-05-15', '2012-04-15 08:00:00'),
+('fac-003', 'u-fac-003', 'dept-phy-001', 'EMP-2001', 'Professor', '2011-08-22', '2011-07-20 08:00:00'),
+('fac-004', 'u-fac-004', 'dept-chem-001', 'EMP-2002', 'Professor', '2009-03-10', '2009-02-05 08:00:00'),
+('fac-005', 'u-fac-005', 'dept-phy-001', 'EMP-2003', 'Professor', '2013-11-30', '2013-10-20 08:00:00'),
+('fac-006', 'u-fac-006', 'dept-math-001', 'EMP-2004', 'Assistant Professor', '2015-06-14', '2015-05-15 08:00:00'),
+('fac-007', 'u-fac-007', 'dept-eee-001', 'EMP-1003', 'Associate Professor', '2014-09-05', '2014-08-05 08:00:00'),
+('fac-008', 'u-fac-008', 'dept-math-001', 'EMP-2005', 'Lecturer', '2018-12-25', '2018-11-25 08:00:00'),
+('fac-009', 'u-fac-009', 'dept-phy-001', 'EMP-2006', 'Professor', '2010-02-18', '2010-01-20 08:00:00'),
+('fac-010', 'u-fac-010', 'dept-bio-001', 'EMP-2007', 'Associate Professor', '2016-07-07', '2016-06-05 08:00:00'),
+('fac-011', 'u-fac-011', 'dept-phy-001', 'EMP-2008', 'Professor', '2008-04-20', '2008-03-15 08:00:00'),
+('fac-012', 'u-fac-012', 'dept-chem-001', 'EMP-2009', 'Assistant Professor', '2017-10-12', '2017-09-05 08:00:00'),
+('fac-013', 'u-fac-013', 'dept-bio-001', 'EMP-2010', 'Professor', '2005-01-15', '2004-12-20 08:00:00'),
+('fac-014', 'u-fac-014', 'dept-gen-001', 'EMP-2011', 'Associate Professor', '2012-03-22', '2012-02-15 08:00:00'),
+('fac-015', 'u-fac-015', 'dept-phy-001', 'EMP-2012', 'Professor', '2011-05-30', '2011-04-20 08:00:00'),
+('fac-016', 'u-fac-016', 'dept-env-001', 'EMP-2013', 'Assistant Professor', '2019-07-14', '2019-06-05 08:00:00'),
+('fac-017', 'u-fac-017', 'dept-phy-001', 'EMP-2014', 'Professor', '2014-09-05', '2014-08-20 08:00:00'),
+('fac-018', 'u-fac-018', 'dept-bio-001', 'EMP-2015', 'Associate Professor', '2013-11-25', '2013-10-25 08:00:00'),
+('fac-019', 'u-fac-019', 'dept-ast-001', 'EMP-2016', 'Professor', '2015-01-18', '2014-12-15 08:00:00'),
+('fac-020', 'u-fac-020', 'dept-swe-001', 'EMP-1004', 'Assistant Professor', '2020-06-07', '2020-05-20 08:00:00');
+
+-- Update Department Heads
+UPDATE departments SET head_faculty_id = 'fac-001' WHERE id = 'dept-cse-001';
+UPDATE departments SET head_faculty_id = 'fac-003' WHERE id = 'dept-phy-001';
+UPDATE departments SET head_faculty_id = 'fac-004' WHERE id = 'dept-chem-001';
+UPDATE departments SET head_faculty_id = 'fac-006' WHERE id = 'dept-math-001';
+UPDATE departments SET head_faculty_id = 'fac-007' WHERE id = 'dept-eee-001';
+UPDATE departments SET head_faculty_id = 'fac-010' WHERE id = 'dept-bio-001';
+UPDATE departments SET head_faculty_id = 'fac-014' WHERE id = 'dept-gen-001';
+UPDATE departments SET head_faculty_id = 'fac-016' WHERE id = 'dept-env-001';
+UPDATE departments SET head_faculty_id = 'fac-019' WHERE id = 'dept-ast-001';
+UPDATE departments SET head_faculty_id = 'fac-020' WHERE id = 'dept-swe-001';
+
+-- 4. PROGRAMS (20)
+INSERT INTO programs (id, department_id, name, degree_level, duration_years, total_credits, created_at) VALUES
+('prog-cse-001', 'dept-cse-001', 'B.Sc. in CSE', 'Undergraduate', 4.0, 160.0, '2005-01-01 00:00:00'),
+('prog-eee-001', 'dept-eee-001', 'B.Sc. in EEE', 'Undergraduate', 4.0, 158.0, '2005-01-01 00:00:00'),
+('prog-ce-001', 'dept-ce-001', 'B.Sc. in CE', 'Undergraduate', 4.0, 162.0, '2005-01-01 00:00:00'),
+('prog-me-001', 'dept-me-001', 'B.Sc. in ME', 'Undergraduate', 4.0, 160.0, '2005-01-01 00:00:00'),
+('prog-te-001', 'dept-te-001', 'B.Sc. in TE', 'Undergraduate', 4.0, 155.0, '2005-01-01 00:00:00'),
+('prog-swe-001', 'dept-swe-001', 'B.Sc. in SWE', 'Undergraduate', 4.0, 148.0, '2005-01-01 00:00:00'),
+('prog-phy-001', 'dept-phy-001', 'B.Sc. in Physics', 'Undergraduate', 4.0, 140.0, '2005-01-01 00:00:00'),
+('prog-chem-001', 'dept-chem-001', 'B.Sc. in Chemistry', 'Undergraduate', 4.0, 140.0, '2005-01-01 00:00:00'),
+('prog-math-001', 'dept-math-001', 'B.Sc. in Mathematics', 'Undergraduate', 4.0, 140.0, '2005-01-01 00:00:00'),
+('prog-bio-001', 'dept-bio-001', 'B.Sc. in Biology', 'Undergraduate', 4.0, 140.0, '2005-01-01 00:00:00'),
+('prog-eng-001', 'dept-eng-001', 'B.A. in English', 'Undergraduate', 4.0, 120.0, '2005-01-01 00:00:00'),
+('prog-eco-001', 'dept-eco-001', 'B.S.S. in Economics', 'Undergraduate', 4.0, 130.0, '2005-01-01 00:00:00'),
+('prog-bba-001', 'dept-bba-001', 'B.B.A.', 'Undergraduate', 4.0, 132.0, '2005-01-01 00:00:00'),
+('prog-law-001', 'dept-law-001', 'LL.B. (Honours)', 'Undergraduate', 4.0, 144.0, '2005-01-01 00:00:00'),
+('prog-env-001', 'dept-env-001', 'B.Sc. in Env. Science', 'Undergraduate', 4.0, 140.0, '2005-01-01 00:00:00'),
+('prog-ast-001', 'dept-ast-001', 'B.Sc. in Astronomy', 'Undergraduate', 4.0, 140.0, '2005-01-01 00:00:00'),
+('prog-gen-001', 'dept-gen-001', 'B.Sc. in Genetics', 'Undergraduate', 4.0, 140.0, '2005-01-01 00:00:00'),
+('prog-psy-001', 'dept-psy-001', 'B.Sc. in Psychology', 'Undergraduate', 4.0, 130.0, '2005-01-01 00:00:00'),
+('prog-soc-001', 'dept-soc-001', 'B.S.S. in Sociology', 'Undergraduate', 4.0, 130.0, '2005-01-01 00:00:00'),
+('prog-arc-001', 'dept-arc-001', 'B.Arch.', 'Undergraduate', 5.0, 190.0, '2005-01-01 00:00:00');
+
+-- 5. BATCHES (20)
+INSERT INTO batches (id, batch_number, batch_initial, program_id, created_at) VALUES
+('batch-cse-60', '60', 'CSE60', 'prog-cse-001', '2019-12-01 00:00:00'),
+('batch-cse-61', '61', 'CSE61', 'prog-cse-001', '2023-12-01 00:00:00'),
+('batch-eee-55', '55', 'EEE55', 'prog-eee-001', '2021-05-01 00:00:00'),
+('batch-eee-56', '56', 'EEE56', 'prog-eee-001', '2023-12-01 00:00:00'),
+('batch-ce-40', '40', 'CE40', 'prog-ce-001', '2021-05-01 00:00:00'),
+('batch-me-42', '42', 'ME42', 'prog-me-001', '2021-12-01 00:00:00'),
+('batch-swe-30', '30', 'SWE30', 'prog-swe-001', '2021-12-01 00:00:00'),
+('batch-phy-20', '20', 'PHY20', 'prog-phy-001', '2022-12-01 00:00:00'),
+('batch-chem-21', '21', 'CHEM21', 'prog-chem-001', '2022-12-01 00:00:00'),
+('batch-math-25', '25', 'MATH25', 'prog-math-001', '2021-05-01 00:00:00'),
+('batch-bio-15', '15', 'BIO15', 'prog-bio-001', '2021-12-01 00:00:00'),
+('batch-eng-50', '50', 'ENG50', 'prog-eng-001', '2022-12-01 00:00:00'),
+('batch-eco-45', '45', 'ECO45', 'prog-eco-001', '2022-12-01 00:00:00'),
+('batch-bba-70', '70', 'BBA70', 'prog-bba-001', '2021-05-01 00:00:00'),
+('batch-law-10', '10', 'LAW10', 'prog-law-001', '2021-12-01 00:00:00'),
+('batch-env-05', '05', 'ENV05', 'prog-env-001', '2023-12-01 00:00:00'),
+('batch-ast-02', '02', 'AST02', 'prog-ast-001', '2023-12-01 00:00:00'),
+('batch-gen-08', '08', 'GEN08', 'prog-gen-001', '2021-05-01 00:00:00'),
+('batch-psy-12', '12', 'PSY12', 'prog-psy-001', '2021-12-01 00:00:00'),
+('batch-arc-01', '01', 'ARC01', 'prog-arc-001', '2021-12-01 00:00:00');
+
+-- 6. SECTIONS (20)
+INSERT INTO sections (id, name, batch_id, created_at) VALUES
+('sec-cse60-a', 'A', 'batch-cse-60', '2019-12-05 00:00:00'),
+('sec-cse60-b', 'B', 'batch-cse-60', '2019-12-05 00:00:00'),
+('sec-cse61-a', 'A', 'batch-cse-61', '2023-12-05 00:00:00'),
+('sec-eee55-a', 'A', 'batch-eee-55', '2021-05-05 00:00:00'),
+('sec-eee56-a', 'A', 'batch-eee-56', '2023-12-05 00:00:00'),
+('sec-ce40-a', 'A', 'batch-ce-40', '2021-05-05 00:00:00'),
+('sec-me42-a', 'A', 'batch-me-42', '2021-12-05 00:00:00'),
+('sec-swe30-a', 'A', 'batch-swe-30', '2021-12-05 00:00:00'),
+('sec-phy20-a', 'A', 'batch-phy-20', '2022-12-05 00:00:00'),
+('sec-chem21-a', 'A', 'batch-chem-21', '2022-12-05 00:00:00'),
+('sec-math25-a', 'A', 'batch-math-25', '2021-05-05 00:00:00'),
+('sec-bio15-a', 'A', 'batch-bio-15', '2021-12-05 00:00:00'),
+('sec-eng50-a', 'A', 'batch-eng-50', '2022-12-05 00:00:00'),
+('sec-eco45-a', 'A', 'batch-eco-45', '2022-12-05 00:00:00'),
+('sec-bba70-a', 'A', 'batch-bba-70', '2021-05-05 00:00:00'),
+('sec-law10-a', 'A', 'batch-law-10', '2021-12-05 00:00:00'),
+('sec-env05-a', 'A', 'batch-env-05', '2023-12-05 00:00:00'),
+('sec-ast02-a', 'A', 'batch-ast-02', '2023-12-05 00:00:00'),
+('sec-gen08-a', 'A', 'batch-gen-08', '2021-05-05 00:00:00'),
+('sec-psy12-a', 'A', 'batch-psy-12', '2021-12-05 00:00:00');
+
+-- 7. GUARDIANS (20)
+INSERT INTO guardians (id, name, phone, relation) VALUES
+('g-001', 'John Johnson Sr.', '01511111101', 'FATHER'),
+('g-002', 'Robert Smith Sr.', '01511111102', 'FATHER'),
+('g-003', 'Charlie Brown Sr.', '01511111103', 'FATHER'),
+('g-004', 'Diana Ross Sr.', '01511111104', 'MOTHER'),
+('g-005', 'Ethan Hunt Sr.', '01511111105', 'FATHER'),
+('g-006', 'Fiona Apple Sr.', '01511111106', 'MOTHER'),
+('g-007', 'George Miller Sr.', '01511111107', 'FATHER'),
+('g-008', 'Hannah Abbott Sr.', '01511111108', 'MOTHER'),
+('g-009', 'Ian Wright Sr.', '01511111109', 'FATHER'),
+('g-010', 'Jenny Slate Sr.', '01511111110', 'MOTHER'),
+('g-011', 'Kevin Hart Sr.', '01511111111', 'FATHER'),
+('g-012', 'Laura Palmer Sr.', '01511111112', 'MOTHER'),
+('g-013', 'Mike Tyson Sr.', '01511111113', 'FATHER'),
+('g-014', 'Nina Simone Sr.', '01511111114', 'MOTHER'),
+('g-015', 'Oscar Isaac Sr.', '01511111115', 'FATHER'),
+('g-016', 'Phoebe Waller Sr.', '01511111116', 'MOTHER'),
+('g-017', 'Quentin Tarantino Sr.', '01511111117', 'FATHER'),
+('g-018', 'Riley Reid Sr.', '01511111118', 'MOTHER'),
+('g-019', 'Steve Jobs Sr.', '01511111119', 'FATHER'),
+('g-020', 'Tina Fey Sr.', '01511111120', 'MOTHER');
+
+-- 8. STUDENTS (20)
+INSERT INTO students (id, user_id, program_id, advisor_id, batch_id, section_id, guardian_id, student_id, registration_no, admitted_at, created_at) VALUES
+('s-001', 'u-stu-001', 'prog-cse-001', 'fac-001', 'batch-cse-60', 'sec-cse60-a', 'g-001', '20-1001-1', 'REG-2020-001', '2020-01-10', '2020-01-05 10:00:00'),
+('s-002', 'u-stu-002', 'prog-cse-001', 'fac-002', 'batch-cse-60', 'sec-cse60-b', 'g-002', '20-1002-1', 'REG-2020-002', '2020-01-12', '2020-01-05 11:00:00'),
+('s-003', 'u-stu-003', 'prog-eee-001', 'fac-007', 'batch-eee-55', 'sec-eee55-a', 'g-003', '21-1003-2', 'REG-2021-003', '2021-06-15', '2021-06-05 10:00:00'),
+('s-004', 'u-stu-004', 'prog-swe-001', 'fac-020', 'batch-swe-30', 'sec-swe30-a', 'g-004', '22-1004-3', 'REG-2022-004', '2022-01-20', '2022-01-05 10:00:00'),
+('s-005', 'u-stu-005', 'prog-phy-001', 'fac-003', 'batch-phy-20', 'sec-phy20-a', 'g-005', '23-1005-1', 'REG-2023-005', '2023-01-10', '2023-01-05 10:00:00'),
+('s-006', 'u-stu-006', 'prog-chem-001', 'fac-004', 'batch-chem-21', 'sec-chem21-a', 'g-006', '23-1006-1', 'REG-2023-006', '2023-01-12', '2023-01-05 11:00:00'),
+('s-007', 'u-stu-007', 'prog-math-001', 'fac-006', 'batch-math-25', 'sec-math25-a', 'g-007', '21-1007-2', 'REG-2021-007', '2021-06-15', '2021-06-05 11:00:00'),
+('s-008', 'u-stu-008', 'prog-bio-001', 'fac-010', 'batch-bio-15', 'sec-bio15-a', 'g-008', '22-1008-3', 'REG-2022-008', '2022-01-20', '2022-01-05 11:00:00'),
+('s-009', 'u-stu-009', 'prog-cse-001', 'fac-001', 'batch-cse-61', 'sec-cse61-a', 'g-009', '24-1009-1', 'REG-2024-009', '2024-01-10', '2024-01-05 10:00:00'),
+('s-010', 'u-stu-010', 'prog-eee-001', 'fac-007', 'batch-eee-56', 'sec-eee56-a', 'g-010', '24-1010-1', 'REG-2024-010', '2024-01-12', '2024-01-05 11:00:00'),
+('s-011', 'u-stu-011', 'prog-ce-001', 'fac-011', 'batch-ce-40', 'sec-ce40-a', 'g-011', '21-1011-2', 'REG-2021-011', '2021-06-15', '2021-06-05 12:00:00'),
+('s-012', 'u-stu-012', 'prog-me-001', 'fac-013', 'batch-me-42', 'sec-me42-a', 'g-012', '22-1012-3', 'REG-2022-012', '2022-01-20', '2022-01-05 12:00:00'),
+('s-013', 'u-stu-013', 'prog-eng-001', 'fac-014', 'batch-eng-50', 'sec-eng50-a', 'g-013', '23-1013-1', 'REG-2023-013', '2023-01-10', '2023-01-05 12:00:00'),
+('s-014', 'u-stu-014', 'prog-eco-001', 'fac-015', 'batch-eco-45', 'sec-eco45-a', 'g-014', '23-1014-1', 'REG-2023-014', '2023-01-12', '2023-01-05 13:00:00'),
+('s-015', 'u-stu-015', 'prog-bba-001', 'fac-017', 'batch-bba-70', 'sec-bba70-a', 'g-015', '21-1015-2', 'REG-2021-015', '2021-06-15', '2021-06-05 13:00:00'),
+('s-016', 'u-stu-016', 'prog-law-001', 'fac-018', 'batch-law-10', 'sec-law10-a', 'g-016', '22-1016-3', 'REG-2022-016', '2022-01-20', '2022-01-05 13:00:00'),
+('s-017', 'u-stu-017', 'prog-env-001', 'fac-016', 'batch-env-05', 'sec-env05-a', 'g-017', '24-1017-1', 'REG-2024-017', '2024-01-10', '2024-01-05 12:00:00'),
+('s-018', 'u-stu-018', 'prog-ast-001', 'fac-019', 'batch-ast-02', 'sec-ast02-a', 'g-018', '24-1018-1', 'REG-2024-018', '2024-01-12', '2024-01-05 13:00:00'),
+('s-019', 'u-stu-019', 'prog-gen-001', 'fac-014', 'batch-gen-08', 'sec-gen08-a', 'g-019', '21-1019-2', 'REG-2021-019', '2021-06-15', '2021-06-05 14:00:00'),
+('s-020', 'u-stu-020', 'prog-arc-001', 'fac-020', 'batch-arc-01', 'sec-arc01-a', 'g-020', '22-1020-3', 'REG-2022-020', '2022-01-20', '2022-01-05 14:00:00');
+
+-- 9. COURSES (20)
+INSERT INTO courses (id, department_id, course_code, title, credit_hours, course_type) VALUES
+('c-cse-101', 'dept-cse-001', 'CSE101', 'Structured Programming', 3.0, 'THEORY'),
+('c-cse-102', 'dept-cse-001', 'CSE102', 'Structured Programming Lab', 1.5, 'LAB'),
+('c-cse-201', 'dept-cse-001', 'CSE201', 'Data Structures', 3.0, 'THEORY'),
+('c-cse-202', 'dept-cse-001', 'CSE202', 'Data Structures Lab', 1.5, 'LAB'),
+('c-eee-101', 'dept-eee-001', 'EEE101', 'Electrical Circuits I', 3.0, 'THEORY'),
+('c-eee-102', 'dept-eee-001', 'EEE102', 'Electrical Circuits I Lab', 1.5, 'LAB'),
+('c-swe-101', 'dept-swe-001', 'SWE101', 'Software Engineering Fundamentals', 3.0, 'THEORY'),
+('c-phy-101', 'dept-phy-001', 'PHY101', 'Physics I (Mechanics)', 3.0, 'THEORY'),
+('c-chem-101', 'dept-chem-001', 'CHEM101', 'General Chemistry', 3.0, 'THEORY'),
+('c-math-101', 'dept-math-001', 'MATH101', 'Calculus I', 3.0, 'THEORY'),
+('c-math-102', 'dept-math-001', 'MATH102', 'Linear Algebra', 3.0, 'THEORY'),
+('c-bio-101', 'dept-bio-001', 'BIO101', 'Introduction to Biology', 3.0, 'THEORY'),
+('c-eng-101', 'dept-eng-001', 'ENG101', 'English Composition', 3.0, 'THEORY'),
+('c-eco-101', 'dept-eco-001', 'ECO101', 'Microeconomics', 3.0, 'THEORY'),
+('c-bba-101', 'dept-bba-001', 'BBA101', 'Principles of Management', 3.0, 'THEORY'),
+('c-law-101', 'dept-law-001', 'LAW101', 'Legal System of Bangladesh', 3.0, 'THEORY'),
+('c-env-101', 'dept-env-001', 'ENV101', 'Ecology', 3.0, 'THEORY'),
+('c-ast-101', 'dept-ast-001', 'AST101', 'Introductory Astronomy', 3.0, 'THEORY'),
+('c-gen-101', 'dept-gen-001', 'GEN101', 'Genetics I', 3.0, 'THEORY'),
+('c-arc-101', 'dept-arc-001', 'ARC101', 'History of Architecture I', 2.0, 'THEORY');
+
+-- Update Prerequisites
+UPDATE courses SET prerequisite_course_id = 'c-cse-101' WHERE id = 'c-cse-201';
+UPDATE courses SET prerequisite_course_id = 'c-cse-102' WHERE id = 'c-cse-202';
+
+-- 10. SEMESTERS (20)
+INSERT INTO semesters (id, name, term, academic_year, start_date, end_date, registration_deadline, status) VALUES
+('sem-2020-1', 'Spring 2020', 'SPRING', 2020, '2020-01-01', '2020-05-30', '2019-12-25', 'COMPLETED'),
+('sem-2020-2', 'Summer 2020', 'SUMMER', 2020, '2020-06-01', '2020-09-30', '2020-05-25', 'COMPLETED'),
+('sem-2020-3', 'Fall 2020', 'FALL', 2020, '2020-10-01', '2021-01-30', '2020-09-25', 'COMPLETED'),
+('sem-2021-1', 'Spring 2021', 'SPRING', 2021, '2021-02-01', '2021-05-30', '2021-01-25', 'COMPLETED'),
+('sem-2021-2', 'Summer 2021', 'SUMMER', 2021, '2021-06-01', '2021-09-30', '2021-05-25', 'COMPLETED'),
+('sem-2021-3', 'Fall 2021', 'FALL', 2021, '2021-10-01', '2022-01-30', '2021-09-25', 'COMPLETED'),
+('sem-2022-1', 'Spring 2022', 'SPRING', 2022, '2022-02-01', '2022-05-30', '2022-01-25', 'COMPLETED'),
+('sem-2022-2', 'Summer 2022', 'SUMMER', 2022, '2022-06-01', '2022-09-30', '2022-05-25', 'COMPLETED'),
+('sem-2022-3', 'Fall 2022', 'FALL', 2022, '2022-10-01', '2023-01-30', '2022-09-25', 'COMPLETED'),
+('sem-2023-1', 'Spring 2023', 'SPRING', 2023, '2023-02-01', '2023-05-30', '2023-01-25', 'COMPLETED'),
+('sem-2023-2', 'Summer 2023', 'SUMMER', 2023, '2023-06-01', '2023-09-30', '2023-05-25', 'COMPLETED'),
+('sem-2023-3', 'Fall 2023', 'FALL', 2023, '2023-10-01', '2024-01-30', '2023-09-25', 'COMPLETED'),
+('sem-2024-1', 'Spring 2024', 'SPRING', 2024, '2024-02-01', '2024-05-30', '2024-01-25', 'COMPLETED'),
+('sem-2024-2', 'Summer 2024', 'SUMMER', 2024, '2024-06-01', '2024-09-30', '2024-05-25', 'ONGOING'),
+('sem-2024-3', 'Fall 2024', 'FALL', 2024, '2024-10-01', '2025-01-30', '2024-09-25', 'UPCOMING'),
+('sem-2025-1', 'Spring 2025', 'SPRING', 2025, '2025-02-01', '2025-05-30', '2025-01-25', 'UPCOMING'),
+('sem-2025-2', 'Summer 2025', 'SUMMER', 2025, '2025-06-01', '2025-09-30', '2025-05-25', 'UPCOMING'),
+('sem-2025-3', 'Fall 2025', 'FALL', 2025, '2025-10-01', '2026-01-30', '2025-09-25', 'UPCOMING'),
+('sem-2026-1', 'Spring 2026', 'SPRING', 2026, '2026-02-01', '2026-05-30', '2026-01-25', 'UPCOMING'),
+('sem-2026-2', 'Summer 2026', 'SUMMER', 2026, '2026-06-01', '2026-09-30', '2026-05-25', 'UPCOMING');
+
+-- 11. COURSE_OFFERINGS (20)
+INSERT INTO course_offerings (id, course_id, semester_id, faculty_id, batch_id, section_id, schedule_info) VALUES
+('off-1', 'c-cse-101', 'sem-2024-2', 'fac-001', 'batch-cse-60', 'sec-cse60-a', 'Sun/Tue 09:00 AM'),
+('off-2', 'c-cse-102', 'sem-2024-2', 'fac-002', 'batch-cse-60', 'sec-cse60-a', 'Wed 11:00 AM'),
+('off-3', 'c-eee-101', 'sem-2024-2', 'fac-007', 'batch-eee-55', 'sec-eee55-a', 'Mon/Wed 10:00 AM'),
+('off-4', 'c-swe-101', 'sem-2024-2', 'fac-020', 'batch-swe-30', 'sec-swe30-a', 'Sun/Tue 02:00 PM'),
+('off-5', 'c-phy-101', 'sem-2024-2', 'fac-003', 'batch-phy-20', 'sec-phy20-a', 'Mon/Wed 12:00 PM'),
+('off-6', 'c-math-101', 'sem-2024-2', 'fac-006', 'batch-math-25', 'sec-math25-a', 'Tue/Thu 09:00 AM'),
+('off-7', 'c-bio-101', 'sem-2024-2', 'fac-010', 'batch-bio-15', 'sec-bio15-a', 'Sun/Tue 11:00 AM'),
+('off-8', 'c-cse-101', 'sem-2024-2', 'fac-001', 'batch-cse-61', 'sec-cse61-a', 'Mon/Wed 09:00 AM'),
+('off-9', 'c-eee-101', 'sem-2024-2', 'fac-007', 'batch-eee-56', 'sec-eee56-a', 'Sun/Tue 10:00 AM'),
+('off-10', 'c-cse-101', 'sem-2024-2', 'fac-011', 'batch-ce-40', 'sec-ce40-a', 'Mon/Wed 02:00 PM'),
+('off-11', 'c-cse-101', 'sem-2024-2', 'fac-013', 'batch-me-42', 'sec-me42-a', 'Sun/Tue 12:00 PM'),
+('off-12', 'c-eng-101', 'sem-2024-2', 'fac-014', 'batch-eng-50', 'sec-eng50-a', 'Tue/Thu 11:00 AM'),
+('off-13', 'c-eco-101', 'sem-2024-2', 'fac-015', 'batch-eco-45', 'sec-eco45-a', 'Mon/Wed 09:00 AM'),
+('off-14', 'c-bba-101', 'sem-2024-2', 'fac-017', 'batch-bba-70', 'sec-bba70-a', 'Sun/Tue 11:00 AM'),
+('off-15', 'c-law-101', 'sem-2024-2', 'fac-018', 'batch-law-10', 'sec-law10-a', 'Mon/Wed 10:00 AM'),
+('off-16', 'c-env-101', 'sem-2024-2', 'fac-016', 'batch-env-05', 'sec-env05-a', 'Tue/Thu 02:00 PM'),
+('off-17', 'c-ast-101', 'sem-2024-2', 'fac-019', 'batch-ast-02', 'sec-ast02-a', 'Sun/Tue 09:00 AM'),
+('off-18', 'c-gen-101', 'sem-2024-2', 'fac-014', 'batch-gen-08', 'sec-gen08-a', 'Mon/Wed 11:00 AM'),
+('off-19', 'c-arc-101', 'sem-2024-2', 'fac-020', 'batch-arc-01', 'sec-arc01-a', 'Tue/Thu 10:00 AM'),
+('off-20', 'c-cse-201', 'sem-2024-2', 'fac-001', 'batch-cse-60', 'sec-cse60-b', 'Sun/Tue 02:00 PM');
+
+-- 12. ENROLLMENTS (20)
+INSERT INTO enrollments (id, student_id, offering_id, status) VALUES
+('enr-1', 's-001', 'off-1', 'REGISTERED'),
+('enr-2', 's-002', 'off-20', 'REGISTERED'),
+('enr-3', 's-003', 'off-3', 'REGISTERED'),
+('enr-4', 's-004', 'off-4', 'REGISTERED'),
+('enr-5', 's-005', 'off-5', 'REGISTERED'),
+('enr-6', 's-007', 'off-6', 'REGISTERED'),
+('enr-7', 's-008', 'off-7', 'REGISTERED'),
+('enr-8', 's-009', 'off-8', 'REGISTERED'),
+('enr-9', 's-010', 'off-9', 'REGISTERED'),
+('enr-10', 's-011', 'off-10', 'REGISTERED'),
+('enr-11', 's-012', 'off-11', 'REGISTERED'),
+('enr-12', 's-013', 'off-12', 'REGISTERED'),
+('enr-13', 's-014', 'off-13', 'REGISTERED'),
+('enr-14', 's-015', 'off-14', 'REGISTERED'),
+('enr-15', 's-016', 'off-15', 'REGISTERED'),
+('enr-16', 's-017', 'off-16', 'REGISTERED'),
+('enr-17', 's-018', 'off-17', 'REGISTERED'),
+('enr-18', 's-019', 'off-18', 'REGISTERED'),
+('enr-19', 's-020', 'off-19', 'REGISTERED'),
+('enr-20', 's-001', 'off-2', 'REGISTERED');
+
+-- 13. ATTENDANCE (20)
+INSERT INTO attendance (id, enrollment_id, class_date, status) VALUES
+('att-1', 'enr-1', '2024-06-02', 'PRESENT'),
+('att-2', 'enr-2', '2024-06-02', 'PRESENT'),
+('att-3', 'enr-3', '2024-06-03', 'PRESENT'),
+('att-4', 'enr-4', '2024-06-02', 'LATE'),
+('att-5', 'enr-5', '2024-06-03', 'PRESENT'),
+('att-6', 'enr-6', '2024-06-04', 'ABSENT'),
+('att-7', 'enr-7', '2024-06-02', 'PRESENT'),
+('att-8', 'enr-8', '2024-06-03', 'PRESENT'),
+('att-9', 'enr-9', '2024-06-02', 'PRESENT'),
+('att-10', 'enr-10', '2024-06-03', 'PRESENT'),
+('att-11', 'enr-11', '2024-06-02', 'PRESENT'),
+('att-12', 'enr-12', '2024-06-04', 'LATE'),
+('att-13', 'enr-13', '2024-06-03', 'PRESENT'),
+('att-14', 'enr-14', '2024-06-02', 'PRESENT'),
+('att-15', 'enr-15', '2024-06-03', 'PRESENT'),
+('att-16', 'enr-16', '2024-06-04', 'PRESENT'),
+('att-17', 'enr-17', '2024-06-02', 'PRESENT'),
+('att-18', 'enr-18', '2024-06-03', 'ABSENT'),
+('att-19', 'enr-19', '2024-06-04', 'PRESENT'),
+('att-20', 'enr-20', '2024-06-05', 'PRESENT');
+
+-- 14. EXAMS (20)
+INSERT INTO exams (id, offering_id, exam_type, title, total_marks, weight_percent) VALUES
+('ex-1', 'off-1', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-2', 'off-1', 'FINAL', 'Final Exam', 40.0, 40.0),
+('ex-3', 'off-3', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-4', 'off-4', 'QUIZ', 'Quiz 1', 10.0, 10.0),
+('ex-5', 'off-5', 'ASSIGNMENT', 'Assignment 1', 10.0, 10.0),
+('ex-6', 'off-6', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-7', 'off-7', 'PRESENTATION', 'Group Presentation', 10.0, 10.0),
+('ex-8', 'off-8', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-9', 'off-9', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-10', 'off-10', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-11', 'off-11', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-12', 'off-12', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-13', 'off-13', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-14', 'off-14', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-15', 'off-15', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-16', 'off-16', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-17', 'off-17', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-18', 'off-18', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-19', 'off-19', 'MIDTERM', 'Midterm Exam', 30.0, 30.0),
+('ex-20', 'off-20', 'MIDTERM', 'Midterm Exam', 30.0, 30.0);
+
+-- 15. RESULTS (20)
+INSERT INTO results (id, enrollment_id, exam_id, marks_obtained) VALUES
+('res-1', 'enr-1', 'ex-1', 25.5),
+('res-2', 'enr-3', 'ex-3', 22.0),
+('res-3', 'enr-4', 'ex-4', 8.5),
+('res-4', 'enr-5', 'ex-5', 9.0),
+('res-5', 'enr-6', 'ex-6', 27.0),
+('res-6', 'enr-7', 'ex-7', 9.5),
+('res-7', 'enr-8', 'ex-8', 21.0),
+('res-8', 'enr-9', 'ex-9', 24.0),
+('res-9', 'enr-10', 'ex-10', 26.5),
+('res-10', 'enr-11', 'ex-11', 19.5),
+('res-11', 'enr-12', 'ex-12', 28.0),
+('res-12', 'enr-13', 'ex-13', 23.5),
+('res-13', 'enr-14', 'ex-14', 22.5),
+('res-14', 'enr-15', 'ex-15', 20.0),
+('res-15', 'enr-16', 'ex-16', 25.0),
+('res-16', 'enr-17', 'ex-17', 21.5),
+('res-17', 'enr-18', 'ex-18', 27.5),
+('res-18', 'enr-19', 'ex-19', 24.5),
+('res-19', 'enr-2', 'ex-20', 26.0),
+('res-20', 'enr-20', 'ex-1', 24.0);
+
+-- 16. GRADING_POLICIES (Added 10 more to reach 20)
+INSERT INTO grading_policies (min_marks, max_marks, grade, grade_point, remarks) VALUES
+(35.00, 39.99, 'F', 0.00, 'Marginal Fail'),
+(30.00, 34.99, 'F', 0.00, 'Poor'),
+(25.00, 29.99, 'F', 0.00, 'Very Poor'),
+(20.00, 24.99, 'F', 0.00, 'Extremely Poor'),
+(0.00, 19.99, 'F', 0.00, 'No Effort'),
+(85.00, 100.00, 'A+', 4.00, 'Honors'),
+(90.00, 100.00, 'A+', 4.00, 'Chancellor List'),
+(95.00, 100.00, 'A+', 4.00, 'Gold Medalist'),
+(0.00, 0.00, 'W', 0.00, 'Withdrawn'),
+(0.00, 0.00, 'I', 0.00, 'Incomplete');
+
+-- 17. FEES (20)
+INSERT INTO fees (id, student_id, semester_id, registration_fee, credit_fee, amount_paid, due_date) VALUES
+('fee-1', 's-001', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-2', 's-002', 'sem-2024-2', 5000.00, 15000.00, 10000.00, '2024-06-15'),
+('fee-3', 's-003', 'sem-2024-2', 5000.00, 15000.00, 0.00, '2024-06-15'),
+('fee-4', 's-004', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-5', 's-005', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-6', 's-006', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-7', 's-007', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-8', 's-008', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-9', 's-009', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-10', 's-010', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-11', 's-011', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-12', 's-012', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-13', 's-013', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-14', 's-014', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-15', 's-015', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-16', 's-016', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-17', 's-017', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-18', 's-018', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-19', 's-019', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15'),
+('fee-20', 's-020', 'sem-2024-2', 5000.00, 15000.00, 20000.00, '2024-06-15');
+
+-- 18. NOTICES (20)
+INSERT INTO notices (id, title, content, posted_by, target_role) VALUES
+('n-1', 'Semester Final Schedule', 'The schedule for the semester final has been posted.', 'u-admin-001', 'STUDENT'),
+('n-2', 'Holiday Notice', 'The university will be closed on June 15th for Eid.', 'u-admin-002', 'ALL'),
+('n-3', 'Faculty Meeting', 'Departmental meeting tomorrow at 10 AM.', 'u-fac-001', 'FACULTY'),
+('n-4', 'Scholarship Application', 'Applications are open for merit-based scholarships.', 'u-reg-001', 'STUDENT'),
+('n-5', 'Registration Deadline', 'The last day to register for Summer 2024 is May 25th.', 'u-reg-002', 'STUDENT'),
+('n-6', 'Course Evaluation', 'Please complete your course evaluations by next week.', 'u-admin-003', 'STUDENT'),
+('n-7', 'New Lab Equipment', 'We have received new equipment for the CSE lab.', 'u-fac-002', 'FACULTY'),
+('n-8', 'Sports Day', 'Annual sports day will be held on July 10th.', 'u-admin-004', 'ALL'),
+('n-9', 'Blood Donation Camp', 'Join us for the blood donation camp on June 20th.', 'u-admin-005', 'ALL'),
+('n-10', 'Career Fair', 'Career fair for engineering students on August 5th.', 'u-reg-003', 'STUDENT'),
+('n-11', 'Library Maintenance', 'The library will be closed for maintenance this Sunday.', 'u-admin-006', 'ALL'),
+('n-12', 'Internal Audit', 'Internal audit of departments starting next Monday.', 'u-admin-007', 'REGISTRAR'),
+('n-13', 'Graduation Ceremony', 'Convocation 2024 registration is now open.', 'u-reg-004', 'STUDENT'),
+('n-14', 'Wifi Downtime', 'Expect wifi downtime on Saturday night.', 'u-admin-008', 'ALL'),
+('n-15', 'Research Grant', 'Call for research proposals for 2025.', 'u-fac-003', 'FACULTY'),
+('n-16', 'Parking Rules', 'New parking rules implemented from next month.', 'u-admin-009', 'ALL'),
+('n-17', 'Canteen Survey', 'Please provide feedback on the canteen food.', 'u-admin-010', 'ALL'),
+('n-18', 'Academic Calendar', 'Updated academic calendar for 2024-2025.', 'u-reg-005', 'ALL'),
+('n-19', 'Guest Lecture', 'Guest lecture on AI by Dr. Smith on Monday.', 'u-fac-005', 'STUDENT'),
+('n-20', 'Exam Hall Rules', 'Strict rules for the upcoming midterm exams.', 'u-reg-006', 'STUDENT');
+
+-- 19. NOTICE_VIEWS (20)
+INSERT INTO notice_views (id, notice_id, user_id) VALUES
+('nv-1', 'n-1', 'u-stu-001'),
+('nv-2', 'n-1', 'u-stu-002'),
+('nv-3', 'n-2', 'u-fac-001'),
+('nv-4', 'n-2', 'u-stu-003'),
+('nv-5', 'n-3', 'u-fac-002'),
+('nv-6', 'n-4', 'u-stu-004'),
+('nv-7', 'n-5', 'u-stu-005'),
+('nv-8', 'n-6', 'u-stu-001'),
+('nv-9', 'n-7', 'u-fac-003'),
+('nv-10', 'n-8', 'u-admin-001'),
+('nv-11', 'n-9', 'u-stu-006'),
+('nv-12', 'n-10', 'u-stu-007'),
+('nv-13', 'n-11', 'u-stu-008'),
+('nv-14', 'n-12', 'u-reg-001'),
+('nv-15', 'n-13', 'u-stu-009'),
+('nv-16', 'n-14', 'u-stu-010'),
+('nv-17', 'n-15', 'u-fac-004'),
+('nv-18', 'n-16', 'u-stu-011'),
+('nv-19', 'n-17', 'u-stu-012'),
+('nv-20', 'n-18', 'u-stu-013');
+
+-- 20. SEMESTER_CLEARANCE (20)
+INSERT INTO semester_clearance (id, student_id, semester_id, registration_cleared, midterm_cleared, final_exam_cleared) VALUES
+('sc-1', 's-001', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-2', 's-002', 'sem-2024-2', TRUE, FALSE, FALSE),
+('sc-3', 's-003', 'sem-2024-2', FALSE, FALSE, FALSE),
+('sc-4', 's-004', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-5', 's-005', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-6', 's-006', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-7', 's-007', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-8', 's-008', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-9', 's-009', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-10', 's-010', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-11', 's-011', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-12', 's-012', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-13', 's-013', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-14', 's-014', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-15', 's-015', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-16', 's-016', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-17', 's-017', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-18', 's-018', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-19', 's-019', 'sem-2024-2', TRUE, TRUE, FALSE),
+('sc-20', 's-020', 'sem-2024-2', TRUE, TRUE, FALSE);
+
+-- 21. EVALUATIONS (20)
+INSERT INTO evaluations (id, student_id, offering_id, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, comments) VALUES
+('ev-1', 's-001', 'off-1', 5, 4, 5, 5, 4, 5, 5, 4, 5, 5, 'Great instructor!'),
+('ev-2', 's-002', 'off-20', 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 'Good course.'),
+('ev-3', 's-003', 'off-3', 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 'Perfect!'),
+('ev-4', 's-004', 'off-4', 3, 3, 4, 4, 3, 3, 4, 4, 3, 3, 'Average.'),
+('ev-5', 's-005', 'off-5', 5, 4, 5, 5, 4, 5, 5, 4, 5, 5, 'Very helpful.'),
+('ev-6', 's-007', 'off-6', 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 'Interesting topics.'),
+('ev-7', 's-008', 'off-7', 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 'Love the labs.'),
+('ev-8', 's-009', 'off-8', 2, 2, 3, 3, 2, 2, 3, 3, 2, 2, 'Hard to follow.'),
+('ev-9', 's-010', 'off-9', 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 'Decent.'),
+('ev-10', 's-011', 'off-10', 5, 5, 4, 4, 5, 5, 4, 4, 5, 5, 'Excellent teaching.'),
+('ev-11', 's-012', 'off-11', 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 'Okay.'),
+('ev-12', 's-013', 'off-12', 4, 4, 5, 5, 4, 4, 5, 5, 4, 4, 'Very engaging.'),
+('ev-13', 's-014', 'off-13', 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 'Informative.'),
+('ev-14', 's-015', 'off-14', 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 'A bit slow.'),
+('ev-15', 's-016', 'off-15', 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 'Must take course.'),
+('ev-16', 's-017', 'off-16', 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 'Good balance.'),
+('ev-17', 's-018', 'off-17', 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 'Too many quizzes.'),
+('ev-18', 's-019', 'off-18', 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 'Clear explanations.'),
+('ev-19', 's-020', 'off-19', 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 'Great energy.'),
+('ev-20', 's-001', 'off-2', 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 'Loved the experiments.');
+
+-- 22. DOCUMENT_REQUESTS (20)
+INSERT INTO document_requests (id, student_id, document_type, status, fee_amount, is_paid) VALUES
+('dr-1', 's-001', 'TRANSCRIPT', 'PENDING', 500.00, TRUE),
+('dr-2', 's-002', 'TESTIMONIAL', 'PROCESSING', 200.00, TRUE),
+('dr-3', 's-003', 'PROVISIONAL_CERTIFICATE', 'READY_FOR_PICKUP', 1000.00, TRUE),
+('dr-4', 's-004', 'MEDIUM_OF_INSTRUCTION', 'COMPLETED', 300.00, TRUE),
+('dr-5', 's-005', 'TRANSCRIPT', 'REJECTED', 500.00, FALSE),
+('dr-6', 's-006', 'TRANSCRIPT', 'PENDING', 500.00, TRUE),
+('dr-7', 's-007', 'TESTIMONIAL', 'PENDING', 200.00, TRUE),
+('dr-8', 's-008', 'PROVISIONAL_CERTIFICATE', 'PENDING', 1000.00, TRUE),
+('dr-9', 's-009', 'MEDIUM_OF_INSTRUCTION', 'PENDING', 300.00, TRUE),
+('dr-10', 's-010', 'TRANSCRIPT', 'PENDING', 500.00, TRUE),
+('dr-11', 's-011', 'TESTIMONIAL', 'PENDING', 200.00, TRUE),
+('dr-12', 's-012', 'PROVISIONAL_CERTIFICATE', 'PENDING', 1000.00, TRUE),
+('dr-13', 's-013', 'MEDIUM_OF_INSTRUCTION', 'PENDING', 300.00, TRUE),
+('dr-14', 's-014', 'TRANSCRIPT', 'PENDING', 500.00, TRUE),
+('dr-15', 's-015', 'TESTIMONIAL', 'PENDING', 200.00, TRUE),
+('dr-16', 's-016', 'PROVISIONAL_CERTIFICATE', 'PENDING', 1000.00, TRUE),
+('dr-17', 's-017', 'MEDIUM_OF_INSTRUCTION', 'PENDING', 300.00, TRUE),
+('dr-18', 's-018', 'TRANSCRIPT', 'PENDING', 500.00, TRUE),
+('dr-19', 's-019', 'TESTIMONIAL', 'PENDING', 200.00, TRUE),
+('dr-20', 's-020', 'PROVISIONAL_CERTIFICATE', 'PENDING', 1000.00, TRUE);
+
+-- 23. CONVOCATION_APPLICATIONS (20)
+INSERT INTO convocation_applications (id, student_id, convocation_year, gown_size, guest_count, fee_amount, is_paid) VALUES
+('ca-1', 's-001', 2024, 'M', 2, 5000.00, TRUE),
+('ca-2', 's-002', 2024, 'L', 1, 5000.00, TRUE),
+('ca-3', 's-003', 2024, 'S', 0, 5000.00, TRUE),
+('ca-4', 's-004', 2024, 'XL', 2, 5000.00, TRUE),
+('ca-5', 's-005', 2024, 'M', 3, 5000.00, TRUE),
+('ca-6', 's-006', 2024, 'L', 2, 5000.00, TRUE),
+('ca-7', 's-007', 2024, 'M', 2, 5000.00, TRUE),
+('ca-8', 's-008', 2024, 'S', 1, 5000.00, TRUE),
+('ca-9', 's-009', 2024, 'L', 2, 5000.00, TRUE),
+('ca-10', 's-010', 2024, 'XL', 2, 5000.00, TRUE),
+('ca-11', 's-011', 2024, 'M', 2, 5000.00, TRUE),
+('ca-12', 's-012', 2024, 'XXL', 2, 5000.00, TRUE),
+('ca-13', 's-013', 2024, 'S', 2, 5000.00, TRUE),
+('ca-14', 's-014', 2024, 'M', 2, 5000.00, TRUE),
+('ca-15', 's-015', 2024, 'L', 2, 5000.00, TRUE),
+('ca-16', 's-016', 2024, 'M', 2, 5000.00, TRUE),
+('ca-17', 's-017', 2024, 'XL', 2, 5000.00, TRUE),
+('ca-18', 's-018', 2024, 'M', 2, 5000.00, TRUE),
+('ca-19', 's-019', 2024, 'S', 2, 5000.00, TRUE),
+('ca-20', 's-020', 2024, 'L', 2, 5000.00, TRUE);
+
+-- 24. FINANCIAL_AID_CIRCULARS (20)
+INSERT INTO financial_aid_circulars (id, title, description, deadline) VALUES
+('facirc-1', 'Need-Based Aid Fall 2024', 'Aid for students with financial difficulties.', '2024-09-15'),
+('facirc-2', 'Merit Scholarship Spring 2025', 'For students with CGPA > 3.8.', '2025-01-15'),
+('facirc-3', 'Sibling Discount 2024', 'Discount for siblings studying together.', '2024-12-30'),
+('facirc-4', 'Freedom Fighter Quota', 'Aid for children of freedom fighters.', '2024-08-30'),
+('facirc-5', 'Sports Scholarship', 'For national level athletes.', '2024-10-15'),
+('facirc-6', 'Female Student Support', 'Special aid for female students in STEM.', '2024-11-15'),
+('facirc-7', 'Rural Area Grant', 'For students coming from rural backgrounds.', '2024-09-30'),
+('facirc-8', 'Handicapped Support', 'Assistance for students with disabilities.', '2024-08-15'),
+('facirc-9', 'Employee Child Waiver', 'Waiver for children of UAMS employees.', '2024-12-15'),
+('facirc-10', 'Alumni Fund', 'Aid funded by university alumni.', '2024-07-30'),
+('facirc-11', 'Emergency COVID Aid', 'Special aid for pandemic affected families.', '2024-06-30'),
+('facirc-12', 'Tech Industry Grant', 'Grant from local tech companies.', '2024-10-30'),
+('facirc-13', 'Physics Research Aid', 'Specifically for Physics major students.', '2024-11-30'),
+('facirc-14', 'Law Student Fellowship', 'For final year Law students.', '2025-02-15'),
+('facirc-15', 'Architecture Project Fund', 'For B.Arch thesis projects.', '2025-03-15'),
+('facirc-16', 'Environmental Award', 'For projects related to ecology.', '2024-09-15'),
+('facirc-17', 'Creative Writing Grant', 'For English department students.', '2024-12-15'),
+('facirc-18', 'Music Scholarship', 'For talented musicians.', '2024-10-01'),
+('facirc-19', 'Startup Seed Fund', 'For student entrepreneurs.', '2024-08-01'),
+('facirc-20', 'International Travel Grant', 'For attending conferences abroad.', '2024-11-01');
+
+-- 25. FINANCIAL_AID_APPLICATIONS (20)
+INSERT INTO financial_aid_applications (id, student_id, circular_id, justification, monthly_income) VALUES
+('fa-1', 's-001', 'facirc-1', 'Family income is low.', 20000.00),
+('fa-2', 's-002', 'facirc-1', 'Father is retired.', 15000.00),
+('fa-3', 's-003', 'facirc-4', 'Grandfather was a freedom fighter.', 30000.00),
+('fa-4', 's-004', 'facirc-6', 'First generation female student in Engineering.', 25000.00),
+('fa-5', 's-005', 'facirc-13', 'Passionate about Physics research.', 40000.00),
+('fa-6', 's-006', 'facirc-1', 'Single parent household.', 18000.00),
+('fa-7', 's-007', 'facirc-2', 'Maintained 3.9 GPA.', 50000.00),
+('fa-8', 's-008', 'facirc-7', 'Coming from a remote village.', 12000.00),
+('fa-9', 's-009', 'facirc-1', 'Business loss due to flood.', 22000.00),
+('fa-10', 's-010', 'facirc-5', 'Member of national volleyball team.', 35000.00),
+('fa-11', 's-011', 'facirc-1', 'Low income family.', 15000.00),
+('fa-12', 's-012', 'facirc-8', 'Medical expenses are high.', 10000.00),
+('fa-13', 's-013', 'facirc-17', 'Won state writing competition.', 25000.00),
+('fa-14', 's-014', 'facirc-1', 'Unemployed father.', 5000.00),
+('fa-15', 's-015', 'facirc-10', 'Orphan student.', 0.00),
+('fa-16', 's-016', 'facirc-14', 'Top in Law department.', 60000.00),
+('fa-17', 's-017', 'facirc-16', 'Working on river cleaning project.', 20000.00),
+('fa-18', 's-018', 'facirc-1', 'Low family income.', 20000.00),
+('fa-19', 's-019', 'facirc-9', 'Son of a staff member.', 30000.00),
+('fa-20', 's-020', 'facirc-15', 'Complex design project needs funding.', 45000.00);
+
+-- 26. ACADEMIC_CALENDARS (20)
+INSERT INTO academic_calendars (id, semester_id, academic_year, duration) VALUES
+('cal-1', 'sem-2020-1', 2020, '4 Months'),
+('cal-2', 'sem-2020-2', 2020, '4 Months'),
+('cal-3', 'sem-2020-3', 2020, '4 Months'),
+('cal-4', 'sem-2021-1', 2021, '4 Months'),
+('cal-5', 'sem-2021-2', 2021, '4 Months'),
+('cal-6', 'sem-2021-3', 2021, '4 Months'),
+('cal-7', 'sem-2022-1', 2022, '4 Months'),
+('cal-8', 'sem-2022-2', 2022, '4 Months'),
+('cal-9', 'sem-2022-3', 2022, '4 Months'),
+('cal-10', 'sem-2023-1', 2023, '4 Months'),
+('cal-11', 'sem-2023-2', 2023, '4 Months'),
+('cal-12', 'sem-2023-3', 2023, '4 Months'),
+('cal-13', 'sem-2024-1', 2024, '4 Months'),
+('cal-14', 'sem-2024-2', 2024, '4 Months'),
+('cal-15', 'sem-2024-3', 2024, '4 Months'),
+('cal-16', 'sem-2025-1', 2025, '4 Months'),
+('cal-17', 'sem-2025-2', 2025, '4 Months'),
+('cal-18', 'sem-2025-3', 2025, '4 Months'),
+('cal-19', 'sem-2026-1', 2026, '4 Months'),
+('cal-20', 'sem-2026-2', 2026, '4 Months');
+
+-- 27. CALENDAR_EVENTS (20)
+INSERT INTO calendar_events (id, calendar_id, title, date_value, order_index) VALUES
+('evnt-1', 'cal-14', 'Class Start', 'June 01, 2024', 1),
+('evnt-2', 'cal-14', 'Eid-ul-Adha Holiday', 'June 17-19, 2024', 2),
+('evnt-3', 'cal-14', 'Midterm Exams', 'July 20-25, 2024', 3),
+('evnt-4', 'cal-14', 'Last Day of Class', 'September 20, 2024', 4),
+('evnt-5', 'cal-14', 'Final Exams', 'September 25-30, 2024', 5),
+('evnt-6', 'cal-14', 'Result Publication', 'October 05, 2024', 6),
+('evnt-7', 'cal-14', 'Ashura Holiday', 'July 17, 2024', 7),
+('evnt-8', 'cal-14', 'Course Evaluation Start', 'September 10, 2024', 8),
+('evnt-9', 'cal-14', 'Advising for Fall 2024', 'September 15-20, 2024', 9),
+('evnt-10', 'cal-13', 'Class Start', 'Feb 01, 2024', 1),
+('evnt-11', 'cal-13', 'Midterm', 'March 20, 2024', 2),
+('evnt-12', 'cal-13', 'Final', 'May 20, 2024', 3),
+('evnt-13', 'cal-15', 'Registration', 'Sep 20, 2024', 1),
+('evnt-14', 'cal-15', 'Class Start', 'Oct 01, 2024', 2),
+('evnt-15', 'cal-12', 'Result Published', 'Jan 15, 2024', 1),
+('evnt-16', 'cal-11', 'Result Published', 'Oct 15, 2023', 1),
+('evnt-17', 'cal-10', 'Result Published', 'June 15, 2023', 1),
+('evnt-18', 'cal-14', 'Orientation', 'May 30, 2024', 0),
+('evnt-19', 'cal-14', 'Fee Payment Deadline', 'June 10, 2024', 1),
+('evnt-20', 'cal-14', 'Drop Deadline', 'June 20, 2024', 2);
+
+-- 28. BATCH_SEMESTER_FEES (20)
+INSERT INTO batch_semester_fees (id, batch_id, semester_id, registration_fee) VALUES
+('bsf-1', 'batch-cse-60', 'sem-2024-2', 5000.00),
+('bsf-2', 'batch-cse-61', 'sem-2024-2', 5000.00),
+('bsf-3', 'batch-eee-55', 'sem-2024-2', 5000.00),
+('bsf-4', 'batch-eee-56', 'sem-2024-2', 5000.00),
+('bsf-5', 'batch-ce-40', 'sem-2024-2', 4500.00),
+('bsf-6', 'batch-me-42', 'sem-2024-2', 4500.00),
+('bsf-7', 'batch-eee-55', 'sem-2024-2', 4000.00),
+('bsf-8', 'batch-swe-30', 'sem-2024-2', 5500.00),
+('bsf-9', 'batch-phy-20', 'sem-2024-2', 3000.00),
+('bsf-10', 'batch-chem-21', 'sem-2024-2', 3000.00),
+('bsf-11', 'batch-math-25', 'sem-2024-2', 3000.00),
+('bsf-12', 'batch-bio-15', 'sem-2024-2', 3000.00),
+('bsf-13', 'batch-eng-50', 'sem-2024-2', 2500.00),
+('bsf-14', 'batch-eco-45', 'sem-2024-2', 2500.00),
+('bsf-15', 'batch-bba-70', 'sem-2024-2', 4000.00),
+('bsf-16', 'batch-law-10', 'sem-2024-2', 5000.00),
+('bsf-17', 'batch-env-05', 'sem-2024-2', 3000.00),
+('bsf-18', 'batch-ast-02', 'sem-2024-2', 3000.00),
+('bsf-19', 'batch-gen-08', 'sem-2024-2', 3000.00),
+('bsf-20', 'batch-arc-01', 'sem-2024-2', 6000.00);
+
+SET FOREIGN_KEY_CHECKS = 1;

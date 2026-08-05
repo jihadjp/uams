@@ -239,7 +239,7 @@ const StudentDashboard = () => {
                 </Card>
                 <Card
                     className="flex items-center space-x-4 cursor-pointer hover:border-emerald-500 transition-colors"
-                    onClick={() => navigate('/student/attendance')}
+                    onClick={() => navigate('/')}
                 >
                     <div className="p-3 bg-green-50 dark:bg-green-950/50 rounded-2xl text-green-600 dark:text-green-400 shrink-0">
                         <ClipboardCheck size={24} />

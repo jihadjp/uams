@@ -89,10 +89,18 @@ const CourseOfferingList = () => {
 
   const stats = useMemo(() => {
     if (!offerings.length) return { total: 0, credits: 0, unique: 0, full: 0 };
+
+    const uniqueCourseCredits = new Map();
+    offerings.forEach(o => {
+      if (!uniqueCourseCredits.has(o.courseId)) {
+        uniqueCourseCredits.set(o.courseId, o.creditHours || 0);
+      }
+    });
+
     return {
-      total: offerings.length,
-      credits: offerings.reduce((acc, o) => acc + (o.creditHours || 0), 0),
-      unique: new Set(offerings.map(o => o.courseId)).size,
+      total: new Set(offerings.map(o => o.sectionId)).size,
+      credits: Array.from(uniqueCourseCredits.values()).reduce((acc, val) => acc + val, 0),
+      unique: uniqueCourseCredits.size,
       full: offerings.filter(o => o.enrolledCount >= o.seatLimit).length
     };
   }, [offerings]);

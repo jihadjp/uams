@@ -293,7 +293,8 @@ public class StudentServiceImpl implements StudentService {
         
         for (com.metamorph_x.uams.model.Result res : finalResults) {
             java.math.BigDecimal credits = res.getEnrollment().getOffering().getCourse().getCreditHours();
-            com.metamorph_x.uams.model.GradingPolicy policy = gradingPolicyRepository.findByMarks(res.getMarksObtained())
+            java.math.BigDecimal marks = res.getMarksObtained() != null ? res.getMarksObtained().setScale(2, java.math.RoundingMode.HALF_UP) : java.math.BigDecimal.ZERO;
+            com.metamorph_x.uams.model.GradingPolicy policy = gradingPolicyRepository.findByMarks(marks)
                     .orElse(com.metamorph_x.uams.model.GradingPolicy.builder().gradePoint(java.math.BigDecimal.ZERO).build());
             
             totalWeightedGradePoints = totalWeightedGradePoints.add(policy.getGradePoint().multiply(credits));

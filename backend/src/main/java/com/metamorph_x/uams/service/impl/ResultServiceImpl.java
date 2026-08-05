@@ -112,7 +112,8 @@ public class ResultServiceImpl implements ResultService {
 
             totalWeightedMarks = totalWeightedMarks.add(midMarks.max(impMarks));
             
-            GradingPolicy policy = gradingPolicyRepository.findByMarks(totalWeightedMarks)
+            BigDecimal marksForLookup = totalWeightedMarks.setScale(2, RoundingMode.HALF_UP);
+            GradingPolicy policy = gradingPolicyRepository.findByMarks(marksForLookup)
                     .orElse(GradingPolicy.builder().grade("F").gradePoint(BigDecimal.ZERO).build());
             
             return ResultResponse.builder()
@@ -353,7 +354,8 @@ public class ResultServiceImpl implements ResultService {
                 if (evaluationPending || !offering.isResultsApproved()) {
                     builder.grade("N/A").gradePoint(null);
                 } else {
-                    GradingPolicy policy = gradingPolicyRepository.findByMarks(res.getMarksObtained())
+                    BigDecimal marks = res.getMarksObtained() != null ? res.getMarksObtained().setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
+                    GradingPolicy policy = gradingPolicyRepository.findByMarks(marks)
                             .orElse(GradingPolicy.builder().grade("F").gradePoint(BigDecimal.ZERO).build());
                     builder.grade(policy.getGrade()).gradePoint(policy.getGradePoint().doubleValue());
                 }
@@ -381,7 +383,7 @@ public class ResultServiceImpl implements ResultService {
 
         String batchStr = "N/A";
         if (student.getBatch() != null) {
-            batchStr = student.getBatch().getBatchNumber() + "(" + student.getBatch().getBatchInitial() + ")";
+            batchStr = student.getBatch().getBatchNumber() + " (" + student.getBatch().getBatchInitial() + ")";
         }
 
         return AcademicResultResponse.builder()
@@ -411,7 +413,8 @@ public class ResultServiceImpl implements ResultService {
             BigDecimal credits = result.getEnrollment().getOffering().getCourse().getCreditHours();
             totalCredits = totalCredits.add(credits);
             
-            GradingPolicy policy = gradingPolicyRepository.findByMarks(result.getMarksObtained())
+            BigDecimal marks = result.getMarksObtained() != null ? result.getMarksObtained().setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
+            GradingPolicy policy = gradingPolicyRepository.findByMarks(marks)
                     .orElse(GradingPolicy.builder().gradePoint(BigDecimal.ZERO).build());
             
             if (policy.getGradePoint() != null) {
@@ -475,7 +478,8 @@ public class ResultServiceImpl implements ResultService {
                 .section(section)
                 .teacherName(teacherName)
                 .studentName(studentName)
-                .studentId(regNo)
+                .studentId(enrollment.getStudent() != null ? enrollment.getStudent().getStudentId() : "N/A")
+                .registrationNo(enrollment.getStudent() != null ? enrollment.getStudent().getRegistrationNo() : "N/A")
                 .courseType(enrollment.getOffering() != null ? enrollment.getOffering().getCourse().getCourseType().name() : "THEORY");
 
         // Attendance Percentage
@@ -560,7 +564,8 @@ public class ResultServiceImpl implements ResultService {
     }
 
     private ResultResponse mapToResponse(Result result) {
-        GradingPolicy policy = gradingPolicyRepository.findByMarks(result.getMarksObtained())
+        BigDecimal marks = result.getMarksObtained() != null ? result.getMarksObtained().setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
+        GradingPolicy policy = gradingPolicyRepository.findByMarks(marks)
                 .orElse(GradingPolicy.builder().grade("F").gradePoint(BigDecimal.ZERO).build());
 
         return ResultResponse.builder()

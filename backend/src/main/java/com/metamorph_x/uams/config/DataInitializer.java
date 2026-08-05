@@ -42,13 +42,13 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        createAdmin("System Admin", "admin@uams.edu", "admin123");
-        createAdmin("Team Member 1", "admin1@uams.edu", "admin123");
-        createAdmin("Team Member 2", "admin2@uams.edu", "admin123");
-        createAdmin("Team Member 3", "admin3@uams.edu", "admin123");
+        createAdmin("System Admin", "admin@rbu.edu.bd", "admin123");
+        createAdmin("Team Member 1", "admin1@rbu.edu.bd", "admin123");
+        createAdmin("Team Member 2", "admin2@rbu.edu.bd", "admin123");
+        createAdmin("Team Member 3", "admin3@rbu.edu.bd", "admin123");
         
         // Default Registrar
-        createRoleUser("Academic Registrar", "registrar@uams.edu", "registrar123", UserRole.REGISTRAR);
+        createRoleUser("Academic Registrar", "registrar@rbu.edu.bd", "registrar123", UserRole.REGISTRAR);
 
         try {
             seedBatchFees();

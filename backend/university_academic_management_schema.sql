@@ -1,6 +1,6 @@
 -- ============================================================
 -- University Academic Management System (UAMS)
--- 100% 3NF Compliant Database Schema & 20 Sample Students
+-- 100% 3NF Compliant Database Schema
 -- ============================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -439,52 +439,3 @@ CREATE TABLE batch_semester_fees (
 ) ENGINE=InnoDB;
 
 SET FOREIGN_KEY_CHECKS = 1;
-
--- ============================================================
--- SEED DATA: 20 SAMPLE STUDENTS
--- ============================================================
-
-INSERT INTO users (id, name, email, password_hash, role, must_change_password) VALUES
-('u-std-01', 'Abrar Fahad', 'abrar.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-02', 'Nusrat Jahan', 'nusrat.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-03', 'Tahmid Hasan', 'tahmid.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-04', 'Sadiya Islam', 'sadiya.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-05', 'Kamrul Hasan', 'kamrul.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-06', 'Marium Begum', 'marium.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-07', 'Rakibul Islam', 'rakib.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-08', 'Farhana Akter', 'farhana.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-09', 'Jahid Hasan', 'jahid.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-10', 'Sumaiya Afrin', 'sumaiya.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-11', 'Ariful Islam', 'arif.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-12', 'Tania Sultana', 'tania.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-13', 'Mehedi Hasan', 'mehedi.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-14', 'Nabila Islam', 'nabila.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-15', 'Shariful Islam', 'sharif.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-16', 'Afia Anjum', 'afia.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-17', 'Ismail Hasan', 'ismail.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-18', 'Sadia Afrin', 'sadia.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-19', 'Riyad Hasan', 'riyad.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE),
-('u-std-20', 'Liza Akter', 'liza.std@rbu.edu', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2NvS.V7nJ7yYJ9/6Vv9yJ9.V7nJ7yY', 'STUDENT', TRUE);
-
--- Map to Students (Assuming Program ID 'p-cse-01', Batch ID 'b-242', Section ID 's-242-d1' exist)
-INSERT INTO students (id, user_id, program_id, batch_id, section_id, student_id, registration_no, admitted_at) VALUES
-('s-id-01', 'u-std-01', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000001', '242-15-001', '2024-01-10'),
-('s-id-02', 'u-std-02', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000002', '242-15-002', '2024-01-10'),
-('s-id-03', 'u-std-03', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000003', '242-15-003', '2024-01-10'),
-('s-id-04', 'u-std-04', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000004', '242-15-004', '2024-01-10'),
-('s-id-05', 'u-std-05', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000005', '242-15-005', '2024-01-10'),
-('s-id-06', 'u-std-06', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000006', '242-15-006', '2024-01-10'),
-('s-id-07', 'u-std-07', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000007', '242-15-007', '2024-01-10'),
-('s-id-08', 'u-std-08', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000008', '242-15-008', '2024-01-10'),
-('s-id-09', 'u-std-09', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000009', '242-15-009', '2024-01-10'),
-('s-id-10', 'u-std-10', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000010', '242-15-010', '2024-01-10'),
-('s-id-11', 'u-std-11', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000011', '242-15-011', '2024-01-10'),
-('s-id-12', 'u-std-12', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000012', '242-15-012', '2024-01-10'),
-('s-id-13', 'u-std-13', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000013', '242-15-013', '2024-01-10'),
-('s-id-14', 'u-std-14', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000014', '242-15-014', '2024-01-10'),
-('s-id-15', 'u-std-15', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000015', '242-15-015', '2024-01-10'),
-('s-id-16', 'u-std-16', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000016', '242-15-016', '2024-01-10'),
-('s-id-17', 'u-std-17', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000017', '242-15-017', '2024-01-10'),
-('s-id-18', 'u-std-18', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000018', '242-15-018', '2024-01-10'),
-('s-id-19', 'u-std-19', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000019', '242-15-019', '2024-01-10'),
-('s-id-20', 'u-std-20', 'p-cse-01', 'b-242', 's-242-d1', '2024100000000020', '242-15-020', '2024-01-10');

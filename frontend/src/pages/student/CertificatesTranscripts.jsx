@@ -311,7 +311,12 @@ const CertificatesTranscripts = () => {
                     <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/10">
                       <div className="px-5 py-3 bg-white/5 backdrop-blur-md rounded-xl sm:rounded-2xl border border-white/10 text-center">
                         <p className="text-[9px] font-black uppercase tracking-widest text-indigo-400 mb-0.5">Current CGPA</p>
-                        <p className="text-2xl sm:text-3xl font-black">{transcript && transcript.length > 0 ? (transcript.reduce((acc, curr) => acc + curr.gradePoint, 0) / transcript.length).toFixed(2) : '0.00'}</p>
+                        <p className="text-2xl sm:text-3xl font-black">
+                          {transcript && transcript.length > 0
+                            ? (transcript.reduce((acc, curr) => acc + (curr.gradePoint * curr.credits), 0) /
+                               transcript.reduce((acc, curr) => acc + curr.credits, 0)).toFixed(2)
+                            : '0.00'}
+                        </p>
                       </div>
                       <Button size="sm" variant="secondary" className="bg-white/10 hover:bg-white/20 border-none text-white text-[10px] font-black uppercase tracking-widest px-4 py-2" icon={Download}>
                         Export PDF
@@ -365,8 +370,11 @@ const CertificatesTranscripts = () => {
                                   <div className="flex flex-col items-end px-4">
                                     <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Final CGPA</span>
                                     <span className="text-lg sm:text-xl font-black text-indigo-600 dark:text-emerald-400">
-                                    {(transcript.reduce((acc, curr) => acc + curr.gradePoint, 0) / transcript.length).toFixed(2)}
-                                  </span>
+                                      {transcript && transcript.length > 0
+                                        ? (transcript.reduce((acc, curr) => acc + (curr.gradePoint * curr.credits), 0) /
+                                           transcript.reduce((acc, curr) => acc + curr.credits, 0)).toFixed(2)
+                                        : '0.00'}
+                                    </span>
                                   </div>
                                 </td>
                               </tr>

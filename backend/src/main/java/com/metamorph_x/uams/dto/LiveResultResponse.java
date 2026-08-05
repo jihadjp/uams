@@ -19,7 +19,8 @@ public class LiveResultResponse {
     private String section;
     private String teacherName;
     private String studentName;
-    private String studentId; // registration no
+    private String studentId;
+    private String registrationNo;
     
     private BigDecimal attendancePercentage;
     private BigDecimal attendanceMarks;
