@@ -378,18 +378,18 @@ DROP TABLE IF EXISTS convocation_applications;
 CREATE TABLE convocation_applications (
     id                      VARCHAR(36) PRIMARY KEY,
     student_id              CHAR(36) NOT NULL,
-                                          cgpa                    DECIMAL(3,2) NOT NULL,
-                                          credits_completed       DECIMAL(5,2) NOT NULL,
-                                          convocation_year        INT NOT NULL,
-                                          gown_size               VARCHAR(20) NOT NULL,
-                                          guest_count             INT NOT NULL DEFAULT 0,
-                                          fee_amount              DECIMAL(10,2) NOT NULL,
-                                          is_paid                 BOOLEAN NOT NULL DEFAULT FALSE,
-                                          status                  ENUM('PENDING', 'VERIFIED', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
-                                          applied_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                          updated_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                          CONSTRAINT fk_convocation_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-                                          UNIQUE KEY uq_convocation_student (student_id, convocation_year)
+    cgpa                    DECIMAL(3,2) NOT NULL,
+    credits_completed       DECIMAL(5,2) NOT NULL,
+    convocation_year        INT NOT NULL,
+    gown_size               VARCHAR(20) NOT NULL,
+    guest_count             INT NOT NULL DEFAULT 0,
+    fee_amount              DECIMAL(10,2) NOT NULL,
+    is_paid                 BOOLEAN NOT NULL DEFAULT FALSE,
+    status                  ENUM('PENDING', 'VERIFIED', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
+    applied_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_convocation_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    UNIQUE KEY uq_convocation_student (student_id, convocation_year)
 ) ENGINE=InnoDB;
 
 -- 25. FINANCIAL_AID_APPLICATIONS (Depends on STUDENTS, FINANCIAL_AID_CIRCULARS)
