@@ -30,7 +30,6 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 /uploads/
-/screenshots/
 ### VS Code ###
 .vscode/
 /frontend/node_modules/
