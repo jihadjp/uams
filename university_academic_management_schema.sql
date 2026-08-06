@@ -376,7 +376,7 @@ CREATE TABLE document_requests (
 -- 24. CONVOCATION_APPLICATIONS (Depends on STUDENTS)
 DROP TABLE IF EXISTS convocation_applications;
 CREATE TABLE convocation_applications (
-    id                      VARCHAR(36) PRIMARY KEY,
+    id                      CHAR(36) PRIMARY KEY,
     student_id              CHAR(36) NOT NULL,
     cgpa                    DECIMAL(3,2) NOT NULL,
     credits_completed       DECIMAL(5,2) NOT NULL,
