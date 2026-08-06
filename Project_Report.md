@@ -13,12 +13,11 @@
 
 ### Group Members
 
-| Serial | Name | Roll Number | Contribution |
-|--------|------|-------------|--------------|
-| 1 | [Member 1 Name] | [Roll-01] | Database Design, Schema Implementation, Triggers |
-| 2 | [Member 2 Name] | [Roll-02] | Backend Development (Spring Boot), REST APIs |
-| 3 | [Member 3 Name] | [Roll-03] | Frontend Development (React.js), UI/UX Design |
-| 4 | [Member 4 Name] | [Roll-04] | Testing, Documentation, Report Preparation |
+| Serial | Name              | Roll Number | Contribution   |
+|--------|-------------------|-------------|----------------|
+| 1 | [Member 1 Jihad]  | [Roll-01] | Admin/Register |
+| 2 | [Member 2 Mollah] | [Roll-02] | Faculty        |
+| 3 | [Member 3 Jisan]  | [Roll-03] | Student        |
 
 ---
 
