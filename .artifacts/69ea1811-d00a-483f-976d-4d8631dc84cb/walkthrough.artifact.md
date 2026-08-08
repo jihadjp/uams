@@ -1,38 +1,30 @@
-# UAMS Presentation Script Walkthrough
+# UAMS Presentation Master Playbook
 
-I have completed the 15-minute presentation script and slide deck outline for your group. The script is structured to highlight the engineering complexity of your DBMS lab project while showcasing the full-stack features.
+I have completed the full presentation package for your team. This is designed to take you from preparation to a successful defense.
 
-## What's Included
+## 📦 What's Included
 
-### 1. Team-Based Script
-- **[You] (Core Engine & Admin)**: Focuses on the 3NF schema, circular dependencies, and the "God View" of the registrar.
-- **Mollah (Faculty)**: Focuses on academic governance (Advisor role), attendance, and database-level automation (Triggers).
-- **Jisan (Student)**: Focuses on the student portal, financial transparency, student life services, and technical mastery (Stored Procedures/Views).
+### 1. [Master Presentation Script](file:///E:/Project/DBMS/uams/.artifacts/69ea1811-d00a-483f-976d-4d8631dc84cb/presentation_master_script.artifact.md)
+- **Synchronized Narrative**: Word-for-word script for [You], Mollah, and Jisan.
+- **Action Cues**: Exactly what to show on screen (Frontend vs Database) for every section.
+- **Timing**: Tuned for a 15-minute presentation.
 
-### 2. Slide Deck Outline
-- **Slide 1**: Title & Intro.
-- **Slide 2**: DBMS Core (ER Diagram).
-- **Slide 3**: Admin/Registrar Interface.
-- **Slide 4**: Faculty Governance.
-- **Slide 5**: Automation & Triggers (Code Snippets).
-- **Slide 6**: Student Dashboard & Ledger.
-- **Slide 7**: Student Life & Tech Stack (UML Diagram).
+### 2. [Q&A Survival Guide](file:///E:/Project/DBMS/uams/.artifacts/69ea1811-d00a-483f-976d-4d8631dc84cb/qa_survival_guide.artifact.md)
+- **Defensive Strategies**: How to answer tough technical questions about 3NF, Security, and Concurrency.
+- **Code Explanations**: Deep dives into your triggers and stored procedures.
 
-### 3. Technical Highlights
-- **3NF Schema**: Emphasized as the foundation for data integrity.
-- **Advisor Approval Logic**: Highlighted as a key business process.
-- **Triggers**: Specifically mentions seat limits and deletion protection.
-- **Stored Procedures**: Focuses on the CGPA calculation engine.
+### 3. [System Architecture Diagram](file:///E:/Project/DBMS/uams/.artifacts/69ea1811-d00a-483f-976d-4d8631dc84cb/system_architecture.artifact.md)
+- **Mermaid Diagram**: A professional visual of your React ↔ Spring Boot ↔ MySQL flow. Use this for Slide 4.
 
-## Recommendations for the Team
-
-> [!TIP]
-> **Practice the Hand-offs**: The transitions between Speakers are the most important part. Practice saying "I'll now hand over to..." smoothly.
+## 🚀 Key Strategy for the Team
 
 > [!IMPORTANT]
-> **Prepare the Visuals**: Ensure you have a clear, high-resolution **ER Diagram** and **System Architecture Diagram**. Examiners will look at these closely.
+> **Show the Code**: When Mollah and Jisan talk about Triggers and Procedures, don't just use slides. Switch to VS Code/Workbench and show the actual `.sql` files in the `database/` folder. This "Live Proof" is what earns an A+.
 
-> [!NOTE]
-> **Q&A Prep**: Be ready to explain *how* the stored procedure iterates through marks and matches them to grades. That's a favorite question for lab supervisors.
+> [!TIP]
+> **Smooth Hand-offs**: Practice the transitions. [You] ends with "...hand over to Mollah," and Mollah starts with "Thank you, [Your Name]..." This shows team coordination.
 
-The full script is available here: [presentation_script.artifact.md](file:///E:/Project/DBMS/uams/.artifacts/69ea1811-d00a-483f-976d-4d8631dc84cb/presentation_script.artifact.md)
+> [!CAUTION]
+> **Database Reset**: If you demo the "Seat Limit" trigger and it blocks an enrollment, remember to delete that test enrollment before the next demo! Use the `00_reset.sql` or `seed_data.sql` if needed.
+
+Good luck with your defense! You have a very strong technical foundation.

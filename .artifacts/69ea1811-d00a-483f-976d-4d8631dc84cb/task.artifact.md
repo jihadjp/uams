@@ -1,6 +1,3 @@
-- [x] Create `presentation_script.artifact.md`
-    - [x] Introduction & Admin/Registrar Section ([You])
-    - [x] Faculty Section (Mollah)
-    - [x] Student Section & Conclusion (Jisan)
-- [x] Verify timing and word count (~1800-2000 words)
-- [x] Create `walkthrough.artifact.md`
+- [ ] Create `presentation_master_script.artifact.md`
+- [ ] Create `qa_survival_guide.artifact.md`
+- [ ] Update `walkthrough.artifact.md`
