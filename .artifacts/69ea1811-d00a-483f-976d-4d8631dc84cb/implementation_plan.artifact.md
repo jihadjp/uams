@@ -1,24 +1,33 @@
-# Implementation Plan: Master Presentation Playbook
+# Implementation Plan: Integrating Stored Procedures with Spring Data JPA
 
-This plan outlines the creation of a comprehensive presentation package for the UAMS project. It is designed to help the team ([You], Mollah, Jisan) deliver a high-impact, technical defense for their DBMS Lab.
+This plan describes how to move the CGPA calculation logic from the Java service layer into the MySQL database using a Stored Procedure and then invoking it using the Spring Data JPA `@Procedure` annotation.
+
+## User Review Required
+
+> [!IMPORTANT]
+> This change moves business logic from the Java code to the Database. While this is great for DBMS labs to show technical depth, it makes the code dependent on the stored procedure being correctly created in the MySQL database.
 
 ## Proposed Changes
 
-### [Documentation]
+### [Database]
+#### [MODIFY] [procedures.sql](file:///E:/Project/DBMS/uams/database/procedures.sql)
+- Add the `sp_calculate_student_cgpa` procedure. This procedure uses a `CURSOR` to calculate the cumulative GPA based on a student's completed courses and the university's grading policies.
 
-#### [NEW] [presentation_master_script.artifact.md](file:///E:/Project/DBMS/uams/.artifacts/69ea1811-d00a-483f-976d-4d8631dc84cb/presentation_master_script.artifact.md)
-A comprehensive script containing:
-- **Preparation Checklist**: Tools and files to have ready.
-- **Narrative Script**: Timed sections for each team member.
-- **Action Cues**: What to show on screen while speaking.
-- **Emotional Cues**: Tone and emphasis guidance.
+### [Backend - Repository]
+#### [MODIFY] [StudentRepository.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/repository/StudentRepository.java)
+- Add a method annotated with `@Procedure` to map to the database's `sp_calculate_student_cgpa`.
 
-#### [NEW] [qa_survival_guide.artifact.md](file:///E:/Project/DBMS/uams/.artifacts/69ea1811-d00a-483f-976d-4d8631dc84cb/qa_survival_guide.artifact.md)
-- **Top 10 Potential Questions**: Likely questions from lab supervisors.
-- **Expert Answers**: Technically sound responses focused on 3NF, Security, and SQL Logic.
-- **"Escape" Phrases**: How to handle questions when you don't know the exact answer.
+### [Backend - Service]
+#### [MODIFY] [DashboardServiceImpl.java](file:///E:/Project/DBMS/uams/backend/src/main/java/com/metamorph_x/uams/service/impl/DashboardServiceImpl.java)
+- Remove the Java-based CGPA calculation loop.
+- Replace it with a call to the new `StudentRepository` procedure method.
 
 ## Verification Plan
-- **Role Alignment**: Verify features are correctly assigned to [You], Mollah, and Jisan.
-- **Technical Accuracy**: Match script details with the code in `database/` and `backend/`.
-- **Timing**: Ensure the script remains ~15 minutes.
+
+### Automated Verification
+- I will check that the Java code compiles.
+- I will verify the SQL syntax for the new procedure.
+
+### Manual Verification
+1. **Database Setup**: Run the updated `procedures.sql` in MySQL Workbench to create the `sp_calculate_student_cgpa` procedure.
+2. **Dashboard Test**: Log in as a student in the React UI and verify that the CGPA is still calculated and displayed correctly on the dashboard.
