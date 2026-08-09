@@ -20,13 +20,17 @@ import com.metamorph_x.uams.model.Faculty;
 import com.metamorph_x.uams.model.Guardian;
 import com.metamorph_x.uams.model.Program;
 import com.metamorph_x.uams.model.Section;
+import com.metamorph_x.uams.model.Semester;
+import com.metamorph_x.uams.model.SemesterClearance;
 import com.metamorph_x.uams.model.Student;
 import com.metamorph_x.uams.model.User;
 import com.metamorph_x.uams.model.enums.UserRole;
 import com.metamorph_x.uams.repository.BatchRepository;
+import com.metamorph_x.uams.repository.ClearanceRepository;
 import com.metamorph_x.uams.repository.FacultyRepository;
 import com.metamorph_x.uams.repository.ProgramRepository;
 import com.metamorph_x.uams.repository.SectionRepository;
+import com.metamorph_x.uams.repository.SemesterRepository;
 import com.metamorph_x.uams.repository.StudentRepository;
 import com.metamorph_x.uams.repository.UserRepository;
 import com.metamorph_x.uams.repository.ResultRepository;
@@ -51,6 +55,8 @@ public class StudentServiceImpl implements StudentService {
     private final PasswordGeneratorService passwordGeneratorService;
     private final ResultRepository resultRepository;
     private final GradingPolicyRepository gradingPolicyRepository;
+    private final SemesterRepository semesterRepository;
+    private final ClearanceRepository clearanceRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -212,7 +218,25 @@ public class StudentServiceImpl implements StudentService {
     public StudentResponse updateRegistrationClearance(UUID id, boolean isCleared) {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
+        
         student.setRegistrationCleared(isCleared);
+        
+        // Also update SemesterClearance table to satisfy database triggers
+        semesterRepository.findByActiveTrue().ifPresent(semester -> {
+            SemesterClearance clearance = clearanceRepository.findByStudent_IdAndSemester_Id(student.getId(), semester.getId())
+                    .orElse(SemesterClearance.builder()
+                            .student(student)
+                            .semester(semester)
+                            .build());
+            
+            clearance.setRegistrationCleared(isCleared);
+            // If admin clears manually, we usually clear midterm too
+            if (isCleared) {
+                clearance.setMidtermCleared(true);
+            }
+            clearanceRepository.save(clearance);
+        });
+
         return mapToResponse(studentRepository.save(student));
     }
 

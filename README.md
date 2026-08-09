@@ -119,9 +119,9 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 
 **Fees, Attendance, Services**
 
-| Fees & Ledger | Attendance | Transcript Request |
-| :---: | :---: | :---: |
-| ![Fees](screenshots/08-student-fees.png) | ![Attendance](screenshots/09-student-attendance.png) | ![Transcript](screenshots/10-student-transcript.png) |
+| Fees & Ledger |                       Teaching Evaluation                       | Transcript Request |
+| :---: |:-----------------------------------------------------:| :---: |
+| ![Fees](screenshots/08-student-fees.png) | ![Attendance](screenshots/09-teaching-evaluation.png) | ![Transcript](screenshots/10-student-transcript.png10-student-transcript.png) |
 
 ### 👨‍🏫 Faculty Portal
 
@@ -129,7 +129,7 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 
 ![Faculty Dashboard](screenshots/11-faculty-dashboard.png)
 
-**Teaching & Evaluation**
+**Courses, Attendance Marking & Marks Entry**
 
 | My Courses | Attendance Marking | Marks Entry |
 | :---: | :---: | :---: |
@@ -151,9 +151,9 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 | :---: | :---: | :---: |
 | ![Student List](screenshots/18-admin-students.png) | ![Student Detail](screenshots/19-admin-student-detail.png) | ![Faculty List](screenshots/20-admin-faculty.png) |
 
-| Course Offerings | Batch & Fee Mgmt | Result Approval |
-| :---: | :---: | :---: |
-| ![Course Offerings](screenshots/21-admin-offerings.png) | ![Batch Fees](screenshots/22-admin-batch-fees.png) | ![Result Approval](screenshots/23-admin-result-approval.png) |
+|                        Course Offerings                        | Batch & Fee Mgmt | Result Approval |
+|:--------------------------------------------------------------:| :---: | :---: |
+| ![Course Offerings](screenshots/21-admin-course-offerings.png) | ![Batch Fees](screenshots/22-admin-batch-fees.png) | ![Result Approval](screenshots/23-admin-result-approval.png) |
 
 | Notices | Document Requests | Convocation |
 | :---: | :---: | :---: |
@@ -163,15 +163,15 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 
 **Entity-Relationship Diagram (Chen notation)**
 
-![ER Diagram](erd/erd.svg)
+![ER Diagram](erd/erd.pdf)
 
 > *Print or screenshot the full ERD for the report — it covers all 28 tables and their relationships.*
 
 **Live ERD Preview**
 
-| Full ERD (PNG) | Full ERD (PDF) |
-| :---: | :---: |
-| ![ERD PNG](erd/erd.png) | [📄 Download PDF](erd/erd.pdf) |
+|          Full ERD (PNG)          | Full Schema Diagram (PDF) |
+|:--------------------------------:| :---: |
+| ![ERD PNG](erd/ER%20Diagram.png) | [📄 Download PDF](erd/Schema%20Diagram.pdf) |
 
 > 💡 **Tip:** If you don't have a screenshot for a section yet, just remove or comment out that table row. The README will still look great with the ones you do have.
 

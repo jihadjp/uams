@@ -16,11 +16,13 @@ import com.metamorph_x.uams.dto.FeeRequest;
 import com.metamorph_x.uams.dto.FeeResponse;
 import com.metamorph_x.uams.model.Fee;
 import com.metamorph_x.uams.model.Semester;
+import com.metamorph_x.uams.model.SemesterClearance;
 import com.metamorph_x.uams.model.Student;
 import com.metamorph_x.uams.model.BatchSemesterFee;
 import com.metamorph_x.uams.model.Enrollment;
 import com.metamorph_x.uams.model.enums.FeeStatus;
 import com.metamorph_x.uams.repository.BatchSemesterFeeRepository;
+import com.metamorph_x.uams.repository.ClearanceRepository;
 import com.metamorph_x.uams.repository.EnrollmentRepository;
 import com.metamorph_x.uams.repository.FeeRepository;
 import com.metamorph_x.uams.repository.SemesterRepository;
@@ -38,6 +40,7 @@ public class FeeServiceImpl implements FeeService {
     private final SemesterRepository semesterRepository;
     private final BatchSemesterFeeRepository batchSemesterFeeRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final ClearanceRepository clearanceRepository;
 
     private static final BigDecimal COST_PER_CREDIT = new BigDecimal("6500");
 
@@ -73,8 +76,46 @@ public class FeeServiceImpl implements FeeService {
 
         fee.setAmountPaid(fee.getAmountPaid().add(amount));
         fee.setPaidAt(LocalDateTime.now());
+        Fee savedFee = feeRepository.save(fee);
 
-        return mapToResponse(feeRepository.save(fee));
+        // Update SemesterClearance based on payment
+        updateClearanceAfterPayment(savedFee);
+
+        return mapToResponse(savedFee);
+    }
+
+    private void updateClearanceAfterPayment(Fee fee) {
+        UUID studentId = fee.getStudent().getId();
+        UUID semesterId = fee.getSemester().getId();
+
+        // 1. Check Registration Fee
+        BigDecimal requiredRegFee = BigDecimal.ZERO;
+        Student student = fee.getStudent();
+        if (student.getBatch() != null) {
+            Optional<BatchSemesterFee> batchFee = batchSemesterFeeRepository.findByBatchIdAndSemesterId(student.getBatch().getId(), semesterId);
+            if (batchFee.isPresent()) {
+                requiredRegFee = batchFee.get().getRegistrationFee();
+            }
+        }
+
+        boolean isRegPaid = fee.getAmountPaid().compareTo(requiredRegFee) >= 0;
+        BigDecimal totalDue = fee.getRegistrationFee().add(fee.getCreditFee());
+        boolean isFullPaid = fee.getAmountPaid().compareTo(totalDue) >= 0;
+
+        if (isRegPaid) {
+            SemesterClearance clearance = clearanceRepository.findByStudent_IdAndSemester_Id(studentId, semesterId)
+                    .orElse(SemesterClearance.builder()
+                            .student(student)
+                            .semester(fee.getSemester())
+                            .build());
+            
+            clearance.setRegistrationCleared(true);
+            clearance.setMidtermCleared(true);
+            if (isFullPaid) {
+                clearance.setFinalExamCleared(true);
+            }
+            clearanceRepository.save(clearance);
+        }
     }
 
     @Override

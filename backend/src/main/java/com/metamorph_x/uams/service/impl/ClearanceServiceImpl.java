@@ -3,8 +3,10 @@ package com.metamorph_x.uams.service.impl;
 import com.metamorph_x.uams.dto.ClearanceResponse;
 import com.metamorph_x.uams.model.Fee;
 import com.metamorph_x.uams.model.SemesterClearance;
+import com.metamorph_x.uams.model.Student;
 import com.metamorph_x.uams.repository.ClearanceRepository;
 import com.metamorph_x.uams.repository.FeeRepository;
+import com.metamorph_x.uams.repository.StudentRepository;
 import com.metamorph_x.uams.service.ClearanceService;
 import com.metamorph_x.uams.service.FeeService;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +25,14 @@ public class ClearanceServiceImpl implements ClearanceService {
     private final FeeRepository feeRepository;
     private final FeeService feeService;
     private final ClearanceRepository clearanceRepository;
+    private final StudentRepository studentRepository;
 
     @Override
     @Transactional(readOnly = true)
     public List<ClearanceResponse> getMyClearance(UUID studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
         // Fetch all fees to identify the semesters the student is involved in
         List<Fee> fees = feeRepository.findByStudent_Id(studentId);
         
@@ -43,9 +49,9 @@ public class ClearanceServiceImpl implements ClearanceService {
                     return ClearanceResponse.builder()
                             .semesterName(fee.getSemester().getName())
                             // If manually cleared OR fee is paid
-                            .registrationCleared(manualClearance.map(SemesterClearance::isRegistrationCleared).orElse(false) || isRegPaid)
-                            .midtermCleared(manualClearance.map(SemesterClearance::isMidtermCleared).orElse(false) || isRegPaid)
-                            .finalExamCleared(manualClearance.map(SemesterClearance::isFinalExamCleared).orElse(false) || isFullPaid)
+                            .registrationCleared(student.isRegistrationCleared() || manualClearance.map(SemesterClearance::isRegistrationCleared).orElse(false) || isRegPaid)
+                            .midtermCleared(student.isRegistrationCleared() || manualClearance.map(SemesterClearance::isMidtermCleared).orElse(false) || isRegPaid)
+                            .finalExamCleared(student.isRegistrationCleared() || manualClearance.map(SemesterClearance::isFinalExamCleared).orElse(false) || isFullPaid)
                             .build();
                 })
                 .collect(Collectors.toList());

@@ -16,9 +16,11 @@ import com.metamorph_x.uams.dto.EnrollmentResponse;
 import com.metamorph_x.uams.model.CourseOffering;
 import com.metamorph_x.uams.model.Enrollment;
 import com.metamorph_x.uams.model.Faculty;
+import com.metamorph_x.uams.model.SemesterClearance;
 import com.metamorph_x.uams.model.Student;
 import com.metamorph_x.uams.model.User;
 import com.metamorph_x.uams.model.enums.EnrollmentStatus;
+import com.metamorph_x.uams.repository.ClearanceRepository;
 import com.metamorph_x.uams.repository.CourseOfferingRepository;
 import com.metamorph_x.uams.repository.EnrollmentRepository;
 import com.metamorph_x.uams.repository.FacultyRepository;
@@ -39,6 +41,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final FacultyRepository facultyRepository;
     private final UserRepository userRepository;
     private final FeeService feeService;
+    private final ClearanceRepository clearanceRepository;
 
     @Override
     public Page<EnrollmentResponse> getAllEnrollments(Pageable pageable) {
@@ -76,9 +79,38 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         Student student = studentRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        // 0. Registration Clearance Check
-        if (!student.isRegistrationCleared()) {
-            throw new RuntimeException("Registration blocked: Academic dues are not cleared for this student.");
+        CourseOffering offering = offeringRepository.findById(request.getOfferingId())
+                .orElseThrow(() -> new RuntimeException("Course offering not found"));
+
+        // 0. Registration Clearance Check (Manual Override OR Fee Paid)
+        boolean isManuallyCleared = student.isRegistrationCleared();
+        boolean isFeePaid = feeService.isRegistrationPaid(student.getId(), offering.getSemester().getId());
+
+        if (!isManuallyCleared && !isFeePaid) {
+            throw new RuntimeException("Registration blocked: Semester registration fee not paid or academic dues not cleared.");
+        }
+
+        // 0.2 Sync SemesterClearance if manually cleared (satisfy DB triggers)
+        if (isManuallyCleared) {
+            clearanceRepository.findByStudent_IdAndSemester_Id(student.getId(), offering.getSemester().getId())
+                    .ifPresentOrElse(
+                        c -> {
+                            if (!c.isRegistrationCleared()) {
+                                c.setRegistrationCleared(true);
+                                c.setMidtermCleared(true);
+                                clearanceRepository.save(c);
+                            }
+                        },
+                        () -> {
+                            SemesterClearance newClearance = SemesterClearance.builder()
+                                    .student(student)
+                                    .semester(offering.getSemester())
+                                    .registrationCleared(true)
+                                    .midtermCleared(true)
+                                    .build();
+                            clearanceRepository.save(newClearance);
+                        }
+                    );
         }
 
         // Security Check: If faculty, must be the student's advisor
@@ -89,14 +121,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             if (student.getAdvisor() == null || !student.getAdvisor().getId().equals(faculty.getId())) {
                 throw new RuntimeException("Access Denied: You are not authorized to manage registration for this student.");
             }
-        }
-
-        CourseOffering offering = offeringRepository.findById(request.getOfferingId())
-                .orElseThrow(() -> new RuntimeException("Course offering not found"));
-
-        // 0.1 Registration Fee Check
-        if (!feeService.isRegistrationPaid(student.getId(), offering.getSemester().getId())) {
-            throw new RuntimeException("Registration blocked: Semester registration fee not paid.");
         }
 
         // 1. Deadline Check
@@ -140,12 +164,25 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             throw new RuntimeException("Credit limit exceeded. Maximum 18.0 credits allowed per semester");
         }
 
-        Enrollment enrollment = Enrollment.builder()
-                .student(student)
-                .offering(offering)
-                .status(EnrollmentStatus.REGISTERED)
-                .enrollmentType(request.getEnrollmentType() != null ? request.getEnrollmentType() : com.metamorph_x.uams.model.enums.EnrollmentType.REGULAR)
-                .build();
+        // 6. Finalize Enrollment (Handle Re-registration or New)
+        Enrollment enrollment = enrollmentRepository.findByStudentIdAndOfferingId(student.getId(), offering.getId())
+                .orElse(null);
+
+        if (enrollment != null) {
+            if (enrollment.getStatus() == EnrollmentStatus.DROPPED) {
+                enrollment.setStatus(EnrollmentStatus.REGISTERED);
+                enrollment.setEnrollmentType(request.getEnrollmentType() != null ? request.getEnrollmentType() : com.metamorph_x.uams.model.enums.EnrollmentType.REGULAR);
+            } else {
+                throw new RuntimeException("You are already enrolled in this section");
+            }
+        } else {
+            enrollment = Enrollment.builder()
+                    .student(student)
+                    .offering(offering)
+                    .status(EnrollmentStatus.REGISTERED)
+                    .enrollmentType(request.getEnrollmentType() != null ? request.getEnrollmentType() : com.metamorph_x.uams.model.enums.EnrollmentType.REGULAR)
+                    .build();
+        }
 
         Enrollment saved = enrollmentRepository.save(enrollment);
         feeService.syncSemesterFee(student.getId(), offering.getSemester().getId());

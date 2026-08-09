@@ -366,7 +366,7 @@ const CourseOfferingList = () => {
                                 </div>
                               </div>
                               <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
-                                <Button size="sm" onClick={(e) => { e.stopPropagation(); handleAddClick(course); }} className="bg-[#2D2A4F] hover:bg-[#1E1C38] text-white text-[9px] sm:text-[10px] font-black uppercase px-3 sm:px-4 py-2 rounded-xl border-none">Add Section</Button>
+                                <Button size="sm" onClick={(e) => { e.stopPropagation(); handleAddClick(course); }} className="bg-[#2D2A4F] hover:bg-[#1E1C38] text-white text-[9px] sm:text-[10px] font-black uppercase px-3 sm:px-4 py-2 rounded-xl border-none">Add</Button>
                                 {isExpanded ? <ChevronUp className="text-indigo-500" size={18} /> : <ChevronDown className="text-gray-400" size={18} />}
                               </div>
                             </div>
