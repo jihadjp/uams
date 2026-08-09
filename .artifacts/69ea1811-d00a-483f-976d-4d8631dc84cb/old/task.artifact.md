@@ -1,4 +1,4 @@
-- [x] Add `sp_calculate_student_cgpa` to `database/procedures.sql`
+- [x] Add `sp_calculate_student_cgpa` to `../../../database/procedures.sql`
 - [x] Update `StudentRepository.java` with `@Procedure` mapping
 - [x] Refactor `DashboardServiceImpl.java` to use the stored procedure
 - [x] Verify the implementation

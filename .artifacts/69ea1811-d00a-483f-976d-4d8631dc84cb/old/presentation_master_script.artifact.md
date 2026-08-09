@@ -8,7 +8,7 @@ This is your team's ultimate guide to a successful project defense. It includes 
 
 - [ ] **React App**: Have the frontend running at `localhost:5173`.
 - [ ] **Spring Boot**: Have the backend running at `localhost:8080`.
-- [ ] **Database**: Open MySQL Workbench with the `database/` folder ready.
+- [ ] **Database**: Open MySQL Workbench with the `../../../database` folder ready.
 - [ ] **Documentation**: Have your **ER Diagram (PDF/Image)** and **Project Report** open in separate tabs.
 - [ ] **Logins**: Pre-fill login credentials for an Admin, a Faculty (Mollah's role), and a Student (Jisan's role) in separate browser windows or tabs.
 

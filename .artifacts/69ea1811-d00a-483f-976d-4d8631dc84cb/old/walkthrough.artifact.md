@@ -19,7 +19,7 @@ I have completed the full presentation package for your team. This is designed t
 ## 🚀 Key Strategy for the Team
 
 > [!IMPORTANT]
-> **Show the Code**: When Mollah and Jisan talk about Triggers and Procedures, don't just use slides. Switch to VS Code/Workbench and show the actual `.sql` files in the `database/` folder. This "Live Proof" is what earns an A+.
+> **Show the Code**: When Mollah and Jisan talk about Triggers and Procedures, don't just use slides. Switch to VS Code/Workbench and show the actual `.sql` files in the `../../../database` folder. This "Live Proof" is what earns an A+.
 
 > [!TIP]
 > **Smooth Hand-offs**: Practice the transitions. [You] ends with "...hand over to Mollah," and Mollah starts with "Thank you, [Your Name]..." This shows team coordination.
