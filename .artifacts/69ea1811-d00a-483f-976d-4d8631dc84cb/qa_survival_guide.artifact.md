@@ -36,6 +36,56 @@ Lab examiners often look for weaknesses in database design and security. Use the
 ### 10. "If you had 1 more month, what would you add?"
 - **Answer**: "We would integrate a **Payment Gateway** (bKash/Nagad), add **Automated Email Notifications** for low attendance, and develop a **Native Mobile App** using React Native."
 
+
+### If the teachers ask you to explain Triggers, Stored Procedures, or Views, they are testing two things:
+
+Do you know the exact definition?
+Do you know why and how you actually used it in your project?
+Here is exactly how you should answer. I have broken them down into The Simple Definition, Our Project Example, and The "Teacher-Pleasing" Keywords.
+
+(Decide among your team who will answer which question. Usually, it's best if the person who built that feature answers it!)
+
+### 1. If asked: "What is a Trigger and how did you use it?"
+   (Best answered by Mollah or Jihad)
+
+- **How to answer:**
+"Sir, a Trigger is a special type of stored database code that automatically executes—or 'fires'—in response to certain events on a particular table, like an INSERT, UPDATE, or DELETE.
+
+In our project, we used 9 different triggers to enforce business rules automatically so the frontend backend doesn't have to worry about it.
+
+For example (Mollah): We have an Auto-Grading Trigger. The exact moment a teacher updates a student's marks in the results table, an AFTER UPDATE trigger fires, validates that the marks aren't over 100, and automatically calculates and saves the Letter Grade.
+Another example (Jihad): We have a Protection Trigger that runs BEFORE DELETE on the Faculty table. If an Admin tries to delete a faculty member who is still advising students, the trigger throws a custom error and stops the deletion."
+🔥 Keywords to say: Event-driven, Automates business logic, Maintains Data Integrity, Prevents accidental deletion.
+
+### 2. If asked: "What is a Stored Procedure and why didn't you just write normal SQL queries?"
+   (Best answered by Jisan)
+
+How to answer:
+"Sir, a Stored Procedure is a prepared, compiled set of SQL statements that we can save in the database and call repeatedly. Unlike a simple query, a procedure can take parameters and handle complex logic like IF/ELSE conditions and loops.
+
+We used 3 Stored Procedures for our most complex operations to ensure ACID properties.
+
+For example (Jisan): Our Course Enrollment feature is a stored procedure. When a student clicks 'Enroll', a lot of things must happen at exactly the same time. The procedure starts a TRANSACTION. It checks if the student meets prerequisites, checks if there are empty seats, inserts the student, and reduces the available seat count.
+Why we used it: If we used normal queries and the power went out halfway through, a student might be enrolled but the seat count wouldn't update. Our procedure ensures Atomicity—if one step fails, the entire transaction ROLLBACKS. If it succeeds, it COMMITS."
+🔥 Keywords to say: ACID compliance, Atomicity, Transactions, Rollback and Commit, Reduces network traffic.
+
+### 3. If asked: "What is a View and how is it different from a Table?"
+   (Best answered by Jihad or Mollah)
+
+How to answer:
+"Sir, a View is essentially a 'virtual table' created by a saved SQL query. Unlike a real table, a view does not actually store any physical data itself; it dynamically pulls data from the underlying tables every time you look at it.
+
+We created 5 Views to handle complex reporting.
+
+For example (Jihad): To show a Student's Transcript, we have to pull data from the students, enrollments, courses, and results tables. Instead of writing a massive 4-table JOIN query every single time in our backend code, we saved it as a Transcript View in the database. Now, our backend just runs a simple SELECT * FROM student_transcript_view.
+Why we used it: We used views for two reasons: Simplicity (it hides complex JOINs from the application layer) and Security (we can show users data like grades without exposing sensitive columns like passwords in the underlying Users table)."
+🔥 Keywords to say: Virtual Table, Hides complexity (Abstration), Security layer, Pre-written complex JOINs.
+
+💡 Pro-Tip for the Viva/Q&A:
+If a teacher asks a question, start with: "That is a great question, sir." Then give the Definition, followed immediately by "For example, in our system..."
+
+Teachers love it when you connect theoretical concepts directly to the real code you wrote!
+
 ---
 
 ## 🛡 "Escape" Phrases
