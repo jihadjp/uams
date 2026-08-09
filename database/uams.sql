@@ -3,7 +3,7 @@
 -- Royal Bengal University (RBU)
 -- 3NF Database Schema
 -- Organized by Insertion Order (Dependency Sequence)
--- Constraint names use real relation semantics
+-- Constraint names use
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS uams;
