@@ -172,14 +172,6 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 | ![Notices](screenshots/24-admin-notices-dark.png) | ![Document Requests](screenshots/25-admin-documents-dark.png) | ![Convocation](screenshots/26-admin-convocation-dark.png) |
 | ![Notices](screenshots/24-admin-notices.png) | ![Document Requests](screenshots/25-admin-documents.png) | ![Convocation](screenshots/26-admin-convocation.png) |
 
-### 🗄️ Database & ERD
-
-**Entity-Relationship Diagram (Chen notation)** [📄 Download PDF](erd/Schema%20Diagram.pdf)
-
-![ER Diagram](erd/ER%20Diagram.png)
-
-> *Print or screenshot the full ERD for the report — it covers all 28 tables and their relationships.*
-
 ---
 
 ## 🧰 Tech Stack
@@ -253,11 +245,12 @@ The **3-layer separation** is intentional:
 
 ## 🗄️ Database Design
 
-### Entity-Relationship Diagram
+**Entity-Relationship Diagram (Chen notation)** [📄 Download PDF](erd/Schema%20Diagram.pdf)
 
-The full **Chen-notation ERD** is at [`erd/erd.svg`](erd/erd.svg). You can also open the high-resolution PNG ([`erd/erd.png`](erd/erd.png)) or PDF ([`erd/erd.pdf`](erd/erd.pdf)).
+![ER Diagram](erd/ER%20Diagram.png)
 
-![ER Diagram](erd/erd.svg)
+> *Print or screenshot the full ERD for the report — it covers all 28 tables and their relationships.*
+
 
 ### Schema Modules
 
@@ -273,13 +266,13 @@ The full **Chen-notation ERD** is at [`erd/erd.svg`](erd/erd.svg). You can also 
 
 ### Database Logic Inventory
 
-| Type | Count | Examples |
-| :--- | :---: | :--- |
+| Type | Count  | Examples |
+| :--- |:------:| :--- |
 | Tables | **28** | All 3NF, with CHECK constraints |
-| Triggers | **9** | `trg_results_before_insert` (auto-grade), `trg_enrollments_before_insert` (fee-clearance gate), `trg_course_offerings_seat_sync` (seat counter), `trg_fees_status_update` (status derivation) |
-| Stored Procedures | **3** | `sp_calculate_semester_gpa`, `sp_enroll_student` (with `FOR UPDATE` lock), `sp_publish_semester_results` (transactional batch) |
-| Views | **5** | `vw_student_transcript`, `vw_attendance_summary`, `vw_fee_collection`, `vw_department_performance`, `vw_course_difficulty` |
-| Roles | **5** | `uams_admin`, `uams_registrar`, `uams_faculty`, `uams_student`, `uams_readonly` |
+| Triggers | **3**  | `trg_attendance_low_warning` (low attendance warning), `trg_enrollment_requires_clearance` (registration clearance gate), `trg_fee_auto_paid_at` (auto-set fee paid_at) |
+| Stored Procedures | **3**  | `sp_publish_results` (publish results for offering), `sp_get_attendance_percentage` (calculate attendance percentage), `sp_clear_student_registration` (clear student registration) |
+| Views | **3**  | `v_student_semester_summary` (student semester summary with GPA and credits), `v_offering_attendance_summary` (course offering attendance summary), `v_student_fee_status` (fee collection status per student per semester) |
+| Roles | **4**  | `uams_admin`, `uams_registrar`, `uams_faculty`, `uams_student` |
 
 > For a complete walkthrough of every file → rubric component, see the original [`database/`](database) section below.
 
@@ -315,7 +308,7 @@ The repo includes the schema, seed data, triggers, procedures, and views as sepa
 cd database
 mysql -u root -p < uams.sql          # full schema (drop + create + 28 tables)
 mysql -u root -p < seed_data.sql     # ~1,330 realistic rows (idempotent)
-mysql -u root -p < triggers.sql      # 9 triggers
+mysql -u root -p < triggers.sql      # 3 triggers
 mysql -u root -p < procedures.sql    # 3 stored procedures
 mysql -u root -p < views.sql         # 5 views
 ```
