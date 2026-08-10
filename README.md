@@ -520,14 +520,14 @@ This project is licensed under the **MIT License**. See [`LICENSE`](LICENSE) for
 
 ## 👥 Team
 
-|                                                                                                                                     |  |
-|:-----------------------------------------------------------------------------------------------------------------------------------:| :---: |
-|                                                           **KAIUM AHMED**                                                           | University Academic Management System |
-|      [![GitHub](https://img.shields.io/badge/GitHub-jihadjp-181717?style=flat-square&logo=github)](https://github.com/jihadjp)      |                                         |
-|                                                    **MOLLAH ISHTIAQ AHMED AMIM**                                                    | University Academic Management System |
-|      [![GitHub](https://img.shields.io/badge/GitHub-jihadjp-181717?style=flat-square&logo=github)](https://github.com/)      |                                         |
-|                                                        **MD. JESUN MAHMUD**                                                         | University Academic Management System |
-| [![GitHub](https://img.shields.io/badge/GitHub-rakibhossain-181717?style=flat-square&logo=github)](https://github.com/) |                                         |
+|                                                                                                                           |  |
+|:-------------------------------------------------------------------------------------------------------------------------:| :---: |
+|                                                      **KAIUM AHMED**                                                      | University Academic Management System |
+| [![GitHub](https://img.shields.io/badge/GitHub-jihadjp-181717?style=flat-square&logo=github)](https://github.com/jihadjp) |                                         |
+|                                               **MOLLAH ISHTIAQ AHMED AMIM**                                               | University Academic Management System |
+|      [![GitHub](https://img.shields.io/badge/GitHub-name-181717?style=flat-square&logo=github)](https://github.com/)      |                                         |
+|                                                   **MD. JESUN MAHMUD**                                                    | University Academic Management System |
+|      [![GitHub](https://img.shields.io/badge/GitHub-name-181717?style=flat-square&logo=github)](https://github.com/)      |                                         |
 
 > *Built as a DBMS Lab project with a production-grade twist.*
 
