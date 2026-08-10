@@ -522,7 +522,7 @@ This project is licensed under the **MIT License**. See [`LICENSE`](LICENSE) for
 
 |                                                                                                                           |  |
 |:-------------------------------------------------------------------------------------------------------------------------:| :---: |
-|                                                      **KAIUM AHMED**                                                      | University Academic Management System |
+|                                                   **ABDUL KAIUM AHMED**                                                   | University Academic Management System |
 | [![GitHub](https://img.shields.io/badge/GitHub-jihadjp-181717?style=flat-square&logo=github)](https://github.com/jihadjp) |                                         |
 |                                               **MOLLAH ISHTIAQ AHMED AMIM**                                               | University Academic Management System |
 |      [![GitHub](https://img.shields.io/badge/GitHub-name-181717?style=flat-square&logo=github)](https://github.com/)      |                                         |
