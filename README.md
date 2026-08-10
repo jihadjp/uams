@@ -205,12 +205,12 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 | Monitoring | **Spring Boot Actuator** |
 
 ### Database
-| Layer | Technology |
-| :--- | :--- |
-| RDBMS | **MySQL 8.0.16+** (CHECK constraints required) |
-| Schema | **3NF**, 28 tables, PK / FK / UNIQUE / ENUM / CHECK |
-| Logic | **9 triggers**, **3 stored procedures**, **5 views** |
-| Roles | **5 least-privilege users** (optional) |
+| Layer | Technology                                           |
+| :--- |:-----------------------------------------------------|
+| RDBMS | **MySQL 8.0.16+** (CHECK constraints required)       |
+| Schema | **3NF**, 28 tables, PK / FK / UNIQUE / ENUM / CHECK  |
+| Logic | **3 triggers**, **3 stored procedures**, **3 views** |
+| Roles | **5 least-privilege users** (optional)               |
 
 ---
 
@@ -232,7 +232,7 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
                            ▼
 ┌──────────────────────────────────────────────────────────────┐
 │                       MySQL 8.0.16+                          │
-│   28 Tables │ 9 Triggers │ 3 Procedures │ 5 Views │ 5 Roles  │
+│   28 Tables │ 3 │ 3 Procedures │ 3 Views │ 4 Roles  │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -520,10 +520,14 @@ This project is licensed under the **MIT License**. See [`LICENSE`](LICENSE) for
 
 ## 👥 Team
 
-|  |  |
-| :---: | :---: |
-| **Md. JIHAD HOSSEN** | **Team** |
-| [![GitHub](https://img.shields.io/badge/GitHub-jihadjp-181717?style=flat-square&logo=github)](https://github.com/jihadjp) | University Academic Management System |
+|                                                                                                                                     |  |
+|:-----------------------------------------------------------------------------------------------------------------------------------:| :---: |
+|                                                           **KAIUM AHMED**                                                           | University Academic Management System |
+|      [![GitHub](https://img.shields.io/badge/GitHub-jihadjp-181717?style=flat-square&logo=github)](https://github.com/jihadjp)      |                                         |
+|                                                    **MOLLAH ISHTIAQ AHMED AMIM**                                                    | University Academic Management System |
+|      [![GitHub](https://img.shields.io/badge/GitHub-jihadjp-181717?style=flat-square&logo=github)](https://github.com/)      |                                         |
+|                                                        **MD. JESUN MAHMUD**                                                         | University Academic Management System |
+| [![GitHub](https://img.shields.io/badge/GitHub-rakibhossain-181717?style=flat-square&logo=github)](https://github.com/) |                                         |
 
 > *Built as a DBMS Lab project with a production-grade twist.*
 
