@@ -113,15 +113,17 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 
 **Course Registration & Academic Life**
 
-| Course Registration | Live Results | Routine |
-| :---: | :---: | :---: |
-| ![Course Registration](screenshots/05-student-course-registration.png) | ![Live Results](screenshots/06-student-live-results.png) | ![Routine](screenshots/07-student-routine.png) |
+|                             Course Registration                             | Live Results | Routine |
+|:---------------------------------------------------------------------------:| :---: | :---: |
+|   ![Course Registration](screenshots/05-student-course-registration.png)    | ![Live Results](screenshots/06-student-live-results.png) | ![Routine](screenshots/07-student-routine.png) |
+| ![Course Registration](screenshots/05-student-course-registration-dark.png) | ![Live Results](screenshots/06-student-live-results-dark.png) | ![Routine](screenshots/07-student-routine-dark.png) |
 
 **Fees, Attendance, Services**
 
 | Fees & Ledger |                       Teaching Evaluation                       | Transcript Request |
 | :---: |:-----------------------------------------------------:| :---: |
 | ![Fees](screenshots/08-student-fees.png) | ![Attendance](screenshots/09-teaching-evaluation.png) | ![Transcript](screenshots/10-student-transcript.png10-student-transcript.png) |
+| ![Fees](screenshots/08-student-fees-dark.png) | ![Attendance](screenshots/09-teaching-evaluation-dark.png) | ![Transcript](screenshots/10-student-transcript.png10-student-transcript-dark.png) |
 
 ### 👨‍🏫 Faculty Portal
 
@@ -129,15 +131,19 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 
 ![Faculty Dashboard](screenshots/11-faculty-dashboard.png)
 
+![Faculty Dashboard](screenshots/11-faculty-dashboard-dark.png)
+
 **Courses, Attendance Marking & Marks Entry**
 
 | My Courses | Attendance Marking | Marks Entry |
 | :---: | :---: | :---: |
 | ![My Courses](screenshots/12-faculty-my-courses.png) | ![Attendance Marking](screenshots/13-faculty-attendance.png) | ![Marks Entry](screenshots/14-faculty-marks-entry.png) |
+| ![My Courses](screenshots/12-faculty-my-courses-dark.png) | ![Attendance Marking](screenshots/13-faculty-attendance-dark.png) | ![Marks Entry](screenshots/14-faculty-marks-entry-dark.png) |
 
 | Publish Results | Advisee List |
 | :---: | :---: |
 | ![Publish Results](screenshots/15-faculty-publish-results.png) | ![Advisee List](screenshots/16-faculty-advisees.png) |
+| ![Publish Results](screenshots/15-faculty-publish-results-dark-dark.png) | ![Advisee List](screenshots/16-faculty-advisees-dark.png) |
 
 ### 🛡️ Admin / Registrar Portal
 
@@ -145,19 +151,24 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 
 ![Admin Dashboard](screenshots/17-admin-dashboard.png)
 
+![Admin Dashboard](screenshots/17-admin-dashboard-dark.png)
+
 **Operations**
 
 | Student List | Student Detail | Faculty List |
 | :---: | :---: | :---: |
 | ![Student List](screenshots/18-admin-students.png) | ![Student Detail](screenshots/19-admin-student-detail.png) | ![Faculty List](screenshots/20-admin-faculty.png) |
+| ![Student List](screenshots/18-admin-students-dark.png) | ![Student Detail](screenshots/19-admin-student-detail-dark.png) | ![Faculty List](screenshots/20-admin-faculty-dark.png) |
 
 |                        Course Offerings                        | Batch & Fee Mgmt | Result Approval |
 |:--------------------------------------------------------------:| :---: | :---: |
 | ![Course Offerings](screenshots/21-admin-course-offerings.png) | ![Batch Fees](screenshots/22-admin-batch-fees.png) | ![Result Approval](screenshots/23-admin-result-approval.png) |
+| ![Course Offerings](screenshots/21-admin-course-offerings-dark.png) | ![Batch Fees](screenshots/22-admin-batch-fees-dark.png) | ![Result Approval](screenshots/23-admin-result-approval-dark.png) |
 
 | Notices | Document Requests | Convocation |
 | :---: | :---: | :---: |
 | ![Notices](screenshots/24-admin-notices.png) | ![Document Requests](screenshots/25-admin-documents.png) | ![Convocation](screenshots/26-admin-convocation.png) |
+| ![Notices](screenshots/24-admin-notices-dark.png) | ![Document Requests](screenshots/25-admin-documents-dark.png) | ![Convocation](screenshots/26-admin-convocation-dark.png) |
 
 ### 🗄️ Database & ERD
 
