@@ -111,6 +111,8 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 
 ![Student Dashboard](screenshots/04-student-dashboard.png)
 
+![Student Dashboard](screenshots/04-student-dashboard-dark.png)
+
 **Course Registration & Academic Life**
 
 |                             Course Registration                             | Live Results | Routine |
@@ -120,10 +122,10 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 
 **Fees, Attendance, Services**
 
-| Fees & Ledger |                       Teaching Evaluation                       | Transcript Request |
-| :---: |:-----------------------------------------------------:| :---: |
-| ![Fees](screenshots/08-student-fees.png) | ![Attendance](screenshots/09-teaching-evaluation.png) | ![Transcript](screenshots/10-student-transcript.png10-student-transcript.png) |
-| ![Fees](screenshots/08-student-fees-dark.png) | ![Attendance](screenshots/09-teaching-evaluation-dark.png) | ![Transcript](screenshots/10-student-transcript.png10-student-transcript-dark.png) |
+| Fees & Ledger |                       Teaching Evaluation                       |                              Transcript Request                               |
+| :---: |:-----------------------------------------------------:|:-----------------------------------------------------------------------------:|
+| ![Fees](screenshots/08-student-fees.png) | ![Attendance](screenshots/09-teaching-evaluation.png) | ![Transcript](screenshots/10-student-transcript.png) |
+| ![Fees](screenshots/08-student-fees-dark.png) | ![Attendance](screenshots/09-teaching-evaluation-dark.png) |           ![Transcript](screenshots/10-student-transcript-dark.png)           |
 
 ### 👨‍🏫 Faculty Portal
 
@@ -140,10 +142,10 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 | ![My Courses](screenshots/12-faculty-my-courses.png) | ![Attendance Marking](screenshots/13-faculty-attendance.png) | ![Marks Entry](screenshots/14-faculty-marks-entry.png) |
 | ![My Courses](screenshots/12-faculty-my-courses-dark.png) | ![Attendance Marking](screenshots/13-faculty-attendance-dark.png) | ![Marks Entry](screenshots/14-faculty-marks-entry-dark.png) |
 
-| Publish Results | Advisee List |
-| :---: | :---: |
-| ![Publish Results](screenshots/15-faculty-publish-results.png) | ![Advisee List](screenshots/16-faculty-advisees.png) |
-| ![Publish Results](screenshots/15-faculty-publish-results-dark-dark.png) | ![Advisee List](screenshots/16-faculty-advisees-dark.png) |
+|                           Publish Results                           | Advisee List |
+|:-------------------------------------------------------------------:| :---: |
+|   ![Publish Results](screenshots/15-faculty-publish-results.png)    | ![Advisee List](screenshots/16-faculty-advisees.png) |
+| ![Publish Results](screenshots/15-faculty-publish-results-dark.png) | ![Advisee List](screenshots/16-faculty-advisees-dark.png) |
 
 ### 🛡️ Admin / Registrar Portal
 
@@ -174,7 +176,7 @@ The project was built as a **DBMS Lab project** with a *production-grade twist*:
 
 **Entity-Relationship Diagram (Chen notation)**
 
-![ER Diagram](erd/erd.pdf)
+![ER Diagram](erd/ER%20Diagram.png)
 
 > *Print or screenshot the full ERD for the report — it covers all 28 tables and their relationships.*
 
